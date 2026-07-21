@@ -32,6 +32,7 @@ try{
 
         "Admin",
         "Clerk",
+        "Doctor",
         "Head Nurse",
         "Nurse",
         "Pharmacist"

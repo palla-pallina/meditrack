@@ -14,7 +14,7 @@ true
 if(empty($data["patient_id"]))
 throw new Exception("Patient required.");
 
-if(empty($data["physician"]))
+if(empty($data["physician_uid"]))
 throw new Exception("Physician required.");
 
 if(empty($data["items"]))
@@ -56,7 +56,9 @@ $prescriptionRef->set([
 
 "patient_name"=>$patient["fullName"],
 
-"prescribing_physician"=>$data["physician"],
+"physicianUid"=>$data["physician_uid"],
+
+"physicianName"=>$data["physician_name"],
 
 "status"=>"Active",
 

@@ -20,10 +20,12 @@
 <br><br>
 
 <label>Prescribing Physician</label><br>
-<input
-type="text"
-id="physician"
-required>
+
+<select id="physician" required>
+
+    <option value="">Loading doctors...</option>
+
+</select>
 
 <br><br>
 
@@ -34,8 +36,72 @@ required>
 
 <h3>Add Medication</h3>
 
-<label>Medication</label><br>
-<select id="medication"></select>
+<label>Search Medication</label><br>
+
+<input
+    type="text"
+    id="medicationSearch"
+    placeholder="Type generic or brand name">
+
+<div
+    id="searchResults"
+    style="
+        border:1px solid #ccc;
+        max-height:180px;
+        overflow-y:auto;
+        display:none;">
+</div>
+
+<input
+    type="hidden"
+    id="medication">    
+
+<div id="newMedicationPanel" style="display:none; border:1px solid #ccc; padding:15px; margin-top:15px;">
+
+<h4>Add New Medication to Database</h4>
+
+<label>Generic Name</label><br>
+<input type="text" id="newGeneric"><br><br>
+
+<label>Brand Name</label><br>
+<input type="text" id="newBrand"><br><br>
+
+<label>Drug Class</label><br>
+<input type="text" id="newDrugClass"><br><br>
+
+<label>Dosage Form</label><br>
+
+<select id="newForm">
+
+<option>Tablet</option>
+<option>Capsule</option>
+<option>Injection</option>
+<option>Syrup</option>
+<option>Cream</option>
+<option>Inhaler</option>
+<option>Other</option>
+
+</select>
+
+<br><br>
+
+<button
+type="button"
+id="saveMedication">
+
+Save New Medication
+
+</button>
+
+<button
+    type="button"
+    id="cancelMedication">
+
+    Cancel
+
+</button>
+
+</div>
 
 <br><br>
 
@@ -151,7 +217,9 @@ import {
 
 getDatabase,
 ref,
-get
+get,
+push,
+set
 
 }
 from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
@@ -180,6 +248,8 @@ loadPatients();
 
 loadMedications();
 
+loadDoctors();
+
 async function loadPatients(){
 
 const snapshot=
@@ -206,41 +276,280 @@ ${p.fullName}
 
 }
 
-async function loadMedications(){
+async function loadDoctors(){
 
-const snapshot=
+    const snapshot = await get(ref(database, "users"));
 
-await get(ref(database,"medications"));
+    const physician = document.getElementById("physician");
 
-const medication=document.getElementById("medication");
+    physician.innerHTML = "";
 
-medication.innerHTML="";
+    if(!snapshot.exists()){
 
-snapshot.forEach(child=>{
+        physician.innerHTML =
+        "<option value=''>No doctors found</option>";
 
-const m=child.val();
+        return;
 
-medications.push({
+    }
 
-id:child.key,
+    physician.innerHTML =
+    "<option value=''>-- Select Doctor --</option>";
 
-...m
+    snapshot.forEach(child=>{
 
-});
+        const user = child.val();
 
-medication.innerHTML+=`
+        if(
+            user.userType === "Doctor" &&
+            user.accountStatus === "Active"
+        ){
 
-<option value="${child.key}">
+            physician.innerHTML += `
+                <option value="${child.key}">
 
-${m.generic_name}
+                    ${user.fullName}
 
-</option>
+                </option>
+            `;
 
-`;
+        }
 
-});
+    });
 
 }
+
+async function loadMedications(){
+
+    medications=[];
+
+    const snapshot=
+    await get(ref(database,"medications"));
+
+    snapshot.forEach(child=>{
+
+        medications.push({
+
+            id:child.key,
+
+            ...child.val()
+
+        });
+
+    });
+
+}
+
+const searchInput =
+document.getElementById("medicationSearch");
+
+const results =
+document.getElementById("searchResults");
+
+searchInput.addEventListener("input", function(){
+
+    const keyword =
+    this.value
+    .toLowerCase()
+    .trim();
+
+    results.innerHTML="";
+
+    if(keyword===""){
+
+        results.style.display="none";
+
+        return;
+
+    }
+
+    const matches =
+    medications.filter(m=>
+
+        m.generic_name
+        .toLowerCase()
+        .includes(keyword)
+
+        ||
+
+        (m.brand_name||"")
+        .toLowerCase()
+        .includes(keyword)
+
+    );
+
+    if(matches.length===0){
+
+        results.innerHTML=`
+
+        <div
+        style="padding:10px;cursor:pointer;">
+
+        Medication not found.
+
+        <br><br>
+
+        <button
+        id="showAddMedication">
+
+        Add New Medication
+
+        </button>
+
+        </div>
+
+        `;
+
+        results.style.display="block";
+
+        document
+        .getElementById("showAddMedication")
+        .onclick=function(){
+
+            document
+            .getElementById("newMedicationPanel")
+            .style.display="block";
+
+            document
+            .getElementById("newGeneric")
+            .value=
+            searchInput.value;
+
+        };
+
+        return;
+
+    }
+
+    matches.forEach(m=>{
+
+        const div=
+        document.createElement("div");
+
+        div.style.padding="10px";
+
+        div.style.cursor="pointer";
+
+        div.innerHTML=`
+
+        <b>${m.generic_name}</b>
+
+        ${m.brand_name
+        ? "("+m.brand_name+")"
+        : ""}
+
+        `;
+
+        div.onclick=function(){
+
+            document
+            .getElementById("medication")
+            .value=m.id;
+
+            searchInput.value=m.generic_name;
+
+            results.style.display="none";
+
+        };
+
+        results.appendChild(div);
+
+    });
+
+    results.style.display="block";
+
+});
+
+document
+.getElementById("saveMedication")
+.onclick=async function(){
+
+    if(document.getElementById("newGeneric").value.trim()==""){
+
+    alert("Generic name is required.");
+    return;
+
+    }
+
+    const medRef=
+    push(ref(database,"medications"));
+
+    const medication={
+
+        medication_id:medRef.key,
+
+        generic_name:
+        document.getElementById("newGeneric").value,
+
+        brand_name:
+        document.getElementById("newBrand").value,
+
+        drug_class:
+        document.getElementById("newDrugClass").value,
+
+        form:
+        document.getElementById("newForm").value,
+
+        created_at:
+        new Date().toISOString()
+
+    };
+
+    await set(
+
+        medRef,
+
+        medication
+
+    );
+
+    medications.push({
+
+        id:medRef.key,
+
+        ...medication
+
+    });
+
+    document
+    .getElementById("medication")
+    .value=medRef.key;
+
+    document
+    .getElementById("medicationSearch")
+    .value=medication.generic_name;
+
+    document
+    .getElementById("newMedicationPanel")
+    .style.display = "none";
+
+    document.getElementById("newGeneric").value = "";
+    document.getElementById("newBrand").value = "";
+    document.getElementById("newDrugClass").value = "";
+    document.getElementById("newForm").selectedIndex = 0;
+
+    alert("Medication added.");
+
+};
+
+results.style.display = "none";
+results.innerHTML = "";
+
+document
+.getElementById("cancelMedication")
+.onclick = function(){
+
+    document
+    .getElementById("newMedicationPanel")
+    .style.display = "none";
+
+    // Clear all fields
+    document.getElementById("newGenericName").value = "";
+    document.getElementById("newBrandName").value = "";
+    document.getElementById("newDrugClass").value = "";
+    document.getElementById("newDosageForm").selectedIndex = 0;
+
+};
 
 document
 .getElementById("addTime")
@@ -280,17 +589,21 @@ document
 .getElementById("addMedication")
 .onclick=function(){
 
-const medId=
-
+const medId =
 document.getElementById("medication").value;
 
-const med=
-
+const med =
 medications.find(
-
 m=>m.id===medId
-
 );
+
+if(!med){
+
+    alert("Select a medication first.");
+
+    return;
+
+}
 
 prescriptionItems.push({
 
@@ -334,7 +647,15 @@ document
 
 });
 
-selectedTimes=[];
+document.getElementById("dosage").value = "";
+document.getElementById("frequency").value = "";
+document.getElementById("time").value = "";
+document.getElementById("startDate").value = "";
+document.getElementById("endDate").value = "";
+document.getElementById("medication").value = "";
+document.getElementById("medicationSearch").value = "";
+
+selectedTimes = [];
 
 renderTimes();
 
@@ -401,29 +722,27 @@ async function(e){
 
 e.preventDefault();
 
-const payload={
+const physicianSelect =
+document.getElementById("physician");
 
-patient_id:
+const payload = {
 
-document
-.getElementById("patient")
-.value,
+    patient_id:
+    document.getElementById("patient").value,
 
-physician:
+    physician_uid:
+    physicianSelect.value,
 
-document
-.getElementById("physician")
-.value,
+    physician_name:
+    physicianSelect.options[
+        physicianSelect.selectedIndex
+    ].text,
 
-notes:
+    notes:
+    document.getElementById("notes").value,
 
-document
-.getElementById("notes")
-.value,
-
-items:
-
-prescriptionItems
+    items:
+    prescriptionItems
 
 };
 
