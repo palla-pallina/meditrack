@@ -1,0 +1,526 @@
+<!--
+TO DO
+- add 'Export to PDF' function
+- add search bar
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Patient Records Dashboard</title>
+    </head>
+    <style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+
+    font-family:'Inter',sans-serif;
+    background:#f4f8fc;
+    color:#374151;
+
+}
+
+/* HEADER */
+
+header{
+
+    background:#1976d2;
+    color:white;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:18px 40px;
+    box-shadow:0 3px 12px rgba(0,0,0,.08);
+
+}
+
+.logo h2{
+
+    font-size:1.6rem;
+
+}
+
+.logo span{
+
+    opacity:.9;
+
+}
+
+.logout-btn{
+
+    background:white;
+    color:#1976d2;
+    border:none;
+    padding:10px 18px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:600;
+
+}
+
+.logout-btn:hover{
+
+    background:#eef6ff;
+
+}
+
+/* MAIN */
+
+main{
+
+    max-width:1400px;
+    margin:40px auto;
+    padding:0 25px;
+
+}
+
+.page-header{
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+    flex-wrap:wrap;
+    gap:20px;
+
+}
+
+.page-header h1{
+
+    color:#1976d2;
+    margin-bottom:8px;
+
+}
+
+.page-header p{
+
+    color:#6b7280;
+
+}
+
+.actions{
+
+    display:flex;
+    gap:10px;
+
+}
+
+.btn{
+
+    padding:12px 20px;
+    border-radius:8px;
+    border:none;
+    text-decoration:none;
+    font-weight:600;
+    cursor:pointer;
+    transition:.2s;
+
+}
+
+.btn-primary{
+
+    background:#1976d2;
+    color:white;
+
+}
+
+.btn-primary:hover{
+
+    background:#1565c0;
+
+}
+
+.btn-secondary{
+
+    background:#f1f5f9;
+    border:1px solid #d1d5db;
+
+}
+
+.btn-secondary:hover{
+
+    background:#e5e7eb;
+
+}
+
+/* SEARCH */
+
+.toolbar{
+
+    margin-bottom:20px;
+
+}
+
+.toolbar input{
+
+    width:350px;
+    max-width:100%;
+    padding:12px 15px;
+    border:1px solid #d1d5db;
+    border-radius:8px;
+
+}
+
+/* TABLE */
+
+.table-card{
+
+    background:white;
+    border-radius:16px;
+    box-shadow:0 10px 25px rgba(0,0,0,.06);
+    overflow:hidden;
+
+}
+
+table{
+
+    width:100%;
+    border-collapse:collapse;
+
+}
+
+thead{
+
+    background:#1976d2;
+    color:white;
+
+}
+
+th{
+
+    padding:16px;
+    text-align:left;
+    font-weight:600;
+
+}
+
+td{
+
+    padding:15px;
+    border-bottom:1px solid #edf2f7;
+
+}
+
+tbody tr:nth-child(even){
+
+    background:#fafcff;
+
+}
+
+tbody tr:hover{
+
+    background:#eef6ff;
+
+}
+
+/* ACTION BUTTONS */
+
+.action-btn{
+
+    border:none;
+    border-radius:6px;
+    padding:8px 12px;
+    color:white;
+    cursor:pointer;
+    margin-right:6px;
+    font-size:.85rem;
+
+}
+
+.view{
+
+    background:#0284c7;
+
+}
+
+.edit{
+
+    background:#16a34a;
+
+}
+
+.delete{
+
+    background:#dc2626;
+
+}
+
+.view:hover{
+
+    background:#0369a1;
+
+}
+
+.edit:hover{
+
+    background:#15803d;
+
+}
+
+.delete:hover{
+
+    background:#b91c1c;
+
+}
+
+@media(max-width:900px){
+
+    .page-header{
+
+        flex-direction:column;
+        align-items:flex-start;
+
+    }
+
+    .table-card{
+
+        overflow-x:auto;
+
+    }
+
+    table{
+
+        min-width:900px;
+
+    }
+
+}
+    </style>
+
+<body>
+
+<header>
+
+    <div class="logo">
+
+        <h2>MediTrack</h2>
+        <span>Patient Admission Records</span>
+
+    </div>
+
+    <button id="logoutBtn" class="logout-btn">
+        Log Out
+    </button>
+
+</header>
+
+<main>
+
+    <section class="page-header">
+
+        <div>
+
+            <h1>Patient Records</h1>
+
+            <p>
+                Manage patient admission records and demographic information.
+            </p>
+
+        </div>
+
+        <div class="actions">
+
+            <a href="add_patient.html" class="btn btn-primary">
+                + Add Patient
+            </a>
+
+            <button id="refreshBtn" class="btn btn-secondary">
+                Refresh
+            </button>
+
+        </div>
+
+    </section>
+
+    <section class="toolbar">
+
+        <input
+            type="text"
+            placeholder="Search patient..."
+            disabled>
+
+    </section>
+
+    <section class="table-card">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Name</th>
+                    <th>Age</th>
+                    <th>Sex</th>
+                    <th>Contact Number</th>
+                    <th>City</th>
+                    <th>Chief Complaint</th>
+                    <th>Actions</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody id="patientTable">
+
+            </tbody>
+
+        </table>
+
+    </section>
+        <script type="module">
+
+        import { requireRole }
+        from "../../public/auth_guard.js";
+
+        requireRole("Clerk");
+
+        import {
+            getAuth,
+            signOut
+        } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+
+        const auth = getAuth();
+
+        document.getElementById("logoutBtn")
+        .addEventListener("click", async () => {
+
+            try {
+
+                await signOut(auth);
+
+                window.location.href = "../../public/login.html";
+
+            }
+            catch(error) {
+
+                alert(error.message);
+
+            }
+
+        });
+        </script>
+
+        <script type="module">
+            import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+
+            import {
+                getDatabase,
+                ref,
+                get,
+                remove
+            } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
+
+            const firebaseConfig = {
+                apiKey: "AIzaSyBRm3dUt3HreTquM_Ba9JfYmZD2CLVV0Gc",
+                authDomain: "meditrack-59cca.firebaseapp.com",
+                databaseURL: "https://meditrack-59cca-default-rtdb.asia-southeast1.firebasedatabase.app",
+                projectId: "meditrack-59cca",
+                storageBucket: "meditrack-59cca.firebasestorage.app",
+                messagingSenderId: "656003988692",
+                appId: "1:656003988692:web:badfe96b7d830837a4cf41"
+            };
+
+            const app = initializeApp(firebaseConfig);
+            const db = getDatabase(app);
+
+            const table = document.querySelector("#patientTable");
+            const refreshBtn = document.querySelector("#refreshBtn");
+
+            function loadPatients() {
+                table.innerHTML = "";
+
+                get(ref(db, "patients"))
+                    .then((snapshot) => {
+                        if (snapshot.exists()) {
+                            snapshot.forEach((childSnapshot) => {
+                                const id = childSnapshot.key;
+                                const patient = childSnapshot.val();
+
+                                let row = `
+                                    <tr>
+                                        <td>${patient.firstName ?? ""} ${patient.middleName ?? ""} ${patient.lastName ?? ""}</td>
+                                        <td>${patient.age ?? ""}</td>
+                                        <td>${patient.sex ?? ""}</td>
+                                        <td>${patient.contactNumber ?? ""}</td>
+                                        <td>${patient.city ?? ""}</td>
+                                        <td>${patient.chiefComplaint ?? ""}</td>
+
+                                        <td>
+
+                                            <a href="view_patient.html?id=${id}">
+                                                <button class="action-btn view">
+                                                    View
+                                                </button>
+                                            </a>
+
+                                            <a href="edit_patient.html?id=${id}">
+                                                <button class="action-btn edit">
+                                                    Edit
+                                                </button>
+                                            </a>
+
+                                            <button
+                                                class="action-btn delete deleteBtn"
+                                                data-id="${id}">
+                                                Delete
+                                            </button>
+
+                                        </td>
+                                    </tr>
+                                `;
+
+                                table.innerHTML += row;
+                            });
+
+                            addDeleteListeners();
+                        } else {
+                            table.innerHTML = `
+                                <tr>
+                                    <td colspan="8">
+                                        No patient records found.
+                                    </td>
+                                </tr>
+                            `;
+                        }
+                    })
+                    .catch((error) => {
+                        alert(error.message);
+                    });
+            }
+
+            function addDeleteListeners() {
+                const deleteButtons = document.querySelectorAll(".deleteBtn");
+
+                deleteButtons.forEach((button) => {
+                    button.addEventListener("click", () => {
+                        const id = button.dataset.id;
+
+                        if (!confirm("Delete this patient record?")) {
+                            return;
+                        }
+
+                        remove(ref(db, "patients/" + id))
+                            .then(() => {
+                                alert("Patient record deleted successfully.");
+                                loadPatients(); // Refresh the table
+                            })
+                            .catch((error) => {
+                                alert(error.message);
+                            });
+                    });
+                });
+            }
+
+            refreshBtn.addEventListener("click", loadPatients);
+            loadPatients();
+        </script>
+
+</main>
+
+</body>
+

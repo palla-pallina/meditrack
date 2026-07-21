@@ -1,0 +1,134 @@
+<script type="module">
+
+import { requireRole }
+from "../../../public/auth_guard.js";
+
+requireRole("Admin"); // Admin, Clerk, Pharmacist, Head Nurse, Nurse
+
+</script>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Create User</title>
+</head>
+
+<body>
+<button onclick="history.back()">Back</button>
+
+<h2>Create Staff Account</h2>
+
+<form id="createUserForm">
+
+    <label>User Type</label><br>
+    <select id="userType" required>
+        <option value="">Select</option>
+        <option>Admin</option>
+        <option>Clerk</option>
+        <option>Head Nurse</option>
+        <option>Nurse</option>
+        <option>Pharmacist</option>
+    </select>
+
+    <br><br>
+
+    <label>First Name</label><br>
+    <input type="text" id="firstName" required>
+
+    <br><br>
+
+    <label>Middle Name</label><br>
+    <input type="text" id="middleName">
+
+    <br><br>
+
+    <label>Last Name</label><br>
+    <input type="text" id="lastName" required>
+
+    <br><br>
+
+    <label>Suffix</label><br>
+    <input type="text" id="suffix">
+
+    <br><br>
+
+    <label>Email</label><br>
+    <input type="email" id="email" required>
+
+    <br><br>
+
+    <button>Create Account</button>
+
+</form>
+
+<hr>
+
+<pre id="output"></pre>
+
+<script>
+
+const form = document.getElementById("createUserForm");
+
+form.addEventListener("submit", async function(e){
+
+    e.preventDefault();
+
+    const output = document.getElementById("output");
+
+    output.textContent = "Creating account...";
+
+    const data = {
+
+        userType: document.getElementById("userType").value,
+
+        firstName: document.getElementById("firstName").value,
+
+        middleName: document.getElementById("middleName").value,
+
+        lastName: document.getElementById("lastName").value,
+
+        suffix: document.getElementById("suffix").value,
+
+        email: document.getElementById("email").value
+
+    };
+
+    try{
+
+        const response = await fetch("create_user.php",{
+
+            method:"POST",
+
+            headers:{
+                "Content-Type":"application/json"
+            },
+
+            body:JSON.stringify(data)
+
+        });
+
+        const result = await response.json();
+
+        output.textContent =
+            JSON.stringify(result,null,4);
+
+        if(result.success){
+
+            form.reset();
+
+        }
+
+    }
+    catch(error){
+
+        output.textContent = error;
+
+    }
+
+});
+
+</script>
+
+</body>
+</html> 

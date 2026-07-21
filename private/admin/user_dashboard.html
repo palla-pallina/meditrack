@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Account Management</title>
+</head>
+<body>
+
+<h2>User Account Management</h2>
+
+<a href="home.html">Home</a>
+<a href="create_user.html">Create New Account</a>
+
+<hr>
+
+<input
+    type="text"
+    id="search"
+    placeholder="Search by name or email">
+
+<button id="searchBtn">
+    Search
+</button>
+
+<hr>
+
+<table border="1" cellpadding="8">
+
+    <thead>
+
+        <tr>
+
+            <th>Name</th>
+
+            <th>Email</th>
+
+            <th>User Type</th>
+
+            <th>Status</th>
+
+            <th>Actions</th>
+
+        </tr>
+
+    </thead>
+
+    <tbody id="userTable">
+
+        <tr>
+
+            <td colspan="5">
+
+                Loading...
+
+            </td>
+
+        </tr>
+
+    </tbody>
+
+</table>
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+
+import {
+    getDatabase,
+    ref,
+    get,
+    update,
+    remove
+}
+from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyBRm3dUt3HreTquM_Ba9JfYmZD2CLVV0Gc",
+    authDomain: "meditrack-59cca.firebaseapp.com",
+    databaseURL: "https://meditrack-59cca-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "meditrack-59cca",
+    storageBucket: "meditrack-59cca.firebasestorage.app",
+    messagingSenderId: "656003988692",
+    appId: "1:656003988692:web:badfe96b7d830837a4cf41"
+};
+
+const app = initializeApp(firebaseConfig);
+
+const database = getDatabase(app);
+
+const table = document.getElementById("userTable");
+
+loadUsers();
+
+async function loadUsers(){
+
+    const snapshot = await get(ref(database,"users"));
+
+    table.innerHTML="";
+
+    if(!snapshot.exists()){
+
+        table.innerHTML=
+        "<tr><td colspan='5'>No users found.</td></tr>";
+
+        return;
+
+    }
+
+    snapshot.forEach(child=>{
+
+        const uid = child.key;
+        const user = child.val();
+
+        const tr=document.createElement("tr");
+
+        tr.innerHTML=`
+
+        <td>${user.fullName}</td>
+
+        <td>${user.email}</td>
+
+        <td>${user.userType}</td>
+
+        <td>${user.accountStatus}</td>
+
+        <td>
+
+            <button class="editBtn" data-uid="${uid}">
+                Edit
+            </button>
+
+            <button onclick="toggleUser('${uid}','${user.accountStatus}')">
+
+                ${
+                    user.accountStatus==="Active"
+                    ? "Disable"
+                    : "Enable"
+                }
+
+            </button>
+
+            <button onclick="deleteUser('${uid}')">
+
+                Delete
+
+            </button>
+
+        </td>
+
+        `;
+
+        table.appendChild(tr);
+
+        tr.querySelector(".editBtn").addEventListener("click", function () {
+
+            const uid = this.dataset.uid;
+
+            window.location.href = `edit_user.html?uid=${encodeURIComponent(uid)}`;
+
+        });
+    });
+
+}
+
+window.toggleUser=async function(uid,status){
+
+    const newStatus=
+
+        status==="Active"
+        ? "Disabled"
+        : "Active";
+
+    await update(
+
+        ref(database,"users/"+uid),
+
+        {
+
+            accountStatus:newStatus
+
+        }
+
+    );
+
+    loadUsers();
+
+}
+
+window.deleteUser=async function(uid){
+
+    if(!confirm("Delete this account?")){
+
+        return;
+
+    }
+
+    await remove(
+
+        ref(database,"users/"+uid)
+
+    );
+
+    alert("Deleted.");
+
+    loadUsers();
+
+}
+
+window.editUser=function(uid){
+
+    window.location.href=
+
+    "edit_user.html?uid="+uid;
+
+}
+
+</script>
+
+</body>
+</html>

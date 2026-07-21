@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Edit Inventory</title>
+</head>
+
+<body>
+
+<a href="view_inventory.html">Back to Inventory</a>
+
+<h2>Edit Inventory</h2>
+
+<form id="inventoryForm">
+
+<fieldset>
+
+<legend><strong>Medication</strong></legend>
+
+<p>
+
+<label>Medication</label><br>
+
+<input
+type="text"
+id="medication"
+disabled>
+
+</p>
+
+</fieldset>
+
+<br>
+
+<fieldset>
+
+<legend><strong>Inventory Information</strong></legend>
+
+<p>
+
+<label>Lot Number</label><br>
+
+<input
+type="text"
+id="lot_number"
+required>
+
+</p>
+
+<p>
+
+<label>Batch Number</label><br>
+
+<input
+type="text"
+id="batch_number">
+
+</p>
+
+<p>
+
+<label>Manufacturer</label><br>
+
+<input
+type="text"
+id="manufacturer">
+
+</p>
+
+<p>
+
+<label>Expiration Date</label><br>
+
+<input
+type="date"
+id="expiration_date"
+required>
+
+</p>
+
+<p>
+
+<label>Purchase Date</label><br>
+
+<input
+type="date"
+id="purchase_date">
+
+</p>
+
+<p>
+
+<label>Unit Cost</label><br>
+
+<input
+type="number"
+id="unit_cost"
+step="0.01"
+min="0">
+
+</p>
+
+<p>
+
+<label>Selling Price</label><br>
+
+<input
+type="number"
+id="selling_price"
+step="0.01"
+min="0">
+
+</p>
+
+<p>
+
+<label>Quantity in Stock</label><br>
+
+<input
+type="number"
+id="quantity_in_stock"
+min="0"
+required>
+
+</p>
+
+<p>
+
+<label>Reorder Level</label><br>
+
+<input
+type="number"
+id="reorder_level"
+min="0">
+
+</p>
+
+<p>
+
+<label>Storage Location</label><br>
+
+<input
+type="text"
+id="storage_location">
+
+</p>
+
+</fieldset>
+
+<br>
+
+<button type="submit">
+
+Save Changes
+
+</button>
+
+<button
+type="button"
+onclick="history.back()">
+
+Cancel
+
+</button>
+
+</form>
+
+<hr>
+
+<pre id="status">Loading...</pre>
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+
+import {
+
+getDatabase,
+ref,
+get,
+update
+
+}
+from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
+
+const firebaseConfig={
+    apiKey: "AIzaSyBRm3dUt3HreTquM_Ba9JfYmZD2CLVV0Gc",
+    authDomain: "meditrack-59cca.firebaseapp.com",
+    databaseURL: "https://meditrack-59cca-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "meditrack-59cca",
+    storageBucket: "meditrack-59cca.firebasestorage.app",
+    messagingSenderId: "656003988692",
+    appId: "1:656003988692:web:badfe96b7d830837a4cf41"
+};
+
+const app=initializeApp(firebaseConfig);
+
+const database=getDatabase(app);
+
+const status=
+document.getElementById("status");
+
+const params=
+new URLSearchParams(
+window.location.search
+);
+
+const id=params.get("id");
+
+if(!id){
+
+status.textContent=
+
+"Inventory ID missing.";
+
+throw new Error();
+
+}
+
+loadInventory();
+
+async function loadInventory(){
+
+try{
+
+const snapshot=
+
+await get(
+
+ref(database,"inventory/"+id)
+
+);
+
+if(!snapshot.exists()){
+
+status.textContent=
+
+"Inventory not found.";
+
+return;
+
+}
+
+const item=snapshot.val();
+
+document.getElementById("medication").value=
+
+`${item.generic_name}`+
+
+(item.brand_name
+?` (${item.brand_name})`
+:"")
+
++` - ${item.form}`;
+
+document.getElementById("lot_number").value=
+
+item.lot_number ?? "";
+
+document.getElementById("batch_number").value=
+
+item.batch_number ?? "";
+
+document.getElementById("manufacturer").value=
+
+item.manufacturer ?? "";
+
+document.getElementById("expiration_date").value=
+
+item.expiration_date ?? "";
+
+document.getElementById("purchase_date").value=
+
+item.purchase_date ?? "";
+
+document.getElementById("unit_cost").value=
+
+item.unit_cost ?? "";
+
+document.getElementById("selling_price").value=
+
+item.selling_price ?? "";
+
+document.getElementById("quantity_in_stock").value=
+
+item.quantity_in_stock ?? "";
+
+document.getElementById("reorder_level").value=
+
+item.reorder_level ?? "";
+
+document.getElementById("storage_location").value=
+
+item.storage_location ?? "";
+
+status.textContent="";
+
+}
+catch(error){
+
+status.textContent=
+
+error.message;
+
+}
+
+}
+
+document
+.getElementById("inventoryForm")
+.addEventListener("submit",
+async function(e){
+
+e.preventDefault();
+
+try{
+
+await update(
+
+ref(database,
+"inventory/"+id),
+
+{
+
+lot_number:
+
+document
+.getElementById("lot_number")
+.value
+.trim(),
+
+batch_number:
+
+document
+.getElementById("batch_number")
+.value
+.trim(),
+
+manufacturer:
+
+document
+.getElementById("manufacturer")
+.value
+.trim(),
+
+expiration_date:
+
+document
+.getElementById("expiration_date")
+.value,
+
+purchase_date:
+
+document
+.getElementById("purchase_date")
+.value,
+
+unit_cost:
+
+parseFloat(
+
+document
+.getElementById("unit_cost")
+.value
+
+)||0,
+
+selling_price:
+
+parseFloat(
+
+document
+.getElementById("selling_price")
+.value
+
+)||0,
+
+quantity_in_stock:
+
+parseInt(
+
+document
+.getElementById("quantity_in_stock")
+.value
+
+),
+
+reorder_level:
+
+parseInt(
+
+document
+.getElementById("reorder_level")
+.value
+
+),
+
+storage_location:
+
+document
+.getElementById("storage_location")
+.value
+.trim(),
+
+updated_at:
+
+new Date()
+.toISOString()
+
+}
+
+);
+
+status.textContent=
+
+"Inventory updated successfully.";
+
+}
+catch(error){
+
+status.textContent=
+
+error.message;
+
+}
+
+});
+
+</script>
+
+</body>
+</html>

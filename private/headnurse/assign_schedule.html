@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Assign Medication Schedule</title>
+</head>
+
+<body>
+
+<a href="dashboard.html">Dashboard</a>
+
+<h2>Assign Medication Schedule</h2>
+
+<form id="scheduleForm">
+
+<fieldset>
+
+<legend>Prescription Medication</legend>
+
+<label>Select Medication</label>
+
+<br>
+
+<select id="prescriptionItem" required>
+
+<option value="">Loading...</option>
+
+</select>
+
+</fieldset>
+
+<br>
+
+<fieldset>
+
+<legend>Nurse</legend>
+
+<label>Assign Nurse</label>
+
+<br>
+
+<select id="nurse" required>
+
+<option value="">Loading...</option>
+
+</select>
+
+</fieldset>
+
+<br>
+
+<fieldset>
+
+<legend>Schedule</legend>
+
+<label>Administration Time</label>
+
+<br>
+
+<input
+type="datetime-local"
+id="scheduledTime"
+required>
+
+<br><br>
+
+<label>Dosage</label>
+
+<br>
+
+<input
+type="text"
+id="dosage"
+required>
+
+<br><br>
+
+<label>Route</label>
+
+<br>
+
+<select id="route">
+
+<option>Oral</option>
+<option>IV</option>
+<option>IM</option>
+<option>Subcutaneous</option>
+<option>Topical</option>
+<option>Inhalation</option>
+
+</select>
+
+<br><br>
+
+<label>Status</label>
+
+<br>
+
+<select id="status">
+
+<option>Scheduled</option>
+<option>Given</option>
+<option>Missed</option>
+<option>Delayed</option>
+<option>Refused</option>
+
+</select>
+
+</fieldset>
+
+<br>
+
+<button type="submit">
+
+Assign Schedule
+
+</button>
+
+</form>
+
+<pre id="result"></pre>
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+
+import {
+
+getDatabase,
+ref,
+get
+
+}
+from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
+
+const firebaseConfig={
+    apiKey: "AIzaSyBRm3dUt3HreTquM_Ba9JfYmZD2CLVV0Gc",
+    authDomain: "meditrack-59cca.firebaseapp.com",
+    databaseURL: "https://meditrack-59cca-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "meditrack-59cca",
+    storageBucket: "meditrack-59cca.firebasestorage.app",
+    messagingSenderId: "656003988692",
+    appId: "1:656003988692:web:badfe96b7d830837a4cf41"
+};
+
+const app=initializeApp(firebaseConfig);
+
+const db=getDatabase(app);
+
+await loadPrescriptionItems();
+
+await loadNurses();
+
+async function loadPrescriptionItems(){
+
+const prescriptionSnapshot=
+
+await get(ref(db,"prescriptions"));
+
+const itemSnapshot=
+
+await get(ref(db,"prescription_items"));
+
+const select=
+
+document.getElementById("prescriptionItem");
+
+select.innerHTML="";
+
+if(!itemSnapshot.exists()){
+
+select.innerHTML=
+
+"<option>No medications</option>";
+
+return;
+
+}
+
+itemSnapshot.forEach(item=>{
+
+const data=item.val();
+
+const prescription=
+
+prescriptionSnapshot.child(
+
+data.prescription_id
+
+).val();
+
+if(!prescription){
+
+return;
+
+}
+
+select.innerHTML+=`
+
+<option value="${item.key}">
+
+${prescription.patient_name}
+
+-
+
+${data.medication_name}
+
+-
+
+${data.dosage}
+
+-
+
+${data.frequency}
+
+</option>
+
+`;
+
+});
+
+}
+
+async function loadNurses(){
+
+const snapshot=
+
+await get(ref(db,"users"));
+
+const select=
+
+document.getElementById("nurse");
+
+select.innerHTML="";
+
+snapshot.forEach(user=>{
+
+const u=user.val();
+
+if(
+
+u.userType==="Nurse"
+
+||
+
+u.userType==="Head Nurse"
+
+){
+
+select.innerHTML+=`
+
+<option value="${user.key}">
+
+${u.fullName}
+
+</option>
+
+`;
+
+}
+
+});
+
+}
+
+document
+
+.getElementById("scheduleForm")
+
+.addEventListener(
+
+"submit",
+
+async function(e){
+
+e.preventDefault();
+
+const payload={
+
+prescription_item_id:
+
+document
+
+.getElementById("prescriptionItem")
+
+.value,
+
+nurse_uid:
+
+document
+
+.getElementById("nurse")
+
+.value,
+
+scheduled_time:
+
+document
+
+.getElementById("scheduledTime")
+
+.value,
+
+dosage:
+
+document
+
+.getElementById("dosage")
+
+.value,
+
+route:
+
+document
+
+.getElementById("route")
+
+.value,
+
+status:
+
+document
+
+.getElementById("status")
+
+.value
+
+};
+
+const response=
+
+await fetch(
+
+"assign_schedule.php",
+
+{
+
+method:"POST",
+
+headers:{
+
+"Content-Type":
+
+"application/json"
+
+},
+
+body:
+
+JSON.stringify(payload)
+
+}
+
+);
+
+const result=
+
+await response.json();
+
+document
+
+.getElementById("result")
+
+.textContent=
+
+JSON.stringify(result,null,4);
+
+});
+
+</script>
+
+</body>
+</html>

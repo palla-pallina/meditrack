@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Inventory Management</title>
+</head>
+<body>
+
+<h2>Inventory Management</h2>
+
+<a href="dashboard.html">Dashboard</a>
+<a href="add_inventory.html">Add Inventory</a>
+
+<hr>
+
+<input
+type="text"
+id="search"
+placeholder="Search inventory">
+
+<button id="searchBtn">
+
+Search
+
+</button>
+
+<hr>
+
+<table border="1" cellpadding="8">
+
+<thead>
+
+<tr>
+
+<th>Medication</th>
+
+<th>Lot No.</th>
+
+<th>Batch No.</th>
+
+<th>Expiration</th>
+
+<th>Quantity</th>
+
+<th>Location</th>
+
+<th>Actions</th>
+
+</tr>
+
+</thead>
+
+<tbody id="inventoryTable">
+
+<tr>
+
+<td colspan="7">
+
+Loading...
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+<hr>
+
+<pre id="status"></pre>
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+
+import {
+
+getDatabase,
+ref,
+get,
+remove
+
+}
+from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
+
+const firebaseConfig={
+    apiKey: "AIzaSyBRm3dUt3HreTquM_Ba9JfYmZD2CLVV0Gc",
+    authDomain: "meditrack-59cca.firebaseapp.com",
+    databaseURL: "https://meditrack-59cca-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "meditrack-59cca",
+    storageBucket: "meditrack-59cca.firebasestorage.app",
+    messagingSenderId: "656003988692",
+    appId: "1:656003988692:web:badfe96b7d830837a4cf41"
+};
+
+const app=initializeApp(firebaseConfig);
+
+const database=getDatabase(app);
+
+const table=document.getElementById("inventoryTable");
+
+const status=document.getElementById("status");
+
+const search=document.getElementById("search");
+
+let inventory=[];
+
+loadInventory();
+
+async function loadInventory(){
+
+try{
+
+const snapshot=
+
+await get(ref(database,"inventory"));
+
+inventory=[];
+
+if(snapshot.exists()){
+
+snapshot.forEach(child=>{
+
+inventory.push({
+
+id:child.key,
+
+...child.val()
+
+});
+
+});
+
+}
+
+renderTable(inventory);
+
+}
+catch(error){
+
+status.textContent=
+
+error.message;
+
+}
+
+}
+
+function renderTable(data){
+
+table.innerHTML="";
+
+if(data.length===0){
+
+table.innerHTML=
+
+"<tr><td colspan='7'>No inventory found.</td></tr>";
+
+return;
+
+}
+
+data.forEach(item=>{
+
+const tr=document.createElement("tr");
+
+tr.innerHTML=`
+
+<td>
+
+${item.generic_name}
+
+${item.brand_name ? `(${item.brand_name})` : ""}
+
+<br>
+
+<small>${item.form}</small>
+
+</td>
+
+<td>${item.lot_number}</td>
+
+<td>${item.batch_number || "-"}</td>
+
+<td>${item.expiration_date}</td>
+
+<td>${item.quantity_in_stock}</td>
+
+<td>${item.storage_location || "-"}</td>
+
+<td>
+
+<button
+class="editBtn"
+data-id="${item.id}">
+
+Edit
+
+</button>
+
+<button
+class="deleteBtn"
+data-id="${item.id}">
+
+Delete
+
+</button>
+
+</td>
+
+`;
+
+table.appendChild(tr);
+
+tr.querySelector(".editBtn")
+.addEventListener("click",function(){
+
+window.location.href=
+
+`edit_inventory.html?id=${this.dataset.id}`;
+
+});
+
+tr.querySelector(".deleteBtn")
+.addEventListener("click",function(){
+
+deleteInventory(this.dataset.id);
+
+});
+
+});
+
+}
+
+async function deleteInventory(id){
+
+if(!confirm(
+
+"Delete this inventory?"
+
+)){
+
+return;
+
+}
+
+try{
+
+await remove(
+
+ref(database,"inventory/"+id)
+
+);
+
+status.textContent=
+
+"Inventory deleted.";
+
+loadInventory();
+
+}
+catch(error){
+
+status.textContent=
+
+error.message;
+
+}
+
+}
+
+search.addEventListener("input",function(){
+
+const keyword=this.value
+.toLowerCase()
+.trim();
+
+const filtered=
+
+inventory.filter(item=>
+
+(item.generic_name || "")
+.toLowerCase()
+.includes(keyword)
+
+||
+
+(item.brand_name || "")
+.toLowerCase()
+.includes(keyword)
+
+||
+
+(item.lot_number || "")
+.toLowerCase()
+.includes(keyword)
+
+||
+
+(item.batch_number || "")
+.toLowerCase()
+.includes(keyword)
+
+||
+
+(item.storage_location || "")
+.toLowerCase()
+.includes(keyword)
+
+||
+
+(item.form || "")
+.toLowerCase()
+.includes(keyword)
+
+);
+
+renderTable(filtered);
+
+});
+
+document
+.getElementById("searchBtn")
+.addEventListener("click",()=>{
+
+search.dispatchEvent(
+
+new Event("input")
+
+);
+
+});
+
+</script>
+
+</body>
+</html>

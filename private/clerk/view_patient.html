@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Patient Admission Record</title>
+    </head>
+
+    <body>
+        <a href="view_records.html">Dashboard</a>
+
+        <h2>Patient Admission Record</h2>
+
+        <button id="deleteBtn">Delete Patient Record</button>
+        <button id="editBtn">Edit Patient Record</button>
+
+        <hr>
+
+        <h3>Patient Information</h3>
+
+        <p><strong>Name:</strong> <span id="firstName"></span></p>
+        <p><strong>Middle Name:</strong> <span id="middleName"></span></p>
+        <p><strong>Last Name:</strong> <span id="lastName"></span></p>
+        <p><strong>Suffix:</strong> <span id="suffix"></span></p>
+        <p><strong>Date of Birth:</strong> <span id="dob"></span></p>
+        <p><strong>Age:</strong> <span id="age"></span></p>
+        <p><strong>Sex:</strong> <span id="sex"></span></p>
+        <p><strong>Contact Number:</strong> <span id="contactNumber"></span></p>
+        <p><strong>Occupation:</strong> <span id="occupation"></span></p>
+        <p><strong>Marital Status:</strong> <span id="maritalStatus"></span></p>
+        <p><strong>Occupying Individual:</strong> <span id="occupyingIndividual"></span></p>
+
+        <hr>
+
+        <h3>Address</h3>
+
+        <p><strong>Street:</strong> <span id="streetNo"></span></p>
+        <p><strong>Barangay:</strong> <span id="barangay"></span></p>
+        <p><strong>City:</strong> <span id="city"></span></p>
+        <p><strong>Province:</strong> <span id="province"></span></p>
+
+        <hr>
+
+        <h3>Chief Complaint</h3>
+
+        <p><strong>Complaint:</strong></p>
+        <p id="chiefComplaint"></p>
+
+        <p><strong>Symptoms:</strong></p>
+        <p id="symptoms"></p>
+
+        <p><strong>Medication Used:</strong></p>
+        <p id="medicationUsed"></p>
+
+        <hr>
+
+        <h3>Family History</h3>
+
+        <p><strong>Condition Type:</strong> <span id="familyConditionType"></span></p>
+
+        <p><strong>Notes:</strong></p>
+        <p id="familyHistoryNote"></p>
+
+        <hr>
+
+        <h3>History of Present Illness</h3>
+
+        <p><strong>Onset:</strong></p>
+        <p id="onset"></p>
+
+        <p><strong>Provocation:</strong></p>
+        <p id="provocation"></p>
+
+        <p><strong>Quality:</strong></p>
+        <p id="quality"></p>
+
+        <p><strong>Radiation:</strong></p>
+        <p id="radiation"></p>
+
+        <p><strong>Severity:</strong> <span id="severity"></span></p>
+
+        <hr>
+
+        <h3>Past Illness</h3>
+
+        <p><strong>Condition Name:</strong> <span id="conditionName"></span></p>
+
+        <p><strong>Condition Type:</strong> <span id="conditionType"></span></p>
+
+        <p><strong>Notes:</strong></p>
+        <p id="pmhNote"></p>
+
+        <hr>
+
+        <h3>Medication History</h3>
+
+        <p><strong>Medication Name:</strong> <span id="medicationName"></span></p>
+        <p><strong>Dose:</strong> <span id="dose"></span></p>
+        <p><strong>Frequency:</strong> <span id="frequency"></span></p>
+        <p><strong>Route:</strong> <span id="route"></span></p>
+        <p><strong>Status:</strong> <span id="status"></span></p>
+
+        <p><strong>Reason:</strong></p>
+        <p id="prescriptionReason"></p>
+
+        <hr>
+
+        <button onclick="history.back()">Back</button>
+
+        <script type="module">
+            import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+
+            import {
+                getDatabase,
+                ref,
+                get,
+                remove
+            } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
+
+            const firebaseConfig = {
+                apiKey: "AIzaSyBRm3dUt3HreTquM_Ba9JfYmZD2CLVV0Gc",
+                authDomain: "meditrack-59cca.firebaseapp.com",
+                databaseURL: "https://meditrack-59cca-default-rtdb.asia-southeast1.firebasedatabase.app",
+                projectId: "meditrack-59cca",
+                storageBucket: "meditrack-59cca.firebasestorage.app",
+                messagingSenderId: "656003988692",
+                appId: "1:656003988692:web:badfe96b7d830837a4cf41"
+            };
+
+            const app = initializeApp(firebaseConfig);
+            const db = getDatabase(app);
+
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get("id");
+
+            if (id) {
+                get(ref(db, "patients/" + id))
+                    .then((snapshot) => {
+                        if (snapshot.exists()) {
+                            const p = snapshot.val();
+
+                            document.getElementById("firstName").textContent = p.firstName || "";
+                            document.getElementById("middleName").textContent = p.middleName || "";
+                            document.getElementById("lastName").textContent = p.lastName || "";
+                            document.getElementById("suffix").textContent = p.suffix || "";
+                            document.getElementById("dob").textContent = p.dateOfBirth || "";
+                            document.getElementById("age").textContent = p.age || "";
+                            document.getElementById("sex").textContent = p.sex || "";
+                            document.getElementById("contactNumber").textContent = p.contactNumber || "";
+                            document.getElementById("occupation").textContent = p.occupation || "";
+                            document.getElementById("maritalStatus").textContent = p.maritalStatus || "";
+                            document.getElementById("occupyingIndividual").textContent = p.occupyingIndividual || "";
+
+                            document.getElementById("streetNo").textContent = p.streetNo || "";
+                            document.getElementById("barangay").textContent = p.barangay || "";
+                            document.getElementById("city").textContent = p.city || "";
+                            document.getElementById("province").textContent = p.province || "";
+
+                            document.getElementById("chiefComplaint").textContent = p.chiefComplaint || "";
+                            document.getElementById("symptoms").textContent = p.symptoms || "";
+                            document.getElementById("medicationUsed").textContent = p.medicationUsed || "";
+
+                            document.getElementById("familyConditionType").textContent = p.familyConditionType || "";
+                            document.getElementById("familyHistoryNote").textContent = p.familyHistoryNote || "";
+
+                            document.getElementById("onset").textContent = p.onset || "";
+                            document.getElementById("provocation").textContent = p.provocation || "";
+                            document.getElementById("quality").textContent = p.quality || "";
+                            document.getElementById("radiation").textContent = p.radiation || "";
+                            document.getElementById("severity").textContent = p.severityScore || "";
+
+                            document.getElementById("conditionName").textContent = p.conditionName || "";
+                            document.getElementById("conditionType").textContent = p.conditionType || "";
+                            document.getElementById("pmhNote").textContent = p.pmhNote || "";
+
+                            document.getElementById("medicationName").textContent = p.medicationName || "";
+                            document.getElementById("dose").textContent = p.dose || "";
+                            document.getElementById("frequency").textContent = p.frequency || "";
+                            document.getElementById("route").textContent = p.route || "";
+                            document.getElementById("status").textContent = p.status || "";
+                            document.getElementById("prescriptionReason").textContent = p.prescriptionReason || "";
+                        } else {
+                            alert("Patient record not found.");
+                        }
+                    });
+            }
+
+            const deleteBtn = document.getElementById("deleteBtn");
+
+            deleteBtn.addEventListener("click", () => {
+                if (!id) {
+                    alert("Invalid patient ID.");
+                    return;
+                }
+
+                const confirmDelete = confirm(
+                    "Are you sure you want to permanently delete this patient record?"
+                );
+
+                if (!confirmDelete) {
+                    return;
+                }
+
+                remove(ref(db, "patients/" + id))
+                    .then(() => {
+                        alert("Patient record deleted successfully.");
+                        window.location.href = "view_records.html";
+                    })
+                    .catch((error) => {
+                        alert("Error deleting record: " + error.message);
+                    });
+            });
+
+            const editBtn = document.getElementById("editBtn");
+
+            editBtn.addEventListener("click", () => {
+                window.location.href = "edit_patient.html?id=" + encodeURIComponent(id);
+            });
+        </script>
+    </body>
+</html>

@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Medication Management</title>
+</head>
+<body>
+
+<h2>Medication Management</h2>
+
+<a href="dashboard.html">Dashboard</a>
+<a href="add_medication.html">Add Medication</a>
+
+<hr>
+
+<input
+    type="text"
+    id="search"
+    placeholder="Search medication">
+
+<button id="searchBtn">
+    Search
+</button>
+
+<hr>
+
+<table border="1" cellpadding="8">
+
+    <thead>
+
+        <tr>
+
+            <th>Generic Name</th>
+
+            <th>Brand Name</th>
+
+            <th>Drug Class</th>
+
+            <th>Dosage Form</th>
+
+            <th>Actions</th>
+
+        </tr>
+
+    </thead>
+
+    <tbody id="medicationTable">
+
+        <tr>
+
+            <td colspan="5">
+                Loading...
+            </td>
+
+        </tr>
+
+    </tbody>
+
+</table>
+
+<hr>
+
+<pre id="status"></pre>
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+
+import {
+
+    getDatabase,
+    ref,
+    get,
+    remove
+
+}
+from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyBRm3dUt3HreTquM_Ba9JfYmZD2CLVV0Gc",
+    authDomain: "meditrack-59cca.firebaseapp.com",
+    databaseURL: "https://meditrack-59cca-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "meditrack-59cca",
+    storageBucket: "meditrack-59cca.firebasestorage.app",
+    messagingSenderId: "656003988692",
+    appId: "1:656003988692:web:badfe96b7d830837a4cf41"
+};
+
+const app = initializeApp(firebaseConfig);
+
+const database = getDatabase(app);
+
+const table = document.getElementById("medicationTable");
+
+const status = document.getElementById("status");
+
+const search = document.getElementById("search");
+
+let medications = [];
+
+loadMedications();
+
+async function loadMedications(){
+
+    try{
+
+        const snapshot = await get(
+            ref(database,"medications")
+        );
+
+        medications = [];
+
+        if(snapshot.exists()){
+
+            snapshot.forEach(child=>{
+
+                medications.push({
+
+                    id: child.key,
+
+                    ...child.val()
+
+                });
+
+            });
+
+        }
+
+        renderTable(medications);
+
+    }
+    catch(error){
+
+        status.textContent = error.message;
+
+    }
+
+}
+
+function renderTable(data){
+
+    table.innerHTML="";
+
+    if(data.length===0){
+
+        table.innerHTML=
+        "<tr><td colspan='5'>No medications found.</td></tr>";
+
+        return;
+
+    }
+
+    data.forEach(med=>{
+
+        const tr=document.createElement("tr");
+
+        tr.innerHTML=`
+
+            <td>${med.generic_name}</td>
+
+            <td>${med.brand_name || "-"}</td>
+
+            <td>${med.drug_class || "-"}</td>
+
+            <td>${med.form}</td>
+
+            <td>
+
+                <button
+                    class="editBtn"
+                    data-id="${med.id}">
+
+                    Edit
+
+                </button>
+
+                <button
+                    class="deleteBtn"
+                    data-id="${med.id}">
+
+                    Delete
+
+                </button>
+
+            </td>
+
+        `;
+
+        table.appendChild(tr);
+
+        tr.querySelector(".editBtn")
+        .addEventListener("click",function(){
+
+            window.location.href=
+            `edit_medication.html?id=${this.dataset.id}`;
+
+        });
+
+        tr.querySelector(".deleteBtn")
+        .addEventListener("click",function(){
+
+            deleteMedication(
+                this.dataset.id
+            );
+
+        });
+
+    });
+
+}
+
+async function deleteMedication(id){
+
+    if(!confirm(
+        "Delete this medication?"
+    )){
+
+        return;
+
+    }
+
+    try{
+
+        await remove(
+
+            ref(database,
+            "medications/"+id)
+
+        );
+
+        status.textContent =
+        "Medication deleted.";
+
+        loadMedications();
+
+    }
+    catch(error){
+
+        status.textContent =
+        error.message;
+
+    }
+
+}
+
+search.addEventListener("input",function(){
+
+    const keyword=this.value
+        .trim()
+        .toLowerCase();
+
+    const filtered=
+    medications.filter(med=>
+
+        (med.generic_name || "")
+        .toLowerCase()
+        .includes(keyword)
+
+        ||
+
+        (med.brand_name || "")
+        .toLowerCase()
+        .includes(keyword)
+
+        ||
+
+        (med.drug_class || "")
+        .toLowerCase()
+        .includes(keyword)
+
+        ||
+
+        (med.form || "")
+        .toLowerCase()
+        .includes(keyword)
+
+    );
+
+    renderTable(filtered);
+
+});
+
+document
+.getElementById("searchBtn")
+.addEventListener("click",()=>{
+
+    search.dispatchEvent(
+        new Event("input")
+    );
+
+});
+
+</script>
+
+</body>
+</html>

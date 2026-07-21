@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Medication Schedule Dashboard</title>
+</head>
+
+<body>
+
+<h2>Medication Schedule Dashboard</h2>
+
+<a href="dashboard.html">Dashboard</a>
+
+<a href="assign_schedule.html">
+Assign Schedule
+</a>
+
+<hr>
+
+<input
+type="text"
+id="search"
+placeholder="Search patient, medication or nurse">
+
+<select id="statusFilter">
+
+<option value="">All Status</option>
+
+<option>Scheduled</option>
+
+<option>Given</option>
+
+<option>Missed</option>
+
+<option>Delayed</option>
+
+<option>Refused</option>
+
+</select>
+
+<button id="searchBtn">
+
+Search
+
+</button>
+
+<hr>
+
+<table border="1" cellpadding="8">
+
+<thead>
+
+<tr>
+
+<th>Patient</th>
+
+<th>Medication</th>
+
+<th>Nurse</th>
+
+<th>Scheduled Time</th>
+
+<th>Status</th>
+
+<th>Actions</th>
+
+</tr>
+
+</thead>
+
+<tbody id="table">
+
+<tr>
+
+<td colspan="6">
+
+Loading...
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+
+import {
+
+getDatabase,
+ref,
+get,
+remove
+
+}
+from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
+
+const firebaseConfig={
+    apiKey: "AIzaSyBRm3dUt3HreTquM_Ba9JfYmZD2CLVV0Gc",
+    authDomain: "meditrack-59cca.firebaseapp.com",
+    databaseURL: "https://meditrack-59cca-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "meditrack-59cca",
+    storageBucket: "meditrack-59cca.firebasestorage.app",
+    messagingSenderId: "656003988692",
+    appId: "1:656003988692:web:badfe96b7d830837a4cf41"
+};
+
+const app=initializeApp(firebaseConfig);
+
+const db=getDatabase(app);
+
+const table=document.getElementById("table");
+
+let schedules=[];
+
+loadSchedules();
+
+async function loadSchedules(){
+
+const snapshot=
+
+await get(
+
+ref(db,"medication_schedule")
+
+);
+
+schedules=[];
+
+if(snapshot.exists()){
+
+snapshot.forEach(child=>{
+
+schedules.push({
+
+id:child.key,
+
+...child.val()
+
+});
+
+});
+
+}
+
+renderTable(schedules);
+
+}
+
+function renderTable(data){
+
+table.innerHTML="";
+
+if(data.length===0){
+
+table.innerHTML=
+
+"<tr><td colspan='6'>No schedules found.</td></tr>";
+
+return;
+
+}
+
+data.sort(
+
+(a,b)=>
+
+new Date(a.scheduled_time)-
+
+new Date(b.scheduled_time)
+
+);
+
+data.forEach(schedule=>{
+
+const tr=document.createElement("tr");
+
+tr.innerHTML=`
+
+<td>
+
+${schedule.patient_name}
+
+</td>
+
+<td>
+
+${schedule.medication_name}
+
+</td>
+
+<td>
+
+${schedule.nurse_name}
+
+</td>
+
+<td>
+
+${new Date(
+
+schedule.scheduled_time
+
+).toLocaleString()}
+
+</td>
+
+<td>
+
+${schedule.status}
+
+</td>
+
+<td>
+
+<button class="viewBtn">
+
+View
+
+</button>
+
+<button class="editBtn">
+
+Edit
+
+</button>
+
+<button class="deleteBtn">
+
+Delete
+
+</button>
+
+</td>
+
+`;
+
+tr.querySelector(".viewBtn")
+
+.addEventListener(
+
+"click",
+
+()=>{
+
+location.href=
+
+"view_schedule.html?id="+
+
+encodeURIComponent(
+
+schedule.id
+
+);
+
+}
+
+);
+
+tr.querySelector(".editBtn")
+
+.addEventListener(
+
+"click",
+
+()=>{
+
+location.href=
+
+"edit_schedule.html?id="+
+
+encodeURIComponent(
+
+schedule.id
+
+);
+
+}
+
+);
+
+tr.querySelector(".deleteBtn")
+
+.addEventListener(
+
+"click",
+
+()=>{
+
+deleteSchedule(
+
+schedule.id
+
+);
+
+}
+
+);
+
+table.appendChild(tr);
+
+});
+
+}
+
+async function deleteSchedule(id){
+
+if(
+
+!confirm(
+
+"Delete this schedule?"
+
+)
+
+){
+
+return;
+
+}
+
+await remove(
+
+ref(
+
+db,
+
+"medication_schedule/"+id
+
+)
+
+);
+
+alert(
+
+"Schedule deleted."
+
+);
+
+loadSchedules();
+
+}
+
+function search(){
+
+const keyword=
+
+document
+
+.getElementById("search")
+
+.value
+
+.toLowerCase()
+
+.trim();
+
+const status=
+
+document
+
+.getElementById("statusFilter")
+
+.value;
+
+const filtered=
+
+schedules.filter(schedule=>{
+
+const matchText=
+
+schedule.patient_name
+
+.toLowerCase()
+
+.includes(keyword)
+
+||
+
+schedule.medication_name
+
+.toLowerCase()
+
+.includes(keyword)
+
+||
+
+schedule.nurse_name
+
+.toLowerCase()
+
+.includes(keyword);
+
+const matchStatus=
+
+status===""
+
+||
+
+schedule.status===status;
+
+return(
+
+matchText&&
+
+matchStatus
+
+);
+
+});
+
+renderTable(filtered);
+
+}
+
+document
+
+.getElementById("searchBtn")
+
+.addEventListener(
+
+"click",
+
+search
+
+);
+
+document
+
+.getElementById("search")
+
+.addEventListener(
+
+"keyup",
+
+search
+
+);
+
+document
+
+.getElementById("statusFilter")
+
+.addEventListener(
+
+"change",
+
+search
+
+);
+
+</script>
+
+</body>
+</html>

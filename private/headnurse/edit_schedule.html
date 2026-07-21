@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Edit Medication Schedule</title>
+</head>
+
+<body>
+
+<h2>Edit Medication Schedule</h2>
+
+<a href="view_schedules.html">← Back to Schedules</a>
+
+<hr>
+
+<form id="editForm">
+
+<fieldset>
+
+<legend>Patient Information</legend>
+
+<label>Patient</label><br>
+<input
+type="text"
+id="patient"
+readonly>
+
+<br><br>
+
+<label>Medication</label><br>
+<input
+type="text"
+id="medication"
+readonly>
+
+</fieldset>
+
+<br>
+
+<fieldset>
+
+<legend>Schedule Details</legend>
+
+<label>Assigned Nurse</label><br>
+
+<select
+id="nurse"
+required>
+
+<option value="">
+Loading nurses...
+</option>
+
+</select>
+
+<br><br>
+
+<label>Scheduled Time</label><br>
+
+<input
+type="datetime-local"
+id="scheduledTime"
+required>
+
+<br><br>
+
+<label>Dosage</label><br>
+
+<input
+type="text"
+id="dosage"
+required>
+
+<br><br>
+
+<label>Route</label><br>
+
+<select
+id="route"
+required>
+
+<option value="Oral">Oral</option>
+<option value="IV">IV</option>
+<option value="IM">IM</option>
+<option value="Subcutaneous">Subcutaneous</option>
+<option value="Topical">Topical</option>
+<option value="Inhalation">Inhalation</option>
+<option value="Other">Other</option>
+
+</select>
+
+<br><br>
+
+<label>Status</label><br>
+
+<select
+id="status"
+required>
+
+<option value="Scheduled">Scheduled</option>
+<option value="Given">Given</option>
+<option value="Missed">Missed</option>
+<option value="Delayed">Delayed</option>
+<option value="Refused">Refused</option>
+
+</select>
+
+</fieldset>
+
+<br>
+
+<button type="submit">
+
+Save Changes
+
+</button>
+
+<button
+type="button"
+onclick="history.back()">
+
+Cancel
+
+</button>
+
+</form>
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+
+import {
+
+getDatabase,
+ref,
+get,
+update
+
+}
+from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
+
+//----------------------------------
+// Firebase
+//----------------------------------
+
+const firebaseConfig={
+    apiKey: "AIzaSyBRm3dUt3HreTquM_Ba9JfYmZD2CLVV0Gc",
+    authDomain: "meditrack-59cca.firebaseapp.com",
+    databaseURL: "https://meditrack-59cca-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "meditrack-59cca",
+    storageBucket: "meditrack-59cca.firebasestorage.app",
+    messagingSenderId: "656003988692",
+    appId: "1:656003988692:web:badfe96b7d830837a4cf41"
+};
+
+const app=initializeApp(firebaseConfig);
+
+const db=getDatabase(app);
+
+//----------------------------------
+// Schedule ID
+//----------------------------------
+
+const params=new URLSearchParams(window.location.search);
+
+const scheduleId=params.get("id");
+
+if(!scheduleId){
+
+alert("Invalid schedule.");
+
+location.href="view_schedules.html";
+
+}
+
+//----------------------------------
+// Load Nurses
+//----------------------------------
+
+async function loadNurses(selectedUid){
+
+const snapshot=
+
+await get(ref(db,"users"));
+
+const nurse=document.getElementById("nurse");
+
+nurse.innerHTML="";
+
+snapshot.forEach(child=>{
+
+const user=child.val();
+
+if(
+
+user.userType==="Nurse"
+
+||
+
+user.userType==="Head Nurse"
+
+){
+
+const option=document.createElement("option");
+
+option.value=child.key;
+
+option.textContent=user.fullName;
+
+if(child.key===selectedUid){
+
+option.selected=true;
+
+}
+
+nurse.appendChild(option);
+
+}
+
+});
+
+}
+
+//----------------------------------
+// Load Schedule
+//----------------------------------
+
+async function loadSchedule(){
+
+const snapshot=
+
+await get(
+
+ref(db,"medication_schedule/"+scheduleId)
+
+);
+
+if(!snapshot.exists()){
+
+alert("Schedule not found.");
+
+location.href="view_schedules.html";
+
+return;
+
+}
+
+const schedule=snapshot.val();
+
+document.getElementById("patient").value=
+
+schedule.patient_name;
+
+document.getElementById("medication").value=
+
+schedule.medication_name;
+
+document.getElementById("scheduledTime").value=
+
+schedule.scheduled_time.substring(0,16);
+
+document.getElementById("dosage").value=
+
+schedule.dosage_given;
+
+document.getElementById("route").value=
+
+schedule.route;
+
+document.getElementById("status").value=
+
+schedule.status;
+
+await loadNurses(schedule.nurse_uid);
+
+}
+
+loadSchedule();
+
+//----------------------------------
+// Save
+//----------------------------------
+
+document
+
+.getElementById("editForm")
+
+.addEventListener(
+
+"submit",
+
+async function(e){
+
+e.preventDefault();
+
+const nurseSelect=
+
+document.getElementById("nurse");
+
+const nurseUid=
+
+nurseSelect.value;
+
+const nurseName=
+
+nurseSelect.options[
+
+nurseSelect.selectedIndex
+
+].text;
+
+await update(
+
+ref(
+
+db,
+
+"medication_schedule/"+scheduleId
+
+),
+
+{
+
+nurse_uid:nurseUid,
+
+nurse_name:nurseName,
+
+scheduled_time:
+
+document.getElementById(
+
+"scheduledTime"
+
+).value,
+
+dosage_given:
+
+document.getElementById(
+
+"dosage"
+
+).value,
+
+route:
+
+document.getElementById(
+
+"route"
+
+).value,
+
+status:
+
+document.getElementById(
+
+"status"
+
+).value,
+
+updatedAt:
+
+new Date().toISOString()
+
+}
+
+);
+
+alert(
+
+"Schedule updated successfully."
+
+);
+
+location.href=
+
+"view_schedules.html";
+
+}
+
+);
+
+</script>
+
+</body>
+</html>

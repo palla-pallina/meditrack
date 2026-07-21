@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Edit Prescription</title>
+</head>
+
+<body>
+
+<a href="view_prescriptions.html">Back</a>
+
+<h2>Edit Prescription</h2>
+
+<form id="editForm">
+
+<h3>Prescription Information</h3>
+
+<label>Patient</label><br>
+<select id="patient"></select>
+
+<br><br>
+
+<label>Prescribing Physician</label><br>
+<input
+type="text"
+id="physician"
+required>
+
+<br><br>
+
+<label>Notes</label><br>
+
+<textarea
+id="notes"
+rows="5"
+cols="60"></textarea>
+
+<br><br>
+
+<label>Status</label><br>
+
+<select id="status">
+
+<option>Active</option>
+
+<option>Paused</option>
+
+<option>Completed</option>
+
+<option>Cancelled</option>
+
+</select>
+
+<hr>
+
+<h3>Add Medication</h3>
+
+<label>Medication</label><br>
+<select id="medication"></select>
+
+<br><br>
+
+<label>Dosage</label><br>
+<input type="text" id="dosage">
+
+<br><br>
+
+<label>Route</label><br>
+
+<select id="route">
+
+<option>Oral</option>
+<option>IV</option>
+<option>IM</option>
+<option>Topical</option>
+
+</select>
+
+<br><br>
+
+<label>Frequency</label><br>
+<input type="text" id="frequency">
+
+<br><br>
+
+<label>Administration Time</label><br>
+
+<input type="time" id="time">
+
+<button
+type="button"
+id="addTime">
+
+Add Time
+
+</button>
+
+<ul id="timeList"></ul>
+
+<br>
+
+<label>Start Date</label><br>
+<input type="date" id="startDate">
+
+<br><br>
+
+<label>End Date</label><br>
+<input type="date" id="endDate">
+
+<br><br>
+
+<button
+type="button"
+id="addMedication">
+
+Add Medication
+
+</button>
+
+<hr>
+
+<h3>Prescription Medications</h3>
+
+<table border="1">
+
+<thead>
+
+<tr>
+
+<th>Medication</th>
+
+<th>Dosage</th>
+
+<th>Frequency</th>
+
+<th>Times</th>
+
+<th>Action</th>
+
+</tr>
+
+</thead>
+
+<tbody id="itemsTable">
+
+</tbody>
+
+</table>
+
+<br>
+
+<button type="submit">
+
+Save Changes
+
+</button>
+
+</form>
+
+<pre id="statusMessage"></pre>
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+
+import {
+
+getDatabase,
+ref,
+get,
+update,
+push,
+set,
+remove
+
+}
+from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
+
+const firebaseConfig={
+    apiKey: "AIzaSyBRm3dUt3HreTquM_Ba9JfYmZD2CLVV0Gc",
+    authDomain: "meditrack-59cca.firebaseapp.com",
+    databaseURL: "https://meditrack-59cca-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "meditrack-59cca",
+    storageBucket: "meditrack-59cca.firebasestorage.app",
+    messagingSenderId: "656003988692",
+    appId: "1:656003988692:web:badfe96b7d830837a4cf41"
+};
+
+const app=initializeApp(firebaseConfig);
+
+const db=getDatabase(app);
+
+const prescriptionId=
+
+new URLSearchParams(
+
+location.search
+
+).get("id");
+
+let medications=[];
+
+let prescriptionItems=[];
+
+let selectedTimes=[];
+
+await loadPatients();
+
+await loadMedications();
+
+await loadPrescription();
+
+async function loadPatients(){
+
+const snapshot=
+
+await get(ref(db,"patients"));
+
+const select=
+
+document.getElementById("patient");
+
+snapshot.forEach(child=>{
+
+const p=child.val();
+
+select.innerHTML+=`
+
+<option value="${child.key}">
+
+${p.fullName}
+
+</option>
+
+`;
+
+});
+
+}
+
+async function loadMedications(){
+
+const snapshot=
+
+await get(ref(db,"medications"));
+
+const select=
+
+document.getElementById("medication");
+
+snapshot.forEach(child=>{
+
+const med={
+
+id:child.key,
+
+...child.val()
+
+};
+
+medications.push(med);
+
+select.innerHTML+=`
+
+<option value="${med.id}">
+
+${med.generic_name}
+
+</option>
+
+`;
+
+});
+
+}
+
+async function loadPrescription(){
+
+const snapshot=
+
+await get(
+
+ref(
+
+db,
+
+"prescriptions/"+
+
+prescriptionId
+
+)
+
+);
+
+const p=snapshot.val();
+
+document.getElementById("patient").value=
+
+p.patient_id;
+
+document.getElementById("physician").value=
+
+p.prescribing_physician;
+
+document.getElementById("notes").value=
+
+p.notes;
+
+document.getElementById("status").value=
+
+p.status;
+
+const itemSnapshot=
+
+await get(
+
+ref(db,"prescription_items")
+
+);
+
+itemSnapshot.forEach(child=>{
+
+const item=child.val();
+
+if(item.prescription_id===
+
+prescriptionId){
+
+prescriptionItems.push({
+
+key:child.key,
+
+...item
+
+});
+
+}
+
+});
+
+renderItems();
+
+}
+
+function renderItems(){
+
+const tbody=
+
+document.getElementById("itemsTable");
+
+tbody.innerHTML="";
+
+prescriptionItems.forEach(
+
+(item,index)=>{
+
+tbody.innerHTML+=`
+
+<tr>
+
+<td>
+
+${item.medication_name}
+
+</td>
+
+<td>
+
+${item.dosage}
+
+</td>
+
+<td>
+
+${item.frequency}
+
+</td>
+
+<td>
+
+${item.administration_times.join(", ")}
+
+</td>
+
+<td>
+
+<button
+
+type="button"
+
+onclick="removeItem(${index})">
+
+Remove
+
+</button>
+
+</td>
+
+</tr>
+
+`;
+
+});
+
+}
+
+window.removeItem=function(index){
+
+prescriptionItems.splice(index,1);
+
+renderItems();
+
+}
+
+document
+
+.getElementById("addTime")
+
+.onclick=function(){
+
+const t=
+
+document
+
+.getElementById("time")
+
+.value;
+
+if(t){
+
+selectedTimes.push(t);
+
+document
+
+.getElementById("timeList")
+
+.innerHTML=
+
+selectedTimes
+
+.map(x=>`<li>${x}</li>`)
+
+.join("");
+
+}
+
+}
+
+document
+
+.getElementById("addMedication")
+
+.onclick=function(){
+
+const med=
+
+medications.find(
+
+m=>m.id===
+
+document
+
+.getElementById("medication")
+
+.value
+
+);
+
+prescriptionItems.push({
+
+medication_id:med.id,
+
+medication_name:
+
+med.generic_name,
+
+dosage:
+
+document
+
+.getElementById("dosage")
+
+.value,
+
+route:
+
+document
+
+.getElementById("route")
+
+.value,
+
+frequency:
+
+document
+
+.getElementById("frequency")
+
+.value,
+
+administration_times:
+
+[...selectedTimes],
+
+start_date:
+
+document
+
+.getElementById("startDate")
+
+.value,
+
+end_date:
+
+document
+
+.getElementById("endDate")
+
+.value,
+
+status:"Active"
+
+});
+
+selectedTimes=[];
+
+document
+
+.getElementById("timeList")
+
+.innerHTML="";
+
+renderItems();
+
+}
+
+document
+
+.getElementById("editForm")
+
+.addEventListener(
+
+"submit",
+
+async function(e){
+
+e.preventDefault();
+
+const patientSelect=
+
+document.getElementById("patient");
+
+await update(
+
+ref(
+
+db,
+
+"prescriptions/"+
+
+prescriptionId
+
+),
+
+{
+
+patient_id:
+
+patientSelect.value,
+
+patient_name:
+
+patientSelect.options[
+patientSelect.selectedIndex
+].text,
+
+prescribing_physician:
+
+document
+
+.getElementById("physician")
+
+.value,
+
+notes:
+
+document
+
+.getElementById("notes")
+
+.value,
+
+status:
+
+document
+
+.getElementById("status")
+
+.value
+
+}
+
+);
+
+const snapshot=
+
+await get(
+
+ref(
+
+db,
+
+"prescription_items"
+
+)
+
+);
+
+const deletions=[];
+
+snapshot.forEach(child=>{
+
+if(
+
+child.val()
+
+.prescription_id===
+
+prescriptionId
+
+){
+
+deletions.push(
+
+remove(
+
+ref(
+
+db,
+
+"prescription_items/"+
+
+child.key
+
+)
+
+)
+
+);
+
+}
+
+});
+
+await Promise.all(deletions);
+
+for(const item of prescriptionItems){
+
+const itemRef=
+
+push(
+
+ref(
+
+db,
+
+"prescription_items"
+
+)
+
+);
+
+await set(
+
+itemRef,
+
+{
+
+...item,
+
+prescription_id:
+
+prescriptionId
+
+}
+
+);
+
+}
+
+document
+
+.getElementById("statusMessage")
+
+.textContent=
+
+"Prescription updated successfully.";
+
+});
+
+</script>
+
+</body>
+</html>

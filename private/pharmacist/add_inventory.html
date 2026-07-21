@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Inventory</title>
+</head>
+<body>
+
+<a href="dashboard.html">Back to Dashboard</a>
+
+<h2>Medication Inventory</h2>
+
+<form id="inventoryForm">
+
+<fieldset>
+
+<legend><strong>Medication Information</strong></legend>
+
+<label>Medication</label><br>
+
+<select id="medication_id" required>
+
+<option value="">Loading medications...</option>
+
+</select>
+
+</fieldset>
+
+<br>
+
+<fieldset>
+
+<legend><strong>Inventory Details</strong></legend>
+
+<label>Lot Number</label><br>
+<input type="text" id="lot_number" required>
+
+<br><br>
+
+<label>Batch Number</label><br>
+<input type="text" id="batch_number">
+
+<br><br>
+
+<label>Manufacturer</label><br>
+<input type="text" id="manufacturer">
+
+<br><br>
+
+<label>Expiration Date</label><br>
+<input type="date" id="expiration_date" required>
+
+<br><br>
+
+<label>Purchase Date</label><br>
+<input type="date" id="purchase_date">
+
+<br><br>
+
+<label>Unit Cost</label><br>
+<input type="number" id="unit_cost" step="0.01" min="0">
+
+<br><br>
+
+<label>Selling Price</label><br>
+<input type="number" id="selling_price" step="0.01" min="0">
+
+<br><br>
+
+<label>Quantity in Stock</label><br>
+<input type="number" id="quantity_in_stock" min="0" required>
+
+<br><br>
+
+<label>Reorder Level</label><br>
+<input
+type="number"
+id="reorder_level"
+value="10"
+min="0">
+
+<br><br>
+
+<label>Storage Location</label><br>
+<input
+type="text"
+id="storage_location">
+
+</fieldset>
+
+<br>
+
+<button type="submit">
+
+Save Inventory
+
+</button>
+
+<button type="reset">
+
+Clear
+
+</button>
+
+</form>
+
+<hr>
+
+<pre id="status">Waiting...</pre>
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+
+import {
+
+    getDatabase,
+    ref,
+    get
+
+}
+from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
+
+const firebaseConfig={
+    apiKey: "AIzaSyBRm3dUt3HreTquM_Ba9JfYmZD2CLVV0Gc",
+    authDomain: "meditrack-59cca.firebaseapp.com",
+    databaseURL: "https://meditrack-59cca-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "meditrack-59cca",
+    storageBucket: "meditrack-59cca.firebasestorage.app",
+    messagingSenderId: "656003988692",
+    appId: "1:656003988692:web:badfe96b7d830837a4cf41"
+};
+
+const app=initializeApp(firebaseConfig);
+
+const database=getDatabase(app);
+
+const medicationSelect=
+document.getElementById("medication_id");
+
+const status=
+document.getElementById("status");
+
+//----------------------------------
+// Load Medications
+//----------------------------------
+
+async function loadMedications(){
+
+    const snapshot=
+    await get(ref(database,"medications"));
+
+    medicationSelect.innerHTML=
+    '<option value="">-- Select Medication --</option>';
+
+    snapshot.forEach(child=>{
+
+        const med=child.val();
+
+        const option=
+        document.createElement("option");
+
+        option.value=child.key;
+
+        option.textContent=
+
+            `${med.generic_name}`+
+
+            (med.brand_name
+                ?` (${med.brand_name})`
+                :"")
+
+            +` - ${med.form}`;
+
+        medicationSelect.appendChild(option);
+
+    });
+
+}
+
+loadMedications();
+
+//----------------------------------
+// Save Inventory
+//----------------------------------
+
+document
+.getElementById("inventoryForm")
+.addEventListener("submit",async function(e){
+
+    e.preventDefault();
+
+    const data={
+
+        medication_id:
+
+            medicationSelect.value,
+
+        lot_number:
+
+            document.getElementById("lot_number").value,
+
+        batch_number:
+
+            document.getElementById("batch_number").value,
+
+        manufacturer:
+
+            document.getElementById("manufacturer").value,
+
+        expiration_date:
+
+            document.getElementById("expiration_date").value,
+
+        purchase_date:
+
+            document.getElementById("purchase_date").value,
+
+        unit_cost:
+
+            document.getElementById("unit_cost").value,
+
+        selling_price:
+
+            document.getElementById("selling_price").value,
+
+        quantity_in_stock:
+
+            document.getElementById("quantity_in_stock").value,
+
+        reorder_level:
+
+            document.getElementById("reorder_level").value,
+
+        storage_location:
+
+            document.getElementById("storage_location").value
+
+    };
+
+    try{
+
+        const response=
+        await fetch("add_inventory.php",{
+
+            method:"POST",
+
+            headers:{
+
+                "Content-Type":
+                "application/json"
+
+            },
+
+            body:JSON.stringify(data)
+
+        });
+
+        const result=
+        await response.json();
+
+        status.textContent=
+        JSON.stringify(result,null,4);
+
+        if(result.success){
+
+            this.reset();
+
+        }
+
+    }
+    catch(error){
+
+        status.textContent=
+        error.message;
+
+    }
+
+});
+
+</script>
+
+</body>
+</html>

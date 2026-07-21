@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Edit User</title>
+</head>
+
+<body>
+<button onclick="history.back()">Back</button>
+
+<h2>Edit User Account</h2>
+
+<form id="editUserForm">
+
+    <p>
+        <label>First Name</label><br>
+        <input type="text" id="firstName" required>
+    </p>
+
+    <p>
+        <label>Middle Name</label><br>
+        <input type="text" id="middleName">
+    </p>
+
+    <p>
+        <label>Last Name</label><br>
+        <input type="text" id="lastName" required>
+    </p>
+
+    <p>
+        <label>Suffix</label><br>
+        <input type="text" id="suffix">
+    </p>
+
+    <p>
+        <label>Email Address</label><br>
+        <input type="email" id="email" disabled>
+    </p>
+
+    <p>
+        <label>User Type</label><br>
+
+        <select id="userType">
+
+            <option value="Admin">Admin</option>
+
+            <option value="Clerk">Clerk</option>
+
+            <option value="Head Nurse">Head Nurse</option>
+
+            <option value="Nurse">Nurse</option>
+
+            <option value="Pharmacist">Pharmacist</option>
+
+        </select>
+
+    </p>
+
+    <p>
+
+        <label>Status</label><br>
+
+        <select id="accountStatus">
+
+            <option value="Pending">Pending</option>
+
+            <option value="Active">Active</option>
+
+            <option value="Disabled">Disabled</option>
+
+        </select>
+
+    </p>
+
+    <button type="submit">
+        Save Changes
+    </button>
+
+    <button
+        type="button"
+        onclick="history.back()">
+        Cancel
+    </button>
+
+</form>
+
+<hr>
+
+<pre id="status">Loading...</pre>
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+
+import {
+
+    getDatabase,
+    ref,
+    get,
+    update
+
+}
+from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
+
+//------------------------------------
+// Firebase Configuration
+//------------------------------------
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBRm3dUt3HreTquM_Ba9JfYmZD2CLVV0Gc",
+  authDomain: "meditrack-59cca.firebaseapp.com",
+  databaseURL: "https://meditrack-59cca-default-rtdb.asia-southeast1.firebasedatabase.app/",
+  projectId: "meditrack-59cca",
+  storageBucket: "meditrack-59cca.firebasestorage.app",
+  messagingSenderId: "656003988692",
+  appId: "1:656003988692:web:badfe96b7d830837a4cf41"
+};
+
+//------------------------------------
+
+const app = initializeApp(firebaseConfig);
+
+const database = getDatabase(app);
+
+const status = document.getElementById("status");
+
+//------------------------------------
+
+const params = new URLSearchParams(window.location.search);
+
+const uid = params.get("uid");
+
+if(!uid){
+
+    status.textContent = "No user selected.";
+
+    throw new Error("UID missing.");
+
+}
+
+//------------------------------------
+
+loadUser();
+
+async function loadUser(){
+
+    try{
+
+        const snapshot = await get(
+
+            ref(database,"users/"+uid)
+
+        );
+
+        if(!snapshot.exists()){
+
+            status.textContent="User not found.";
+
+            return;
+
+        }
+
+        const user = snapshot.val();
+
+        document.getElementById("firstName").value =
+            user.firstName ?? "";
+
+        document.getElementById("middleName").value =
+            user.middleName ?? "";
+
+        document.getElementById("lastName").value =
+            user.lastName ?? "";
+
+        document.getElementById("suffix").value =
+            user.suffix ?? "";
+
+        document.getElementById("email").value =
+            user.email ?? "";
+
+        document.getElementById("userType").value =
+            user.userType;
+
+        document.getElementById("accountStatus").value =
+            user.accountStatus;
+
+        status.textContent="";
+
+    }
+    catch(error){
+
+        status.textContent = error.message;
+
+    }
+
+}
+
+//------------------------------------
+
+document
+.getElementById("editUserForm")
+.addEventListener("submit", async function(e){
+
+    e.preventDefault();
+
+    try{
+
+        const firstName =
+            document.getElementById("firstName").value.trim();
+
+        const middleName =
+            document.getElementById("middleName").value.trim();
+
+        const lastName =
+            document.getElementById("lastName").value.trim();
+
+        const suffix =
+            document.getElementById("suffix").value.trim();
+
+        const fullName =
+
+            `${firstName} ${middleName} ${lastName} ${suffix}`
+            .replace(/\s+/g," ")
+            .trim();
+
+        await update(
+
+            ref(database,"users/"+uid),
+
+            {
+
+                firstName,
+
+                middleName,
+
+                lastName,
+
+                suffix,
+
+                fullName,
+
+                userType:
+                    document.getElementById("userType").value,
+
+                accountStatus:
+                    document.getElementById("accountStatus").value
+
+            }
+
+        );
+
+        status.textContent =
+            "User updated successfully.";
+
+    }
+    catch(error){
+
+        status.textContent =
+            error.message;
+
+    }
+
+});
+
+</script>
+
+</body>
+</html>

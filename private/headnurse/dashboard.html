@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>MediTrack | Head Nurse Dashboard</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+
+    font-family:'Inter',sans-serif;
+    background:#f4f8fc;
+    color:#2c3e50;
+
+}
+
+/* ==========================
+   HEADER
+========================== */
+
+header{
+
+    background:#1976d2;
+    color:white;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:18px 40px;
+    box-shadow:0 3px 10px rgba(0,0,0,.08);
+
+}
+
+.logo h2{
+
+    font-size:1.6rem;
+    font-weight:700;
+
+}
+
+.logo span{
+
+    display:block;
+    opacity:.9;
+    font-size:.9rem;
+
+}
+
+.logout-btn{
+
+    background:white;
+    color:#1976d2;
+    border:none;
+    padding:10px 20px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:600;
+    transition:.25s;
+
+}
+
+.logout-btn:hover{
+
+    background:#eef6ff;
+
+}
+
+/* ==========================
+   MAIN
+========================== */
+
+main{
+
+    max-width:1200px;
+    margin:40px auto;
+    padding:0 20px;
+
+}
+
+.page-title{
+
+    margin-bottom:30px;
+
+}
+
+.page-title h1{
+
+    color:#1976d2;
+    margin-bottom:10px;
+    font-size:2rem;
+
+}
+
+.page-title p{
+
+    color:#6b7280;
+
+}
+
+/* ==========================
+   CARDS
+========================== */
+
+.dashboard-grid{
+
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+    gap:24px;
+
+}
+
+.card{
+
+    background:white;
+    border-radius:16px;
+    padding:28px;
+    box-shadow:0 10px 25px rgba(0,0,0,.06);
+    transition:.25s;
+
+}
+
+.card:hover{
+
+    transform:translateY(-5px);
+    box-shadow:0 18px 35px rgba(0,0,0,.10);
+
+}
+
+.icon{
+
+    font-size:2.5rem;
+    margin-bottom:18px;
+
+}
+
+.card h3{
+
+    color:#1976d2;
+    margin-bottom:10px;
+
+}
+
+.card p{
+
+    color:#6b7280;
+    line-height:1.6;
+    margin-bottom:22px;
+
+}
+
+.card a{
+
+    display:inline-block;
+    text-decoration:none;
+    background:#1976d2;
+    color:white;
+    padding:11px 20px;
+    border-radius:8px;
+    font-weight:600;
+    transition:.25s;
+
+}
+
+.card a:hover{
+
+    background:#1565c0;
+
+}
+
+/* ==========================
+   FOOTER
+========================== */
+
+footer{
+
+    text-align:center;
+    margin:60px 0 20px;
+    color:#9ca3af;
+    font-size:.9rem;
+
+}
+
+@media(max-width:768px){
+
+    header{
+
+        flex-direction:column;
+        gap:15px;
+        text-align:center;
+
+    }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+    <div class="logo">
+
+        <h2>MediTrack</h2>
+
+        <span>Head Nurse Dashboard</span>
+
+    </div>
+
+    <a href="../logout.php">
+
+        <button class="logout-btn" id="logoutBtn">
+
+            Log Out
+
+        </button>
+
+    </a>
+
+</header>
+
+<main>
+
+    <div class="page-title">
+
+        <h1>Welcome, Head Nurse</h1>
+
+        <p>
+
+            Manage prescriptions, assign medication schedules, and oversee nursing operations.
+
+        </p>
+
+    </div>
+
+    <div class="dashboard-grid">
+
+        <div class="card">
+
+            <div class="icon">
+                📝
+            </div>
+
+            <h3>Record Prescription</h3>
+
+            <p>
+
+                Create new prescriptions for admitted patients and prepare medications for dispensing.
+
+            </p>
+
+            <a href="add_prescription.html">
+
+                Open Module
+
+            </a>
+
+        </div>
+
+        <div class="card">
+
+            <div class="icon">
+                💊
+            </div>
+
+            <h3>Prescription Records</h3>
+
+            <p>
+
+                View, review, and manage all patient prescriptions stored in the MediTrack system.
+
+            </p>
+
+            <a href="view_prescriptions.html">
+
+                Open Module
+
+            </a>
+
+        </div>
+
+        <div class="card">
+
+            <div class="icon">
+                📅
+            </div>
+
+            <h3>Assign Medication Schedule</h3>
+
+            <p>
+
+                Schedule medication administration and assign nurses to patient medication rounds.
+
+            </p>
+
+            <a href="assign_schedule.html">
+
+                Open Module
+
+            </a>
+
+        </div>
+
+        <div class="card">
+
+            <div class="icon">
+                👩‍⚕️
+            </div>
+
+            <h3>View Assigned Schedules</h3>
+
+            <p>
+
+                Monitor all medication schedules, assignments, and upcoming administration times.
+
+            </p>
+
+            <a href="view_schedules.html">
+
+                Open Module
+
+            </a>
+
+        </div>
+
+    </div>
+
+</main>
+
+<footer>
+
+    MediTrack Smart Medicine Dispensing System
+
+</footer>
+
+<script type="module">
+
+import { requireRole }
+from "../../public/auth_guard.js";
+
+requireRole("Head Nurse");
+
+import {
+    getAuth,
+    signOut
+} from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+
+const auth = getAuth();
+
+document.getElementById("logoutBtn")
+.addEventListener("click", async () => {
+
+    try {
+
+        await signOut(auth);
+
+        window.location.href = "../../public/login.html";
+
+    }
+    catch(error) {
+
+        alert(error.message);
+
+    }
+
+});
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Medication</title>
+</head>
+<body>
+
+<a href="view_medication.html">Back to Medication List</a>
+
+<h2>Edit Medication</h2>
+
+<form id="editMedicationForm">
+
+    <fieldset>
+
+        <legend><strong>Medication Information</strong></legend>
+
+        <p>
+
+            <label>Generic Name</label><br>
+
+            <input
+                type="text"
+                id="generic_name"
+                required>
+
+        </p>
+
+        <p>
+
+            <label>Brand Name</label><br>
+
+            <input
+                type="text"
+                id="brand_name">
+
+        </p>
+
+        <p>
+
+            <label>Drug Class</label><br>
+
+            <input
+                type="text"
+                id="drug_class">
+
+        </p>
+
+        <p>
+
+            <label>Dosage Form</label><br>
+
+            <select
+                id="form"
+                required>
+
+                <option value="">-- Select Dosage Form --</option>
+
+                <option value="tablet">Tablet</option>
+
+                <option value="capsule">Capsule</option>
+
+                <option value="injection">Injection</option>
+
+                <option value="syrup">Syrup</option>
+
+                <option value="cream">Cream</option>
+
+                <option value="inhaler">Inhaler</option>
+
+                <option value="other">Other</option>
+
+            </select>
+
+        </p>
+
+    </fieldset>
+
+    <br>
+
+    <button type="submit">
+        Save Changes
+    </button>
+
+    <button
+        type="button"
+        onclick="history.back()">
+
+        Cancel
+
+    </button>
+
+</form>
+
+<hr>
+
+<h3>Status</h3>
+
+<pre id="status">Loading...</pre>
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+
+import {
+
+    getDatabase,
+    ref,
+    get,
+    update
+
+}
+from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
+
+//------------------------------------
+// Firebase Configuration
+//------------------------------------
+
+const firebaseConfig = {
+    apiKey: "AIzaSyBRm3dUt3HreTquM_Ba9JfYmZD2CLVV0Gc",
+    authDomain: "meditrack-59cca.firebaseapp.com",
+    databaseURL: "https://meditrack-59cca-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "meditrack-59cca",
+    storageBucket: "meditrack-59cca.firebasestorage.app",
+    messagingSenderId: "656003988692",
+    appId: "1:656003988692:web:badfe96b7d830837a4cf41"
+};
+
+//------------------------------------
+
+const app = initializeApp(firebaseConfig);
+
+const database = getDatabase(app);
+
+const status = document.getElementById("status");
+
+//------------------------------------
+
+const params = new URLSearchParams(window.location.search);
+
+const medicationId = params.get("id");
+
+if(!medicationId){
+
+    status.textContent = "Medication ID not found.";
+
+    throw new Error("Missing medication ID.");
+
+}
+
+//------------------------------------
+
+loadMedication();
+
+async function loadMedication(){
+
+    try{
+
+        const snapshot = await get(
+
+            ref(database,"medications/"+medicationId)
+
+        );
+
+        if(!snapshot.exists()){
+
+            status.textContent = "Medication not found.";
+
+            return;
+
+        }
+
+        const medication = snapshot.val();
+
+        document.getElementById("generic_name").value =
+            medication.generic_name ?? "";
+
+        document.getElementById("brand_name").value =
+            medication.brand_name ?? "";
+
+        document.getElementById("drug_class").value =
+            medication.drug_class ?? "";
+
+        document.getElementById("form").value =
+            medication.form ?? "";
+
+        status.textContent = "";
+
+    }
+    catch(error){
+
+        status.textContent = error.message;
+
+    }
+
+}
+
+//------------------------------------
+
+document
+.getElementById("editMedicationForm")
+.addEventListener("submit", async function(e){
+
+    e.preventDefault();
+
+    try{
+
+        await update(
+
+            ref(database,"medications/"+medicationId),
+
+            {
+
+                generic_name:
+                    document.getElementById("generic_name")
+                    .value.trim(),
+
+                brand_name:
+                    document.getElementById("brand_name")
+                    .value.trim(),
+
+                drug_class:
+                    document.getElementById("drug_class")
+                    .value.trim(),
+
+                form:
+                    document.getElementById("form")
+                    .value,
+
+                updated_at:
+                    new Date().toISOString()
+
+            }
+
+        );
+
+        status.textContent =
+            "Medication updated successfully.";
+
+    }
+    catch(error){
+
+        status.textContent =
+            error.message;
+
+    }
+
+});
+
+</script>
+
+</body>
+</html>
