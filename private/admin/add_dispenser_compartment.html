@@ -1,0 +1,372 @@
+<html>
+<head>
+<title>MediTrack Dispenser Control</title>
+</head>
+
+<body>
+<form id="compartmentForm">
+
+    <fieldset>
+        <legend><strong>Dispenser Compartment</strong></legend>
+
+        <label>Compartment Name *</label><br>
+        <input
+            type="text"
+            id="compartmentName"
+            placeholder="Carousel 1"
+            required><br><br>
+
+        <label>Medication *</label><br>
+        <select id="medicationSelect" required>
+            <option value="">Loading medications...</option>
+        </select><br><br>
+
+        <label>Brand Name</label><br>
+        <input
+            type="text"
+            id="brandName"
+            readonly><br><br>
+
+        <label>Drug Class</label><br>
+        <input
+            type="text"
+            id="drugClass"
+            readonly><br><br>
+
+        <label>Dosage Form</label><br>
+        <input
+            type="text"
+            id="form"
+            readonly><br><br>
+
+        <label>Inventory Amount *</label><br>
+        <input
+            type="number"
+            id="inventoryAmount"
+            min="0"
+            max="10"
+            value="0"
+            required><br><br>
+
+        <label>Maximum Capacity</label><br>
+        <input
+            type="number"
+            value="10"
+            readonly><br><br>
+
+    </fieldset>
+
+    <br>
+
+    <button type="submit">
+        Save Compartment
+    </button>
+
+    <button type="reset">
+        Clear
+    </button>
+
+    <button
+        type="button"
+        onclick="history.back()">
+        Back
+    </button>
+
+</form>
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+
+import {
+    getDatabase,
+    ref,
+    get,
+    set
+}
+from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
+
+import { requireRole }
+from "../../public/auth_guard.js";
+
+requireRole("Admin");
+
+import {
+    getAuth,
+    signOut
+} from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+
+const auth = getAuth();
+
+const firebaseConfig = {
+    apiKey: "AIzaSyBRm3dUt3HreTquM_Ba9JfYmZD2CLVV0Gc",
+    authDomain: "meditrack-59cca.firebaseapp.com",
+    databaseURL: "https://meditrack-59cca-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "meditrack-59cca",
+    storageBucket: "meditrack-59cca.firebasestorage.app",
+    messagingSenderId: "656003988692",
+    appId: "1:656003988692:web:badfe96b7d830837a4cf41"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+const DISPENSER_UNIT = "Main Dispenser";
+
+const compartmentForm = document.getElementById("compartmentForm");
+const medicationSelect = document.getElementById("medicationSelect");
+
+const compartmentName = document.getElementById("compartmentName");
+const brandName = document.getElementById("brandName");
+const drugClass = document.getElementById("drugClass");
+const dosageForm = document.getElementById("form");
+const inventoryAmount = document.getElementById("inventoryAmount");
+
+let medications = {};
+
+// --------------------------
+// Generate Compartment ID
+// --------------------------
+
+async function generateCompartmentId(){
+
+    try{
+
+        const snapshot = await get(
+            ref(db,"dispenser_unit/" + DISPENSER_UNIT)
+        );
+
+        let count = 1;
+
+        if(snapshot.exists()){
+
+            count = 0;
+
+            snapshot.forEach(()=>{
+                count++;
+            });
+
+            count++;
+        }
+
+        return "MD-C" + String(count).padStart(2,"0");
+
+    }catch(error){
+
+        console.error(error);
+
+        throw error;
+
+    }
+
+}
+
+// --------------------------
+// Load Oral Medications
+// --------------------------
+
+async function loadMedications(){
+
+    try{
+
+        medicationSelect.innerHTML =
+        '<option value="">Select Medication</option>';
+
+        const snapshot =
+        await get(ref(db,"medications"));
+
+        if(!snapshot.exists()){
+
+            alert("No medications found.");
+
+            return;
+
+        }
+
+        snapshot.forEach(child=>{
+
+            const med = child.val();
+
+            const dosage =
+            (med.form || "").trim().toLowerCase();
+
+            if(
+                dosage !== "tablet" &&
+                dosage !== "capsule"
+            ){
+                return;
+            }
+
+            medications[child.key] = med;
+
+            const option =
+            document.createElement("option");
+
+            option.value = child.key;
+
+            option.textContent =
+            med.generic_name + " (" + med.brand_name + ")";
+
+            medicationSelect.appendChild(option);
+
+        });
+
+    }catch(error){
+
+        console.error(error);
+
+        alert(error.message);
+
+    }
+
+}
+
+// --------------------------
+// Medication Changed
+// --------------------------
+
+medicationSelect.addEventListener("change",()=>{
+
+    const med =
+    medications[medicationSelect.value];
+
+    if(!med){
+
+        brandName.value = "";
+        drugClass.value = "";
+        dosageForm.value = "";
+
+        return;
+
+    }
+
+    brandName.value =
+    med.brand_name || "";
+
+    drugClass.value =
+    med.drug_class || "";
+
+    dosageForm.value =
+    med.form || "";
+
+});
+
+// --------------------------
+// Save Compartment
+// --------------------------
+
+compartmentForm.addEventListener("submit",async(e)=>{
+
+    e.preventDefault();
+
+    try{
+
+        const med =
+        medications[medicationSelect.value];
+
+        if(!med){
+
+            alert("Please select an oral medication.");
+
+            return;
+
+        }
+
+        const dosage =
+        (med.form || "").trim().toLowerCase();
+
+        if(
+            dosage !== "tablet" &&
+            dosage !== "capsule"
+        ){
+
+            alert("Only Tablet and Capsule medications are allowed.");
+
+            return;
+
+        }
+
+        const inventory =
+        Number(inventoryAmount.value);
+
+        if(inventory < 0 || inventory > 10){
+
+            alert("Inventory must be between 0 and 10.");
+
+            return;
+
+        }
+
+        const compartmentId =
+        await generateCompartmentId();
+
+await set(
+    ref(
+        db,
+        "dispenser_unit/" +
+        DISPENSER_UNIT +
+        "/" +
+        compartmentId
+    ),
+    {
+        dispenser_unit: DISPENSER_UNIT,
+
+        compartment_id: compartmentId,
+
+        compartment_name:
+            compartmentName.value.trim(),
+
+        inventory_amount: inventory,
+
+        medication_id: med.medication_id,
+
+        medication_name: med.generic_name,
+
+        brand_name: med.brand_name,
+
+        drug_class: med.drug_class,
+
+        form: med.form,
+
+        created_at: new Date().toISOString(),
+
+        updated_at: new Date().toISOString()
+    }
+);
+        alert("Compartment created successfully.");
+
+        compartmentForm.reset();
+
+        medicationSelect.innerHTML =
+        '<option value="">Select Medication</option>';
+
+        brandName.value = "";
+        drugClass.value = "";
+        dosageForm.value = "";
+
+        await loadMedications();
+
+        window.location.href =
+        "dispenser_dashboard.html";
+
+    }
+    catch(error){
+
+        console.error(error);
+
+        alert(error.message);
+
+    }
+
+});
+
+// --------------------------
+// Initialize Page
+// --------------------------
+
+loadMedications();
+
+</script>
+</body>
+</html>

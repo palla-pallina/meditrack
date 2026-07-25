@@ -12,6 +12,55 @@
 <form action="save_patient.php" method="POST" enctype="multipart/form-data">
 
     <!-- ========================= -->
+    <!-- ADMISSION INFORMATION -->
+    <!-- ========================= -->
+    <fieldset>
+        <legend><strong>Admission Information</strong></legend>
+
+        <label>Admission Number</label><br>
+        <input
+            type="text"
+            id="admissionNumber"
+            readonly><br><br>
+
+        <label>Date of Admission</label><br>
+        <input
+            type="date"
+            id="admissionDate"
+            readonly><br><br>
+
+        <label>Time of Admission</label><br>
+        <input
+            type="time"
+            id="admissionTime"><br><br>
+
+        <label>Assigned Area</label><br>
+        <select id="assignedArea">
+
+            <option value="">Select Ward</option>
+
+            <option>Ward 1</option>
+            <option>Ward 2</option>
+            <option>Ward 3</option>
+            <option>Ward 4</option>
+            <option>Ward 5</option>
+            <option>Ward 6</option>
+            <option>Ward 7</option>
+            <option>Ward 8</option>
+
+        </select><br><br>
+
+        <label>Room</label><br>
+
+        <input
+            type="text"
+            id="room">
+
+    </fieldset>
+
+    <br>
+
+    <!-- ========================= -->
     <!-- PATIENT INFORMATION -->
     <!-- ========================= -->
     <fieldset>
@@ -270,6 +319,11 @@
     var clearBtn = document.querySelector("#clear");
 
     // Patient Information
+    var admissionNumber = document.querySelector("#admissionNumber");
+    var admissionDate = document.querySelector("#admissionDate");
+    var admissionTime = document.querySelector("#admissionTime");
+    var assignedArea = document.querySelector("#assignedArea");
+    var room = document.querySelector("#room");
     var firstName = document.querySelector("#fName");
     var middleName = document.querySelector("#mName");
     var lastName = document.querySelector("#lName");
@@ -429,6 +483,11 @@
         if(snapshot.exists()){
 
             const p = snapshot.val();
+            admissionNumber.value = p.admissionNumber || "";
+            admissionDate.value = p.admissionDate || "";
+            admissionTime.value = p.admissionTime || "";
+            assignedArea.value = p.assignedArea || "";
+            room.value = p.room || "";
 
             firstName.value = p.firstName || "";
             middleName.value = p.middleName || "";
@@ -483,9 +542,27 @@
 
     function UpdateData(){
 
+        const fullName = [
+
+            firstName.value.trim(),
+            middleName.value.trim(),
+            lastName.value.trim(),
+            suffix.value.trim()
+
+        ]
+        .filter(part => part !== "")
+        .join(" ");
+
         update(ref(db,"patients/" + id),{
-            patient_id: patientId,
+            admissionNumber: admissionNumber.value,
+            admissionDate: admissionDate.value,
+            admissionTime: admissionTime.value,
+            assignedArea: assignedArea.value,
+            room: room.value,
+            
+            patient_id: id,
             fullName: fullName,
+            
             firstName: firstName.value,
             middleName: middleName.value,
             lastName: lastName.value,

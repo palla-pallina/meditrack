@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>MediTrack | Dispenser Compartments</title>
+</head>
+<body>
+
+<a href="home.html">Dashboard</a><br><br>
+
+<h1>Medicine Dispenser Compartments</h1>
+
+<hr>
+
+<button onclick="location.href='add_dispenser_compartment.html'">
+    + Create Compartment
+</button>
+
+<br><br>
+
+<input
+    type="text"
+    id="searchInput"
+    placeholder="Search compartment, medication or brand">
+
+<button id="searchBtn">
+    Search
+</button>
+
+<br><br>
+
+<table border="1" cellpadding="8" cellspacing="0" width="100%">
+
+    <thead>
+
+        <tr>
+
+            <th>Dispenser Unit</th>
+
+            <th>Compartment ID</th>
+
+            <th>Compartment Name</th>
+
+            <th>Medication</th>
+
+            <th>Brand</th>
+
+            <th>Drug Class</th>
+
+            <th>Form</th>
+
+            <th>Inventory</th>
+
+            <th>Status</th>
+
+            <th>Actions</th>
+
+        </tr>
+
+    </thead>
+
+    <tbody id="compartmentTable">
+
+    </tbody>
+
+</table>
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+
+import {
+    getDatabase,
+    ref,
+    get,
+    remove
+}
+from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyBRm3dUt3HreTquM_Ba9JfYmZD2CLVV0Gc",
+    authDomain: "meditrack-59cca.firebaseapp.com",
+    databaseURL: "https://meditrack-59cca-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "meditrack-59cca",
+    storageBucket: "meditrack-59cca.firebasestorage.app",
+    messagingSenderId: "656003988692",
+    appId: "1:656003988692:web:badfe96b7d830837a4cf41"
+};
+
+const app = initializeApp(firebaseConfig);
+
+const db = getDatabase();
+
+const table =
+document.getElementById("compartmentTable");
+
+const searchInput =
+document.getElementById("searchInput");
+
+function getStatus(inventory){
+
+    inventory = Number(inventory);
+
+    if(inventory == 0)
+        return "Empty";
+
+    if(inventory <= 2)
+        return "Low Stock";
+
+    if(inventory <= 7)
+        return "Normal";
+
+    if(inventory <= 9)
+        return "Nearly Full";
+
+    return "Full";
+
+}
+
+async function loadCompartments(){
+
+    table.innerHTML = "";
+
+    const snapshot =
+    await get(ref(db,"dispenser_unit"));
+
+    if(!snapshot.exists()){
+
+        table.innerHTML = `
+        <tr>
+            <td colspan="10">
+                No compartments found.
+            </td>
+        </tr>
+        `;
+
+        return;
+
+    }
+
+    snapshot.forEach(unit=>{
+
+        const unitName = unit.key;
+
+        unit.forEach(compartment=>{
+
+            const c = compartment.val();
+
+            const row =
+            document.createElement("tr");
+
+            row.innerHTML = `
+
+            <td>${unitName}</td>
+
+            <td>${c.compartment_id}</td>
+
+            <td>${c.compartment_name}</td>
+
+            <td>${c.medication_name || "-"}</td>
+
+            <td>${c.brand_name || "-"}</td>
+
+            <td>${c.drug_class || "-"}</td>
+
+            <td>${c.form || "-"}</td>
+
+            <td>${c.inventory_amount}/10</td>
+
+            <td>${getStatus(c.inventory_amount)}</td>
+
+            <td>
+
+                <button
+                onclick="window.location='view_compartment.html?unit=${unitName}&id=${c.compartment_id}'">
+                View
+                </button>
+
+                <button
+                onclick="window.location='edit_compartment.html?unit=${unitName}&id=${c.compartment_id}'">
+                Edit
+                </button>
+
+                <button
+                onclick="deleteCompartment('${unitName}','${c.compartment_id}')">
+                Delete
+                </button>
+
+            </td>
+
+            `;
+
+            table.appendChild(row);
+
+        });
+
+    });
+
+}
+
+window.deleteCompartment = async function(unit,id){
+
+    if(!confirm("Delete this compartment?"))
+        return;
+
+    await remove(
+        ref(db,
+        "dispenser_unit/" + unit + "/" + id)
+    );
+
+    alert("Compartment deleted.");
+
+    loadCompartments();
+
+}
+
+searchInput.addEventListener("keyup",()=>{
+
+    const filter =
+    searchInput.value.toLowerCase();
+
+    const rows =
+    table.getElementsByTagName("tr");
+
+    for(let row of rows){
+
+        row.style.display =
+        row.innerText
+        .toLowerCase()
+        .includes(filter)
+        ? ""
+        : "none";
+
+    }
+
+});
+
+loadCompartments();
+
+</script>
+
+</body>
+</html>

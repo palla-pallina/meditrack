@@ -1,9 +1,9 @@
 # WORKFLOW
 ```
-Doctor prescribes to patient off-platform
+Doctor prescribes to patient
     │
     ▼
-Head Nurse records Digital Prescription
+Doctor records Digital Prescription
     │
     ▼
 Pharmacy validates medication

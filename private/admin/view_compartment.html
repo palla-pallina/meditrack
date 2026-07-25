@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>MediTrack | View Dispenser Compartment</title>
+</head>
+<body>
+
+<a href="dispenser_dashboard.html">Dashboard</a>
+
+<h2>Dispenser Compartment Details</h2>
+
+<fieldset>
+
+    <legend><strong>Compartment Information</strong></legend>
+
+    <label>Compartment ID</label><br>
+    <input type="text" id="compartmentId" readonly><br><br>
+
+    <label>Dispenser Unit</label><br>
+    <input type="text" id="dispenserUnit" readonly><br><br>
+
+    <label>Compartment Name</label><br>
+    <input type="text" id="compartmentName" readonly><br><br>
+
+    <label>Medication</label><br>
+    <input type="text" id="medicationName" readonly><br><br>
+
+    <label>Brand Name</label><br>
+    <input type="text" id="brandName" readonly><br><br>
+
+    <label>Drug Class</label><br>
+    <input type="text" id="drugClass" readonly><br><br>
+
+    <label>Dosage Form</label><br>
+    <input type="text" id="form" readonly><br><br>
+
+    <label>Inventory Amount</label><br>
+    <input type="number" id="inventoryAmount" readonly><br><br>
+
+    <label>Maximum Capacity</label><br>
+    <input type="number" id="maximumCapacity" readonly><br><br>
+
+    <label>Created At</label><br>
+    <input type="text" id="createdAt" readonly><br><br>
+
+    <label>Last Updated</label><br>
+    <input type="text" id="updatedAt" readonly>
+
+</fieldset>
+
+<br>
+
+<button id="editBtn">
+    Edit Compartment
+</button>
+
+<button
+    type="button"
+    onclick="history.back()">
+    Back
+</button>
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+
+import {
+    getDatabase,
+    ref,
+    get
+}
+from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyBRm3dUt3HreTquM_Ba9JfYmZD2CLVV0Gc",
+    authDomain: "meditrack-59cca.firebaseapp.com",
+    databaseURL: "https://meditrack-59cca-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "meditrack-59cca",
+    storageBucket: "meditrack-59cca.firebasestorage.app",
+    messagingSenderId: "656003988692",
+    appId: "1:656003988692:web:badfe96b7d830837a4cf41"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+const DISPENSER_UNIT = "Main Dispenser";
+
+const params = new URLSearchParams(window.location.search);
+
+const id = params.get("id");
+
+const compartmentId =
+document.getElementById("compartmentId");
+
+const dispenserUnit =
+document.getElementById("dispenserUnit");
+
+const compartmentName =
+document.getElementById("compartmentName");
+
+const medicationName =
+document.getElementById("medicationName");
+
+const brandName =
+document.getElementById("brandName");
+
+const drugClass =
+document.getElementById("drugClass");
+
+const form =
+document.getElementById("form");
+
+const inventoryAmount =
+document.getElementById("inventoryAmount");
+
+const maximumCapacity =
+document.getElementById("maximumCapacity");
+
+const createdAt =
+document.getElementById("createdAt");
+
+const updatedAt =
+document.getElementById("updatedAt");
+
+async function loadCompartment(){
+
+    try{
+
+        const snapshot =
+        await get(
+            ref(
+                db,
+                "dispenser_unit/" +
+                DISPENSER_UNIT +
+                "/" +
+                id
+            )
+        );
+
+        if(!snapshot.exists()){
+
+            alert("Compartment not found.");
+
+            history.back();
+
+            return;
+
+        }
+
+        const c = snapshot.val();
+
+        compartmentId.value =
+        c.compartment_id || "";
+
+        dispenserUnit.value =
+        c.dispenser_unit || "";
+
+        compartmentName.value =
+        c.compartment_name || "";
+
+        medicationName.value =
+        c.medication_name || "";
+
+        brandName.value =
+        c.brand_name || "";
+
+        drugClass.value =
+        c.drug_class || "";
+
+        form.value =
+        c.form || "";
+
+        inventoryAmount.value =
+        c.inventory_amount ?? 0;
+
+        maximumCapacity.value =
+        c.maximum_capacity ?? 10;
+
+        createdAt.value =
+        c.created_at
+            ? new Date(c.created_at).toLocaleString()
+            : "";
+
+        updatedAt.value =
+        c.updated_at
+            ? new Date(c.updated_at).toLocaleString()
+            : "";
+
+    }
+
+    catch(error){
+
+        console.error(error);
+
+        alert(error.message);
+
+    }
+
+}
+
+loadCompartment();
+
+document
+.getElementById("editBtn")
+.addEventListener("click",()=>{
+
+    window.location.href =
+    "edit_compartment.html?id=" + id;
+
+});
+
+</script>
+
+</body>
+</html>

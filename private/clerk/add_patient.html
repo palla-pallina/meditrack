@@ -12,6 +12,44 @@
 
     <form action="save_patient.php" method="POST" enctype="multipart/form-data">
 
+        <fieldset>
+            <!-- ========================= -->
+            <!-- ADMISSION INFORMATION -->
+            <!-- ========================= -->
+            <label>Admission Number</label><br>
+
+            <input
+                type="text"
+                id="admissionNumber"
+                readonly><br><br>
+
+            <label>Date of Admission <span style="color:red;">*</span></label><br>
+            <input type="date" id="admissionDate" readonly required><br><br>
+
+            <label>Time of Admission <span style="color:red;">*</span></label><br>
+            <input type="time" id="admissionTime" required><br><br>
+
+            <label>Assigned Area <span style="color:red;">*</span></label><br>
+            <select id="assignedArea" required>
+                <option value="">Select Ward</option>
+                <option>Ward 1</option>
+                <option>Ward 2</option>
+                <option>Ward 3</option>
+                <option>Ward 4</option>
+                <option>Ward 5</option>
+                <option>Ward 6</option>
+                <option>Ward 7</option>
+                <option>Ward 8</option>
+            </select><br><br>
+
+            <label>Room <span style="color:red;">*</span></label><br>
+            <input
+                type="text"
+                id="room"
+                placeholder="Example: Room 203"
+                required><br><br>
+        </fieldset><br>
+
         <!-- ========================= -->
         <!-- PATIENT INFORMATION -->
         <!-- ========================= -->
@@ -252,7 +290,7 @@
             appId: "1:656003988692:web:badfe96b7d830837a4cf41"
         };
 
-        import {getDatabase, ref, push, set}
+        import {getDatabase, ref, push, set, get}
         from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js"     
 
         const app = initializeApp(firebaseConfig);
@@ -262,6 +300,11 @@
         var clearBtn = document.querySelector("#clear");
 
         // Patient Information
+        var admissionNumber = document.querySelector("#admissionNumber");
+        var admissionDate = document.querySelector("#admissionDate");
+        var admissionTime = document.querySelector("#admissionTime");
+        var assignedArea = document.querySelector("#assignedArea");
+        var room = document.querySelector("#room");
         var firstName = document.querySelector("#fName");
         var middleName = document.querySelector("#mName");
         var lastName = document.querySelector("#lName");
@@ -334,10 +377,64 @@
         }
         dob.addEventListener("change", computeAge);
 
+        async function initializeAdmission(){
+
+            const now = new Date();
+
+            admissionDate.value =
+                now.toISOString().split("T")[0];
+
+            admissionTime.value =
+                now.toTimeString().slice(0,5);
+
+            // Count existing admissions
+
+            const snapshot =
+            await get(ref(db,"patients"));
+
+            let count = 1;
+
+            if (snapshot.exists()) {
+
+                count = 0;
+
+                snapshot.forEach(() => {
+                    count++;
+                });
+
+                count++;
+
+            }
+
+            const yyyy =
+            now.getFullYear();
+
+            const mm =
+            String(now.getMonth()+1)
+            .padStart(2,"0");
+
+            const dd =
+            String(now.getDate())
+            .padStart(2,"0");
+
+            admissionNumber.value =
+            `ADM-${yyyy}${mm}${dd}-${String(count).padStart(4,"0")}`;
+
+        }
+
+        initializeAdmission();
+
         function InsertData() {
             // Generate a unique key
-            const patientRef = push(ref(db, "patients"));
+            const patientRef = push(ref(db,"patients"));
             const patientId = patientRef.key;
+
+            const generatedAdmissionNumber =
+                "ADM-" +
+                new Date().toISOString().slice(0,10).replace(/-/g,"") +
+                "-" +
+                patientId.substring(0,6).toUpperCase();
+                
             const fullName = [
 
                 firstName.value.trim(),
@@ -353,6 +450,13 @@
             .join(" ");
 
             set(patientRef, {
+                // Admission Information
+                admissionNumber: admissionNumber.value,
+                admissionDate: admissionDate.value,
+                admissionTime: admissionTime.value,
+                assignedArea: assignedArea.value,
+                room: room.value,
+
                 // Patient Information
                 patient_id: patientId,
                 fullName: fullName,
