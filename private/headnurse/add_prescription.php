@@ -4,145 +4,150 @@ header("Content-Type: application/json");
 
 require_once "../../firebase/firebase.php";
 
-try{
+try {
 
-$data=json_decode(
-file_get_contents("php://input"),
-true
-);
+    $data = json_decode(
+        file_get_contents("php://input"),
+        true
+    );
 
-if(empty($data["patient_id"]))
-throw new Exception("Patient required.");
+    if (empty($data["patient_id"])) {
+        throw new Exception("Patient required.");
+    }
 
-if(empty($data["physician_uid"]))
-throw new Exception("Physician required.");
+    if (empty($data["physician_uid"])) {
+        throw new Exception("Physician required.");
+    }
 
-if(empty($data["items"]))
-throw new Exception("No medications added.");
+    if (empty($data["items"]) || !is_array($data["items"])) {
+        throw new Exception("No medications added.");
+    }
 
-$patient=
+    // Load patient
+    $patient = $database
+        ->getReference("patients/" . $data["patient_id"])
+        ->getValue();
 
-$database
-->getReference(
-"patients/".$data["patient_id"]
-)
-->getValue();
+    if (!$patient) {
+        throw new Exception("Patient not found.");
+    }
 
-if(!$patient){
+    // Create prescription
+    $prescriptionRef = $database
+        ->getReference("prescriptions")
+        ->push();
 
-throw new Exception(
-"Patient not found."
-);
+    $prescriptionId = $prescriptionRef->getKey();
 
-}
+    $prescriptionRef->set([
 
-/* Create Prescription */
+        "prescription_id" => $prescriptionId,
 
-$prescriptionRef=
+        "patient_id" => $data["patient_id"],
 
-$database
-->getReference("prescriptions")
-->push();
+        "patient_name" => $patient["fullName"] ?? "",
 
-$prescriptionId=
+        "ward" => $patient["assignedArea"] ?? "",
 
-$prescriptionRef->getKey();
+        "room" => $patient["room"] ?? "",
 
-$prescriptionRef->set([
+        "physician_uid" => $data["physician_uid"],
 
-"prescription_id"=>$prescriptionId,
+        "physician_name" => $data["physician_name"],
 
-"patient_id"=>$data["patient_id"],
+        "status" => "Active",
 
-"patient_name"=>$patient["fullName"],
+        "notes" => $data["notes"] ?? "",
 
-"physicianUid"=>$data["physician_uid"],
+        "created_at" => date("c")
 
-"physicianName"=>$data["physician_name"],
+    ]);
 
-"status"=>"Active",
+    // Create prescription items
+    foreach ($data["items"] as $item) {
 
-"notes"=>$data["notes"],
+        if (empty($item["medication_id"])) {
+            continue;
+        }
 
-"created_at"=>date("c")
+        $med = $database
+            ->getReference("medications/" . $item["medication_id"])
+            ->getValue();
 
-]);
+        if (!$med) {
+            continue;
+        }
 
-/* Create Prescription Items */
+        $itemRef = $database
+            ->getReference("prescription_items")
+            ->push();
 
-foreach($data["items"] as $item){
+        $itemId = $itemRef->getKey();
 
-$med=
+        $itemRef->set([
 
-$database
-->getReference(
-"medications/".$item["medication_id"]
-)
-->getValue();
+            "prescription_item_id" => $itemId,
 
-if(!$med){
+            "prescription_id" => $prescriptionId,
 
-continue;
+            "patient_id" => $data["patient_id"],
 
-}
+            "patient_name" => $patient["fullName"] ?? "",
 
-$itemRef=
+            "ward" => $patient["assignedArea"] ?? "",
 
-$database
-->getReference("prescription_items")
-->push();
+            "room" => $patient["room"] ?? "",
 
-$itemRef->set([
+            "physician_uid" => $data["physician_uid"],
 
-"prescription_id"=>$prescriptionId,
+            "physician_name" => $data["physician_name"],
 
-"medication_id"=>$item["medication_id"],
+            "medication_id" => $item["medication_id"],
 
-"medication_name"=>$med["generic_name"],
+            "medication_name" => $med["generic_name"] ?? "",
 
-"brand_name"=>$med["brand_name"],
+            "brand_name" => $med["brand_name"] ?? "",
 
-"form"=>$med["form"],
+            "form" => $med["form"] ?? "",
 
-"dosage"=>$item["dosage"],
+            "dosage" => $item["dosage"] ?? "",
 
-"route"=>$item["route"],
+            "route" => $item["route"] ?? "",
 
-"frequency"=>$item["frequency"],
+            "frequency" => $item["frequency"] ?? "",
 
-"administration_times"=>$item["administration_times"],
+            "administration_times" => $item["administration_times"] ?? [],
 
-"start_date"=>$item["start_date"],
+            "start_date" => $item["start_date"] ?? "",
 
-"end_date"=>$item["end_date"],
+            "end_date" => $item["end_date"] ?? "",
 
-"status"=>"Active"
+            "status" => "Active",
 
-]);
+            "created_at" => date("c")
 
-}
+        ]);
+    }
 
-echo json_encode([
+    echo json_encode([
 
-"success"=>true,
+        "success" => true,
 
-"message"=>"Prescription saved.",
+        "message" => "Prescription saved successfully.",
 
-"prescription_id"=>$prescriptionId
+        "prescription_id" => $prescriptionId
 
-]);
+    ]);
 
-}
-catch(Throwable $e){
+} catch (Throwable $e) {
 
-http_response_code(400);
+    http_response_code(400);
 
-echo json_encode([
+    echo json_encode([
 
-"success"=>false,
+        "success" => false,
 
-"message"=>$e->getMessage()
+        "message" => $e->getMessage()
 
-]);
-
+    ]);
 }

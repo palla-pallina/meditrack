@@ -2,87 +2,251 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Medication Schedule Dashboard</title>
+<title>MediTrack | Medication Schedule Dashboard</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:Arial,sans-serif;
+    background:#f4f7fb;
+    color:#333;
+}
+
+header{
+    background:#1976d2;
+    color:white;
+    padding:20px 30px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:10px;
+}
+
+header h1{
+    font-size:24px;
+}
+
+header .actions{
+    display:flex;
+    gap:10px;
+}
+
+.btn{
+    padding:10px 16px;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+    font-weight:bold;
+    text-decoration:none;
+    display:inline-block;
+}
+
+.btn-primary{
+    background:#0d47a1;
+    color:white;
+}
+
+.btn-secondary{
+    background:white;
+    color:#1976d2;
+}
+
+.container{
+    max-width:1400px;
+    margin:20px auto;
+    padding:0 20px;
+}
+
+.toolbar{
+    background:white;
+    padding:16px;
+    border-radius:10px;
+    margin-bottom:20px;
+    display:grid;
+    grid-template-columns:2fr 1fr 1fr auto;
+    gap:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,.08);
+}
+
+.toolbar input,
+.toolbar select{
+    padding:10px;
+    border:1px solid #d0d7e2;
+    border-radius:6px;
+    width:100%;
+}
+
+.card{
+    background:white;
+    border-radius:10px;
+    box-shadow:0 2px 8px rgba(0,0,0,.08);
+    overflow:hidden;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+thead{
+    background:#e3f2fd;
+}
+
+th,td{
+    padding:12px;
+    border-bottom:1px solid #eef2f7;
+    text-align:left;
+    vertical-align:top;
+}
+
+tr:hover{
+    background:#fafcff;
+}
+
+.badge{
+    padding:6px 10px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:bold;
+    display:inline-block;
+}
+
+.scheduled{ background:#e3f2fd; color:#1565c0; }
+.given{ background:#e8f5e9; color:#2e7d32; }
+.missed{ background:#ffebee; color:#c62828; }
+.delayed{ background:#fff3e0; color:#ef6c00; }
+.refused{ background:#f3e5f5; color:#6a1b9a; }
+
+.action-group{
+    display:flex;
+    gap:6px;
+    flex-wrap:wrap;
+}
+
+.action-btn{
+    padding:6px 10px;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+    font-size:12px;
+    font-weight:bold;
+}
+
+.view{ background:#1976d2; color:white; }
+.edit{ background:#2e7d32; color:white; }
+.delete{ background:#c62828; color:white; }
+
+.empty{
+    text-align:center;
+    padding:40px;
+    color:#666;
+}
+
+@media(max-width:1100px){
+    .toolbar{
+        grid-template-columns:1fr;
+    }
+
+    .card{
+        overflow:auto;
+    }
+
+    table{
+        min-width:1100px;
+    }
+}
+</style>
 </head>
 
 <body>
 
-<h2>Medication Schedule Dashboard</h2>
+<header>
 
-<a href="dashboard.html">Dashboard</a>
+    <div>
+        <h1>Medication Schedule Dashboard</h1>
+        <div>Monitor and manage all assigned medication schedules</div>
+    </div>
 
-<a href="assign_schedule.html">
-Assign Schedule
-</a>
+    <div class="actions">
+        <a href="dashboard.html" class="btn btn-secondary">
+            Dashboard
+        </a>
 
-<hr>
+        <a href="assign_schedule.html" class="btn btn-primary">
+            + Assign Schedule
+        </a>
+    </div>
 
-<input
-type="text"
-id="search"
-placeholder="Search patient, medication or nurse">
+</header>
 
-<select id="statusFilter">
+<div class="container">
 
-<option value="">All Status</option>
+    <div class="toolbar">
 
-<option>Scheduled</option>
+        <input
+            type="text"
+            id="search"
+            placeholder="Search patient, medication, nurse, ward, or room">
 
-<option>Given</option>
+        <select id="statusFilter">
+            <option value="">All Status</option>
+            <option value="Scheduled">Scheduled</option>
+            <option value="Given">Given</option>
+            <option value="Missed">Missed</option>
+            <option value="Delayed">Delayed</option>
+            <option value="Refused">Refused</option>
+        </select>
 
-<option>Missed</option>
+        <select id="sortFilter">
+            <option value="today">Today</option>
+            <option value="upcoming">Upcoming</option>
+            <option value="past">Past</option>
+            <option value="recent" selected>Recent</option>
+        </select>
 
-<option>Delayed</option>
+        <button id="refreshBtn" class="btn btn-primary">
+            Refresh
+        </button>
 
-<option>Refused</option>
+    </div>
 
-</select>
+    <div class="card">
 
-<button id="searchBtn">
+        <table>
 
-Search
+            <thead>
+                <tr>
+                    <th>Patient</th>
+                    <th>Location</th>
+                    <th>Medication</th>
+                    <th>Dosage</th>
+                    <th>Route</th>
+                    <th>Nurse</th>
+                    <th>Scheduled Time</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
 
-</button>
+            <tbody id="table">
+                <tr>
+                    <td colspan="9" class="empty">
+                        Loading schedules...
+                    </td>
+                </tr>
+            </tbody>
 
-<hr>
+        </table>
 
-<table border="1" cellpadding="8">
+    </div>
 
-<thead>
-
-<tr>
-
-<th>Patient</th>
-
-<th>Medication</th>
-
-<th>Nurse</th>
-
-<th>Scheduled Time</th>
-
-<th>Status</th>
-
-<th>Actions</th>
-
-</tr>
-
-</thead>
-
-<tbody id="table">
-
-<tr>
-
-<td colspan="6">
-
-Loading...
-
-</td>
-
-</tr>
-
-</tbody>
-
-</table>
+</div>
 
 <script type="module">
 
@@ -90,16 +254,14 @@ import { initializeApp }
 from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
 
 import {
-
-getDatabase,
-ref,
-get,
-remove
-
+    getDatabase,
+    ref,
+    get,
+    remove
 }
 from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
 
-const firebaseConfig={
+const firebaseConfig = {
     apiKey: "AIzaSyBRm3dUt3HreTquM_Ba9JfYmZD2CLVV0Gc",
     authDomain: "meditrack-59cca.firebaseapp.com",
     databaseURL: "https://meditrack-59cca-default-rtdb.asia-southeast1.firebasedatabase.app",
@@ -109,349 +271,307 @@ const firebaseConfig={
     appId: "1:656003988692:web:badfe96b7d830837a4cf41"
 };
 
-const app=initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
-const db=getDatabase(app);
+const table = document.getElementById("table");
 
-const table=document.getElementById("table");
+let schedules = [];
 
-let schedules=[];
-
-loadSchedules();
+await loadSchedules();
 
 async function loadSchedules(){
 
-const snapshot=
+    table.innerHTML = `
+        <tr>
+            <td colspan="9" class="empty">
+                Loading schedules...
+            </td>
+        </tr>
+    `;
 
-await get(
+    const snapshot =
+    await get(ref(db,"medication_schedule"));
 
-ref(db,"medication_schedule")
+    schedules = [];
 
-);
+    if(snapshot.exists()){
 
-schedules=[];
+        snapshot.forEach(child=>{
 
-if(snapshot.exists()){
+            schedules.push({
+                id:child.key,
+                ...child.val()
+            });
 
-snapshot.forEach(child=>{
+        });
 
-schedules.push({
+    }
 
-id:child.key,
-
-...child.val()
-
-});
-
-});
+    applyFilters();
 
 }
 
-renderTable(schedules);
+function badgeClass(status){
+
+    switch(status){
+
+        case "Scheduled": return "scheduled";
+        case "Given": return "given";
+        case "Missed": return "missed";
+        case "Delayed": return "delayed";
+        case "Refused": return "refused";
+        default: return "scheduled";
+
+    }
 
 }
 
 function renderTable(data){
 
-table.innerHTML="";
+    table.innerHTML = "";
 
-if(data.length===0){
+    if(data.length === 0){
 
-table.innerHTML=
+        table.innerHTML = `
+            <tr>
+                <td colspan="9" class="empty">
+                    No schedules found.
+                </td>
+            </tr>
+        `;
 
-"<tr><td colspan='6'>No schedules found.</td></tr>";
+        return;
 
-return;
+    }
 
-}
+    data.forEach(schedule=>{
 
-data.sort(
+        const tr = document.createElement("tr");
 
-(a,b)=>
+        tr.innerHTML = `
+            <td>
+                <strong>${schedule.patient_name || ""}</strong>
+            </td>
 
-new Date(a.scheduled_time)-
+            <td>
+                ${schedule.assigned_area || "-"}
+                <br>
+                <small>Room ${schedule.room || "-"}</small>
+            </td>
 
-new Date(b.scheduled_time)
+            <td>
+                <strong>${schedule.medication_name || ""}</strong>
+            </td>
 
-);
+            <td>${schedule.dosage || "-"}</td>
 
-data.forEach(schedule=>{
+            <td>${schedule.route || "-"}</td>
 
-const tr=document.createElement("tr");
+            <td>${schedule.nurse_name || "-"}</td>
 
-tr.innerHTML=`
+            <td>
+                ${formatDateTime(schedule.scheduled_time)}
+            </td>
 
-<td>
+            <td>
+                <span class="badge ${badgeClass(schedule.status)}">
+                    ${schedule.status}
+                </span>
+            </td>
 
-${schedule.patient_name}
+            <td>
+                <div class="action-group">
 
-</td>
+                    <button class="action-btn view">
+                        View
+                    </button>
 
-<td>
+                    <button class="action-btn delete">
+                        Delete
+                    </button>
 
-${schedule.medication_name}
+                </div>
+            </td>
+        `;
 
-</td>
+        tr.querySelector(".view")
+        .addEventListener("click",()=>{
 
-<td>
+            location.href =
+            "view_schedule.html?id=" +
+            encodeURIComponent(schedule.id);
 
-${schedule.nurse_name}
+        });
 
-</td>
+        tr.querySelector(".delete")
+        .addEventListener("click",()=>{
 
-<td>
+            deleteSchedule(schedule.id);
 
-${new Date(
+        });
 
-schedule.scheduled_time
+        table.appendChild(tr);
 
-).toLocaleString()}
-
-</td>
-
-<td>
-
-${schedule.status}
-
-</td>
-
-<td>
-
-<button class="viewBtn">
-
-View
-
-</button>
-
-<button class="editBtn">
-
-Edit
-
-</button>
-
-<button class="deleteBtn">
-
-Delete
-
-</button>
-
-</td>
-
-`;
-
-tr.querySelector(".viewBtn")
-
-.addEventListener(
-
-"click",
-
-()=>{
-
-location.href=
-
-"view_schedule.html?id="+
-
-encodeURIComponent(
-
-schedule.id
-
-);
+    });
 
 }
 
-);
+function formatDateTime(value){
 
-tr.querySelector(".editBtn")
+    if(!value) return "-";
 
-.addEventListener(
+    // If value is only a time (HH:MM)
+    if(/^\\d{2}:\\d{2}$/.test(value)){
 
-"click",
+        const [h, m] = value.split(":").map(Number);
 
-()=>{
+        const period = h >= 12 ? "PM" : "AM";
+        const hour12 = h % 12 || 12;
 
-location.href=
+        return `${hour12}:${String(m).padStart(2,"0")} ${period}`;
 
-"edit_schedule.html?id="+
+    }
 
-encodeURIComponent(
+    // If value is a full datetime
+    const d = new Date(value);
 
-schedule.id
+    if(isNaN(d.getTime())){
 
-);
+        return value;
 
-}
+    }
 
-);
-
-tr.querySelector(".deleteBtn")
-
-.addEventListener(
-
-"click",
-
-()=>{
-
-deleteSchedule(
-
-schedule.id
-
-);
-
-}
-
-);
-
-table.appendChild(tr);
-
-});
+    return d.toLocaleString([],{
+        year:"numeric",
+        month:"short",
+        day:"numeric",
+        hour:"numeric",
+        minute:"2-digit"
+    });
 
 }
 
 async function deleteSchedule(id){
 
-if(
+    if(!confirm("Delete this schedule?")){
+        return;
+    }
 
-!confirm(
+    await remove(ref(db,"medication_schedule/"+id));
 
-"Delete this schedule?"
-
-)
-
-){
-
-return;
+    await loadSchedules();
 
 }
 
-await remove(
+function applyFilters(){
 
-ref(
+    const keyword =
+    document.getElementById("search")
+    .value.toLowerCase().trim();
 
-db,
+    const status =
+    document.getElementById("statusFilter").value;
 
-"medication_schedule/"+id
+    const sort =
+    document.getElementById("sortFilter").value;
 
-)
+    let filtered = schedules.filter(schedule=>{
 
-);
+        const text = [
+            schedule.patient_name,
+            schedule.medication_name,
+            schedule.nurse_name,
+            schedule.assigned_area,
+            schedule.room
+        ]
+        .join(" ")
+        .toLowerCase();
 
-alert(
+        const matchText =
+        text.includes(keyword);
 
-"Schedule deleted."
+        const matchStatus =
+        !status || schedule.status === status;
 
-);
+        return matchText && matchStatus;
 
-loadSchedules();
+    });
+
+    const now = new Date();
+
+    if(sort === "today"){
+
+        filtered = filtered.filter(s=>{
+
+            const d = new Date(s.scheduled_time);
+
+            return d.toDateString() === now.toDateString();
+
+        });
+
+        filtered.sort(
+            (a,b)=>
+            new Date(a.scheduled_time) -
+            new Date(b.scheduled_time)
+        );
+
+    }
+    else if(sort === "upcoming"){
+
+        filtered = filtered.filter(
+            s=>new Date(s.scheduled_time) >= now
+        );
+
+        filtered.sort(
+            (a,b)=>
+            new Date(a.scheduled_time) -
+            new Date(b.scheduled_time)
+        );
+
+    }
+    else if(sort === "past"){
+
+        filtered = filtered.filter(
+            s=>new Date(s.scheduled_time) < now
+        );
+
+        filtered.sort(
+            (a,b)=>
+            new Date(b.scheduled_time) -
+            new Date(a.scheduled_time)
+        );
+
+    }
+    else if(sort === "recent"){
+
+        filtered.sort(
+            (a,b)=>
+            new Date(b.created_at || b.scheduled_time) -
+            new Date(a.created_at || a.scheduled_time)
+        );
+
+    }
+
+    renderTable(filtered);
 
 }
-
-function search(){
-
-const keyword=
 
 document
-
 .getElementById("search")
-
-.value
-
-.toLowerCase()
-
-.trim();
-
-const status=
+.addEventListener("input",applyFilters);
 
 document
-
 .getElementById("statusFilter")
-
-.value;
-
-const filtered=
-
-schedules.filter(schedule=>{
-
-const matchText=
-
-schedule.patient_name
-
-.toLowerCase()
-
-.includes(keyword)
-
-||
-
-schedule.medication_name
-
-.toLowerCase()
-
-.includes(keyword)
-
-||
-
-schedule.nurse_name
-
-.toLowerCase()
-
-.includes(keyword);
-
-const matchStatus=
-
-status===""
-
-||
-
-schedule.status===status;
-
-return(
-
-matchText&&
-
-matchStatus
-
-);
-
-});
-
-renderTable(filtered);
-
-}
+.addEventListener("change",applyFilters);
 
 document
-
-.getElementById("searchBtn")
-
-.addEventListener(
-
-"click",
-
-search
-
-);
+.getElementById("sortFilter")
+.addEventListener("change",applyFilters);
 
 document
-
-.getElementById("search")
-
-.addEventListener(
-
-"keyup",
-
-search
-
-);
-
-document
-
-.getElementById("statusFilter")
-
-.addEventListener(
-
-"change",
-
-search
-
-);
+.getElementById("refreshBtn")
+.addEventListener("click",loadSchedules);
 
 </script>
 

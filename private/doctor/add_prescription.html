@@ -131,18 +131,30 @@ Save New Medication
 <br><br>
 
 <label>Frequency</label><br>
-<input
-type="text"
-id="frequency"
-placeholder="Every 8 hours">
+
+<select id="frequency">
+
+    <option value="">Select frequency</option>
+
+    <option value="OD">OD (once daily)</option>
+
+    <option value="OD HS">OD HS (once daily at bedtime)</option>
+
+    <option value="OD AC">OD AC (once daily before meals)</option>
+
+    <option value="OD LUNCH">OD (once daily) at lunch</option>
+
+    <option value="BID">BID (twice daily)</option>
+
+    <option value="TID">TID (three times daily)</option>
+
+    <option value="Q12">Q12 (every 12 hours)</option>
+
+</select>
 
 <br><br>
 
-<label>First Dose Time</label><br> <input type="time" id="time"> 
-
-<br><br> 
-
-<label>Calculated Administration Times</label> 
+<label>Calculated Administration Times</label>
 <ul id="timeList"></ul>
 
 <br>
@@ -249,101 +261,36 @@ let medications=[];
 
 let selectedTimes=[];
 
-function addHours(timeString, hours){
-
-    const [h,m] = timeString.split(":").map(Number);
-
-    const date = new Date();
-
-    date.setHours(h,m,0,0);
-
-    date.setHours(date.getHours() + hours);
-
-    return date.toTimeString().slice(0,5);
-
-}
-
 function calculateAdministrationTimes(){
 
     const frequency =
-        document.getElementById("frequency").value
-        .toLowerCase()
-        .trim();
+    document.getElementById("frequency").value;
 
-    const firstTime =
-        document.getElementById("time").value;
+    const scheduleMap = {
 
-    if(!firstTime){
+        "OD": ["08:00"],
 
-        selectedTimes = [];
-        renderTimes();
-        return;
+        "OD HS": ["21:00"],
 
-    }
+        "OD AC": ["05:00"],
 
-    let interval = null;
+        "OD LUNCH": ["13:00"],
 
-    // Detect common patterns
+        "BID": ["08:00", "18:00"],
 
-    if(frequency.includes("every 4") || frequency.includes("q4h")){
+        "TID": ["08:00", "13:00", "18:00"],
 
-        interval = 4;
+        "Q12": ["08:00", "20:00"]
 
-    }else if(frequency.includes("every 5") || frequency.includes("q5h")){
+    };
 
-        interval = 5;
-
-    }else if(frequency.includes("every 6") || frequency.includes("q6h")){
-
-        interval = 6;
-
-    }else if(frequency.includes("every 8") || frequency.includes("q8h")){
-
-        interval = 8;
-
-    }else if(frequency.includes("every 12") || frequency.includes("q12h")){
-
-        interval = 12;
-
-    }else if(
-        frequency.includes("once daily") ||
-        frequency.includes("od") ||
-        frequency.includes("daily")
-    ){
-
-        interval = 24;
-
-    }
-
-    // If not recognized, use only the first time
-
-    if(interval === null){
-
-        selectedTimes = [firstTime];
-
-        renderTimes();
-
-        return;
-
-    }
-
-    selectedTimes = [];
-
-    let current = firstTime;
-
-    const dosesPerDay = Math.floor(24 / interval);
-
-    for(let i=0; i<dosesPerDay; i++){
-
-        selectedTimes.push(current);
-
-        current = addHours(current, interval);
-
-    }
+    selectedTimes =
+    scheduleMap[frequency] || [];
 
     renderTimes();
 
 }
+
 
 let prescriptionItems=[];
 
@@ -651,18 +598,34 @@ document
 
 };
 
-function renderTimes(){ 
-    const ul = document.getElementById("timeList"); 
-    
-    ul.innerHTML = ""; 
-    
-    selectedTimes.forEach(time => { 
-        ul.innerHTML += `<li>${time}</li>`; 
-    }); 
+function renderTimes(){
+
+    const ul =
+    document.getElementById("timeList");
+
+    ul.innerHTML = "";
+
+    selectedTimes.forEach(time => {
+
+        const [h,m] =
+        time.split(":").map(Number);
+
+        const period =
+        h >= 12 ? "PM" : "AM";
+
+        const hour12 =
+        h % 12 || 12;
+
+        ul.innerHTML +=
+        `<li>${hour12}:${String(m).padStart(2,"0")} ${period}</li>`;
+
+    });
+
 }
 
-document.getElementById("frequency").addEventListener("input", calculateAdministrationTimes);
-document.getElementById("time").addEventListener("change", calculateAdministrationTimes);
+document
+.getElementById("frequency")
+.addEventListener("change", calculateAdministrationTimes);
 
 document
 .getElementById("addMedication")
@@ -728,7 +691,6 @@ document
 
 document.getElementById("dosage").value = ""; 
 document.getElementById("frequency").value = ""; 
-document.getElementById("time").value = ""; 
 document.getElementById("startDate").value = ""; 
 document.getElementById("endDate").value = ""; 
 document.getElementById("medication").value = ""; 

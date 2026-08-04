@@ -32,9 +32,7 @@ Search
 <tr>
 
 <th>Patient</th>
-<th>Physician</th>
 <th>Status</th>
-<th>Date Created</th>
 <th>Medications</th>
 <th>Actions</th>
 
@@ -176,11 +174,7 @@ tr.innerHTML=`
 
 <td>${prescription.patient_name}</td>
 
-<td>${prescription.prescribing_physician}</td>
-
 <td>${prescription.status}</td>
-
-<td>${new Date(prescription.created_at).toLocaleString()}</td>
 
 <td>${count}</td>
 
@@ -189,12 +183,6 @@ tr.innerHTML=`
 <button class="viewBtn">
 
 View Details
-
-</button>
-
-<button class="editBtn">
-
-Edit
 
 </button>
 
@@ -207,22 +195,6 @@ Delete
 </td>
 
 `;
-
-tr.querySelector(".editBtn")
-
-.addEventListener("click",()=>{
-
-location.href=
-
-"edit_prescription.html?id="+
-
-encodeURIComponent(
-
-prescription.id
-
-);
-
-});
 
 tr.querySelector(".viewBtn").addEventListener("click", () => {
 
@@ -507,7 +479,7 @@ p.patient_name
 
 ||
 
-p.prescribing_physician
+p.physicianNname
 
 .toLowerCase()
 

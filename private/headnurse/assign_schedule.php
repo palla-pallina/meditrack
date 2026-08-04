@@ -104,33 +104,38 @@ $scheduleRef->getKey();
 
 $scheduleRef->set([
 
-"schedule_id"=>$scheduleId,
+    "schedule_id"=>$scheduleId,
 
-"prescription_id"=>$item["prescription_id"],
+    "prescription_id"=>$item["prescription_id"],
 
-"prescription_item_id"=>$data["prescription_item_id"],
+    "prescription_item_id"=>$data["prescription_item_id"],
 
-"patient_id"=>$prescription["patient_id"],
+    "patient_id"=>$prescription["patient_id"],
 
-"patient_name"=>$prescription["patient_name"],
+    "patient_name"=>$prescription["patient_name"],
 
-"medication_id"=>$item["medication_id"],
+    // Save ward and room
+    "assigned_area"=>trim($data["assigned_area"] ?? ""),
 
-"medication_name"=>$item["medication_name"],
+    "room"=>trim($data["room"] ?? ""),
 
-"nurse_uid"=>$data["nurse_uid"],
+    "medication_id"=>$item["medication_id"],
 
-"nurse_name"=>$nurse["fullName"],
+    "medication_name"=>$item["medication_name"],
 
-"dosage"=>$data["dosage"],
+    "nurse_uid"=>$data["nurse_uid"],
 
-"route"=>$data["route"],
+    "nurse_name"=>$nurse["fullName"],
 
-"scheduled_time"=>$data["scheduled_time"],
+    "dosage"=>$data["dosage"],
 
-"status"=>$data["status"],
+    "route"=>$data["route"],
 
-"created_at"=>date("c")
+    "scheduled_time"=>$data["scheduled_time"],
+
+    "status"=>$data["status"],
+
+    "created_at"=>date("c")
 
 ]);
 

@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
+    
 <head>
 <meta charset="UTF-8">
 <title>New Prescription</title>
 </head>
+
 <body>
 
 <a href="dashboard.html">Back to Dashboard</a>
@@ -19,12 +21,10 @@
 
 <br><br>
 
-<label>Prescribing Physician</label><br>
+<label>Prescribing Physician</label><br> 
 
-<select id="physician" required>
-
-    <option value="">Loading doctors...</option>
-
+<select id="physician" required> 
+    <option value="">Loading doctors...</option> 
 </select>
 
 <br><br>
@@ -125,25 +125,30 @@ Save New Medication
 <br><br>
 
 <label>Frequency</label><br>
-<input
-type="text"
-id="frequency"
-placeholder="Every 8 hours">
+
+<select id="frequency">
+
+    <option value="">Select frequency</option>
+
+    <option value="OD">OD (once daily)</option>
+
+    <option value="OD HS">OD HS (once daily at bedtime)</option>
+
+    <option value="OD AC">OD AC (once daily before meals)</option>
+
+    <option value="OD LUNCH">OD (once daily) at lunch</option>
+
+    <option value="BID">BID (twice daily)</option>
+
+    <option value="TID">TID (three times daily)</option>
+
+    <option value="Q12">Q12 (every 12 hours)</option>
+
+</select>
 
 <br><br>
 
-<label>Administration Times</label><br>
-
-<input type="time" id="time">
-
-<button
-type="button"
-id="addTime">
-
-Add Time
-
-</button>
-
+<label>Calculated Administration Times</label>
 <ul id="timeList"></ul>
 
 <br>
@@ -224,6 +229,12 @@ set
 }
 from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
 
+import {
+    getAuth,
+    onAuthStateChanged
+}
+from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+
 const firebaseConfig={
     apiKey: "AIzaSyBRm3dUt3HreTquM_Ba9JfYmZD2CLVV0Gc",
     authDomain: "meditrack-59cca.firebaseapp.com",
@@ -238,17 +249,50 @@ const app=initializeApp(firebaseConfig);
 
 const database=getDatabase(app);
 
+const auth = getAuth(app);
+
 let medications=[];
 
 let selectedTimes=[];
 
+function calculateAdministrationTimes(){
+
+    const frequency =
+    document.getElementById("frequency").value;
+
+    const scheduleMap = {
+
+        "OD": ["08:00"],
+
+        "OD HS": ["21:00"],
+
+        "OD AC": ["05:00"],
+
+        "OD LUNCH": ["13:00"],
+
+        "BID": ["08:00", "18:00"],
+
+        "TID": ["08:00", "13:00", "18:00"],
+
+        "Q12": ["08:00", "20:00"]
+
+    };
+
+    selectedTimes =
+    scheduleMap[frequency] || [];
+
+    renderTimes();
+
+}
+
+
 let prescriptionItems=[];
 
-loadPatients();
+loadPatients(); 
+
+loadDoctors(); 
 
 loadMedications();
-
-loadDoctors();
 
 async function loadPatients(){
 
@@ -276,46 +320,52 @@ ${p.fullName}
 
 }
 
-async function loadDoctors(){
+async function loadDoctors(){ 
 
-    const snapshot = await get(ref(database, "users"));
+    const snapshot = await get(ref(database, "users")); 
+    const physician = document.getElementById("physician"); 
+    
+    physician.innerHTML = '<option value="">Select Physician</option>';
+    
+    if(!snapshot.exists()) return; 
+    
+    snapshot.forEach(child => { 
+        const user = child.val(); 
+        
+        if(user.userType === "Doctor"){ 
+            physician.innerHTML += ` 
+                <option value="${child.key}"> ${user.fullName} </option> 
+            `; 
+        } 
+    }); 
+}
 
-    const physician = document.getElementById("physician");
+async function loadCurrentDoctor(uid){
 
-    physician.innerHTML = "";
+    const snapshot =
+    await get(ref(database,"users/"+uid));
 
     if(!snapshot.exists()){
 
-        physician.innerHTML =
-        "<option value=''>No doctors found</option>";
-
+        alert("Doctor account not found.");
         return;
 
     }
 
-    physician.innerHTML =
-    "<option value=''>-- Select Doctor --</option>";
+    const doctor = snapshot.val();
 
-    snapshot.forEach(child=>{
+    if(doctor.userType !== "Doctor"){
 
-        const user = child.val();
+        alert("Only doctors can create prescriptions.");
+        return;
 
-        if(
-            user.userType === "Doctor" &&
-            user.accountStatus === "Active"
-        ){
+    }
 
-            physician.innerHTML += `
-                <option value="${child.key}">
+    document.getElementById("physician").value =
+    doctor.fullName;
 
-                    ${user.fullName}
-
-                </option>
-            `;
-
-        }
-
-    });
+    document.getElementById("physicianUid").value =
+    uid;
 
 }
 
@@ -551,39 +601,34 @@ document
 
 };
 
-document
-.getElementById("addTime")
-.onclick=function(){
-
-const t=document
-.getElementById("time")
-.value;
-
-if(!t)return;
-
-selectedTimes.push(t);
-
-renderTimes();
-
-};
-
 function renderTimes(){
 
-const ul=
+    const ul =
+    document.getElementById("timeList");
 
-document.getElementById("timeList");
+    ul.innerHTML = "";
 
-ul.innerHTML="";
+    selectedTimes.forEach(time => {
 
-selectedTimes.forEach(time=>{
+        const [h,m] =
+        time.split(":").map(Number);
 
-ul.innerHTML+=
+        const period =
+        h >= 12 ? "PM" : "AM";
 
-`<li>${time}</li>`;
+        const hour12 =
+        h % 12 || 12;
 
-});
+        ul.innerHTML +=
+        `<li>${hour12}:${String(m).padStart(2,"0")} ${period}</li>`;
+
+    });
 
 }
+
+document
+.getElementById("frequency")
+.addEventListener("change", calculateAdministrationTimes);
 
 document
 .getElementById("addMedication")
@@ -647,12 +692,11 @@ document
 
 });
 
-document.getElementById("dosage").value = "";
-document.getElementById("frequency").value = "";
-document.getElementById("time").value = "";
-document.getElementById("startDate").value = "";
-document.getElementById("endDate").value = "";
-document.getElementById("medication").value = "";
+document.getElementById("dosage").value = ""; 
+document.getElementById("frequency").value = ""; 
+document.getElementById("startDate").value = ""; 
+document.getElementById("endDate").value = ""; 
+document.getElementById("medication").value = ""; 
 document.getElementById("medicationSearch").value = "";
 
 selectedTimes = [];
@@ -722,21 +766,18 @@ async function(e){
 
 e.preventDefault();
 
-const physicianSelect =
-document.getElementById("physician");
-
 const payload = {
 
     patient_id:
     document.getElementById("patient").value,
 
-    physician_uid:
-    physicianSelect.value,
-
-    physician_name:
-    physicianSelect.options[
-        physicianSelect.selectedIndex
-    ].text,
+    physician_uid: 
+        document.getElementById("physician").value, 
+        
+    physician_name: 
+        document.getElementById("physician").options[ 
+            document.getElementById("physician").selectedIndex 
+        ].text,
 
     notes:
     document.getElementById("notes").value,

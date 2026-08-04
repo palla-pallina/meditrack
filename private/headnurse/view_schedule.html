@@ -21,18 +21,18 @@
 </tr>
 
 <tr>
+    <td><strong>Ward</strong></td>
+    <td id="assignedArea"></td>
+</tr>
+
+<tr>
+    <td><strong>Room</strong></td>
+    <td id="room"></td>
+</tr>
+
+<tr>
     <td><strong>Medication</strong></td>
     <td id="medication"></td>
-</tr>
-
-<tr>
-    <td><strong>Assigned Nurse</strong></td>
-    <td id="nurse"></td>
-</tr>
-
-<tr>
-    <td><strong>Scheduled Time</strong></td>
-    <td id="scheduledTime"></td>
 </tr>
 
 <tr>
@@ -46,6 +46,16 @@
 </tr>
 
 <tr>
+    <td><strong>Assigned Nurse</strong></td>
+    <td id="nurse"></td>
+</tr>
+
+<tr>
+    <td><strong>Scheduled Time</strong></td>
+    <td id="scheduledTime"></td>
+</tr>
+
+<tr>
     <td><strong>Status</strong></td>
     <td id="status"></td>
 </tr>
@@ -55,17 +65,12 @@
     <td id="createdAt"></td>
 </tr>
 
-<tr>
-    <td><strong>Last Updated</strong></td>
-    <td id="updatedAt"></td>
-</tr>
-
 </table>
 
 <br>
 
-<button id="editBtn">
-Edit Schedule
+<button id="deleteBtn">
+    Delete Schedule
 </button>
 
 <script type="module">
@@ -74,11 +79,10 @@ import { initializeApp }
 from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
 
 import {
-
-getDatabase,
-ref,
-get
-
+    getDatabase, 
+    ref, 
+    get, 
+    remove
 }
 from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
 
@@ -86,7 +90,7 @@ from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
 // Firebase Config
 //--------------------------------------
 
-const firebaseConfig={
+const firebaseConfig = {
     apiKey: "AIzaSyBRm3dUt3HreTquM_Ba9JfYmZD2CLVV0Gc",
     authDomain: "meditrack-59cca.firebaseapp.com",
     databaseURL: "https://meditrack-59cca-default-rtdb.asia-southeast1.firebasedatabase.app",
@@ -96,23 +100,21 @@ const firebaseConfig={
     appId: "1:656003988692:web:badfe96b7d830837a4cf41"
 };
 
-const app=initializeApp(firebaseConfig);
-
-const db=getDatabase(app);
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
 //--------------------------------------
 // Get Schedule ID
 //--------------------------------------
 
-const params=new URLSearchParams(window.location.search);
-
-const scheduleId=params.get("id");
+const params = new URLSearchParams(window.location.search);
+const scheduleId = params.get("id");
 
 if(!scheduleId){
 
     alert("No schedule selected.");
 
-    window.location.href="view_schedules.html";
+    window.location.href = "view_schedules.html";
 
 }
 
@@ -122,89 +124,90 @@ if(!scheduleId){
 
 async function loadSchedule(){
 
-try{
+    try{
 
-const snapshot=
+        const snapshot =
+        await get(ref(db, "medication_schedule/" + scheduleId));
 
-await get(
+        if(!snapshot.exists()){
 
-ref(db,"medication_schedule/"+scheduleId)
+            alert("Schedule not found.");
 
-);
+            window.location.href = "view_schedules.html";
 
-if(!snapshot.exists()){
+            return;
 
-alert("Schedule not found.");
+        }
 
-window.location.href="view_schedules.html";
+        const schedule = snapshot.val();
 
-return;
+        document.getElementById("patient").textContent =
+        schedule.patient_name || "";
 
-}
+        document.getElementById("assignedArea").textContent =
+        schedule.assigned_area || "-";
 
-const schedule=snapshot.val();
+        document.getElementById("room").textContent =
+        schedule.room || "-";
 
-document.getElementById("patient").textContent=
-schedule.patient_name || "";
+        document.getElementById("medication").textContent =
+        schedule.medication_name || "";
 
-document.getElementById("medication").textContent=
-schedule.medication_name || "";
+        document.getElementById("dosage").textContent =
+        schedule.dosage || "";
 
-document.getElementById("nurse").textContent=
-schedule.nurse_name || "";
+        document.getElementById("route").textContent =
+        schedule.route || "";
 
-document.getElementById("scheduledTime").textContent=
+        document.getElementById("nurse").textContent =
+        schedule.nurse_name || "";
 
-schedule.scheduled_time
-? new Date(schedule.scheduled_time).toLocaleString()
-: "";
+        document.getElementById("scheduledTime").textContent =
+        schedule.scheduled_time
+            ? (schedule.scheduled_time).toLocaleString()
+            : "";
 
-document.getElementById("dosage").textContent=
-schedule.dosage_given || "";
+        document.getElementById("status").textContent =
+        schedule.status || "";
 
-document.getElementById("route").textContent=
-schedule.route || "";
+        document.getElementById("createdAt").textContent =
+        schedule.created_at
+            ? new Date(schedule.created_at).toLocaleString()
+            : "-";
 
-document.getElementById("status").textContent=
-schedule.status || "";
+    }
+    catch(error){
 
-document.getElementById("createdAt").textContent=
+        alert(error.message);
 
-schedule.createdAt
-? new Date(schedule.createdAt).toLocaleString()
-: "";
-
-document.getElementById("updatedAt").textContent=
-
-schedule.updatedAt
-? new Date(schedule.updatedAt).toLocaleString()
-: "-";
-
-}
-catch(error){
-
-alert(error.message);
-
-}
+    }
 
 }
 
 loadSchedule();
 
-//--------------------------------------
-// Edit Button
-//--------------------------------------
+//-------------------------------------- 
+// Delete Button 
+// -------------------------------------- 
 
-document.getElementById("editBtn")
+document.getElementById("deleteBtn") 
+.addEventListener("click", async function(){
 
-.addEventListener("click",function(){
-
-window.location.href=
-
-"edit_schedule.html?id="+
-
-encodeURIComponent(scheduleId);
-
+    if(!confirm("Delete this schedule?")){ 
+        return; 
+    } 
+    
+    try{ await remove( 
+        ref(db, "medication_schedule/" + scheduleId) 
+    ); 
+    
+    alert("Schedule deleted successfully."); 
+    
+    window.location.href = "view_schedules.html"; 
+    } 
+    catch(error){ 
+        alert(error.message); 
+    } 
 });
 
 </script>

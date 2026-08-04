@@ -13,96 +13,130 @@
 
 <form id="scheduleForm">
 
+<!-- ========================= -->
+<!-- PATIENT -->
+<!-- ========================= -->
 <fieldset>
 
-<legend>Prescription Medication</legend>
+<legend><strong>Patient</strong></legend>
 
-<label>Select Medication</label>
+<label>Select Patient</label><br>
 
-<br>
+<select id="patientSelect" required>
 
-<select id="prescriptionItem" required>
-
-<option value="">Loading...</option>
+<option value="">Loading patients...</option>
 
 </select>
-
-</fieldset>
-
-<br>
-
-<fieldset>
-
-<legend>Nurse</legend>
-
-<label>Assign Nurse</label>
-
-<br>
-
-<select id="nurse" required>
-
-<option value="">Loading...</option>
-
-</select>
-
-</fieldset>
-
-<br>
-
-<fieldset>
-
-<legend>Schedule</legend>
-
-<label>Administration Time</label>
-
-<br>
-
-<input
-type="datetime-local"
-id="scheduledTime"
-required>
 
 <br><br>
 
-<label>Dosage</label>
+<label>Assigned Ward</label><br>
+
+<input
+type="text"
+id="assignedArea"
+readonly>
+
+<br><br>
+
+<label>Room</label><br>
+
+<input
+type="text"
+id="room"
+readonly>
+
+</fieldset>
 
 <br>
+
+<!-- ========================= -->
+<!-- MEDICATION -->
+<!-- ========================= -->
+<fieldset>
+
+<legend><strong>Medication</strong></legend>
+
+<label>Select Medication</label><br>
+
+<select id="prescriptionItem" required>
+
+<option value="">Select patient first</option>
+
+</select>
+
+<br><br>
+
+<label>Medication Name</label><br>
+
+<input
+type="text"
+id="medicationName"
+readonly>
+
+<br><br>
+
+<label>Dosage</label><br>
 
 <input
 type="text"
 id="dosage"
-required>
+readonly>
 
 <br><br>
 
-<label>Route</label>
+<label>Route</label><br>
+
+<input
+type="text"
+id="route"
+readonly>
+
+</fieldset>
 
 <br>
 
-<select id="route">
+<!-- ========================= -->
+<!-- SCHEDULE -->
+<!-- ========================= -->
+<fieldset>
 
-<option>Oral</option>
-<option>IV</option>
-<option>IM</option>
-<option>Subcutaneous</option>
-<option>Topical</option>
-<option>Inhalation</option>
+<legend><strong>Schedule</strong></legend>
+
+<label>Administration Time</label><br>
+
+<select id="scheduledTime" required>
+
+<option value="">Select medication first</option>
 
 </select>
 
 <br><br>
 
-<label>Status</label>
+<label>Status</label><br>
+
+<input
+type="text"
+id="status"
+value="Scheduled"
+readonly>
+
+</fieldset>
 
 <br>
 
-<select id="status">
+<!-- ========================= -->
+<!-- NURSE -->
+<!-- ========================= -->
+<fieldset>
 
-<option>Scheduled</option>
-<option>Given</option>
-<option>Missed</option>
-<option>Delayed</option>
-<option>Refused</option>
+<legend><strong>Nurse</strong></legend>
+
+<label>Assign Nurse</label><br>
+
+<select id="nurse" required>
+
+<option value="">Loading nurses...</option>
 
 </select>
 
@@ -126,15 +160,13 @@ import { initializeApp }
 from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
 
 import {
-
 getDatabase,
 ref,
 get
-
 }
 from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
 
-const firebaseConfig={
+const firebaseConfig = {
     apiKey: "AIzaSyBRm3dUt3HreTquM_Ba9JfYmZD2CLVV0Gc",
     authDomain: "meditrack-59cca.firebaseapp.com",
     databaseURL: "https://meditrack-59cca-default-rtdb.asia-southeast1.firebasedatabase.app",
@@ -144,227 +176,393 @@ const firebaseConfig={
     appId: "1:656003988692:web:badfe96b7d830837a4cf41"
 };
 
-const app=initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
-const db=getDatabase(app);
+const patientSelect =
+document.getElementById("patientSelect");
 
-await loadPrescriptionItems();
-
-await loadNurses();
-
-async function loadPrescriptionItems(){
-
-const prescriptionSnapshot=
-
-await get(ref(db,"prescriptions"));
-
-const itemSnapshot=
-
-await get(ref(db,"prescription_items"));
-
-const select=
-
+const prescriptionSelect =
 document.getElementById("prescriptionItem");
 
-select.innerHTML="";
+const assignedArea =
+document.getElementById("assignedArea");
 
-if(!itemSnapshot.exists()){
+const room =
+document.getElementById("room");
 
-select.innerHTML=
+const medicationName =
+document.getElementById("medicationName");
 
-"<option>No medications</option>";
+const dosage =
+document.getElementById("dosage");
 
-return;
+const route =
+document.getElementById("route");
+
+const scheduledTime =
+document.getElementById("scheduledTime");
+
+let patients = {};
+let patientPrescriptionItems = {};
+
+// Load initial data
+await loadEligiblePatients();
+await loadNurses();
+
+// ======================================
+// 1 & 2. Load patients with prescriptions
+//    and without assigned schedules
+// ======================================
+
+async function loadEligiblePatients(){
+
+    const patientsSnap =
+    await get(ref(db,"patients"));
+
+    const prescriptionsSnap =
+    await get(ref(db,"prescriptions"));
+
+    const itemsSnap =
+    await get(ref(db,"prescription_items"));
+
+    const schedulesSnap =
+    await get(ref(db,"medication_schedule"));
+
+    patientSelect.innerHTML =
+    '<option value="">Select Patient</option>';
+
+    if(
+        !patientsSnap.exists() ||
+        !prescriptionsSnap.exists() ||
+        !itemsSnap.exists()
+    ){
+        return;
+    }
+
+    // -------------------------------------------------
+    // Build map of scheduled times per prescription item
+    // -------------------------------------------------
+
+    const scheduledMap = {};
+
+    if(schedulesSnap.exists()){
+
+        schedulesSnap.forEach(s => {
+
+            const data = s.val();
+
+            const itemId =
+            data.prescription_item_id;
+
+            const time =
+            data.scheduled_time;
+
+            if(!itemId || !time) return;
+
+            if(!scheduledMap[itemId]){
+
+                scheduledMap[itemId] = new Set();
+
+            }
+
+            scheduledMap[itemId].add(time);
+
+        });
+
+    }
+
+    // -------------------------------------------------
+    // Build patient => prescription items that still
+    // have at least one administration time unassigned
+    // -------------------------------------------------
+
+    const map = {};
+
+    itemsSnap.forEach(itemSnap => {
+
+        const item = itemSnap.val();
+
+        const itemId = itemSnap.key;
+
+        const allTimes =
+        item.administration_times || [];
+
+        const scheduledTimes =
+        scheduledMap[itemId] || new Set();
+
+        // Keep only times that are NOT yet scheduled
+
+        const remainingTimes =
+        allTimes.filter(
+            t => !scheduledTimes.has(t)
+        );
+
+        // If no remaining times, this medication is fully scheduled
+
+        if(remainingTimes.length === 0){
+
+            return;
+
+        }
+
+        // Save item with remaining times only
+
+        if(!map[item.patient_id]){
+
+            map[item.patient_id] = [];
+
+        }
+
+        map[item.patient_id].push({
+
+            id: itemId,
+
+            ...item,
+
+            administration_times: remainingTimes
+
+        });
+
+    });
+
+    // -------------------------------------------------
+    // Populate patient dropdown
+    // -------------------------------------------------
+
+    Object.keys(map).forEach(patientId => {
+
+        const patient =
+        patientsSnap.child(patientId).val();
+
+        if(!patient) return;
+
+        patients[patientId] = patient;
+
+        patientPrescriptionItems[patientId] =
+        map[patientId];
+
+        patientSelect.innerHTML += `
+            <option value="${patientId}">
+                ${patient.fullName}
+            </option>
+        `;
+
+    });
 
 }
 
-itemSnapshot.forEach(item=>{
+// ======================================
+// 3,4,5. Patient selected
+// ======================================
 
-const data=item.val();
+patientSelect.addEventListener("change", () => {
 
-const prescription=
+    const patientId =
+    patientSelect.value;
 
-prescriptionSnapshot.child(
+    const patient =
+    patients[patientId];
 
-data.prescription_id
+    prescriptionSelect.innerHTML =
+    '<option value="">Select Medication</option>';
 
-).val();
+    medicationName.value = "";
+    dosage.value = "";
+    route.value = "";
 
-if(!prescription){
+    scheduledTime.innerHTML =
+    '<option value="">Select medication first</option>';
 
-return;
+    if(!patient){
 
-}
+        assignedArea.value = "";
+        room.value = "";
 
-select.innerHTML+=`
+        return;
 
-<option value="${item.key}">
+    }
 
-${prescription.patient_name}
+    // Auto-fill ward and room
+    assignedArea.value =
+    patient.assignedArea || "";
 
--
+    room.value =
+    patient.room || "";
 
-${data.medication_name}
+    // Load medications
+    const items =
+    patientPrescriptionItems[patientId] || [];
 
--
+    items.forEach(item => {
 
-${data.dosage}
+        prescriptionSelect.innerHTML += `
+            <option value="${item.id}">
+                ${item.medication_name}
+            </option>
+        `;
 
--
-
-${data.frequency}
-
-</option>
-
-`;
+    });
 
 });
 
-}
+// ======================================
+// 6 & 7. Medication selected
+// ======================================
+
+prescriptionSelect.addEventListener("change", () => {
+
+    const patientId =
+    patientSelect.value;
+
+    const items =
+    patientPrescriptionItems[patientId] || [];
+
+    const item =
+    items.find(i => i.id === prescriptionSelect.value);
+
+    if(!item){
+
+        medicationName.value = "";
+        dosage.value = "";
+        route.value = "";
+
+        scheduledTime.innerHTML =
+        '<option value="">Select medication first</option>';
+
+        return;
+
+    }
+
+    medicationName.value =
+    item.medication_name || "";
+
+    dosage.value =
+    item.dosage || "";
+
+    route.value =
+    item.route || "";
+
+    // Populate administration times
+    scheduledTime.innerHTML =
+    '<option value="">Select Time</option>';
+
+    (item.administration_times || []).forEach(time => {
+
+        scheduledTime.innerHTML += `
+            <option value="${time}">
+                ${time}
+            </option>
+        `;
+
+    });
+
+});
+
+// ======================================
+// Load nurses
+// ======================================
 
 async function loadNurses(){
 
-const snapshot=
+    const snapshot =
+    await get(ref(db,"users"));
 
-await get(ref(db,"users"));
+    const select =
+    document.getElementById("nurse");
 
-const select=
+    select.innerHTML =
+    '<option value="">Select Nurse</option>';
 
-document.getElementById("nurse");
+    if(!snapshot.exists()) return;
 
-select.innerHTML="";
+    snapshot.forEach(user => {
 
-snapshot.forEach(user=>{
+        const u = user.val();
 
-const u=user.val();
+        if(
+            u.userType === "Nurse" ||
+            u.userType === "Head Nurse"
+        ){
 
-if(
+            select.innerHTML += `
+                <option value="${user.key}">
+                    ${u.fullName}
+                </option>
+            `;
 
-u.userType==="Nurse"
+        }
 
-||
-
-u.userType==="Head Nurse"
-
-){
-
-select.innerHTML+=`
-
-<option value="${user.key}">
-
-${u.fullName}
-
-</option>
-
-`;
+    });
 
 }
 
-});
-
-}
+// ======================================
+// Save schedule
+// ======================================
 
 document
-
 .getElementById("scheduleForm")
+.addEventListener("submit", async function(e){
 
-.addEventListener(
+    e.preventDefault();
 
-"submit",
+    const payload = {
 
-async function(e){
+        prescription_item_id:
+            prescriptionSelect.value,
 
-e.preventDefault();
+        nurse_uid:
+            document.getElementById("nurse").value,
 
-const payload={
+        scheduled_time:
+            scheduledTime.value,
 
-prescription_item_id:
+        dosage:
+            dosage.value,
 
-document
+        route:
+            route.value,
 
-.getElementById("prescriptionItem")
+        status:
+            "Scheduled",
 
-.value,
+        assigned_area:
+            assignedArea.value,
 
-nurse_uid:
+        room:
+            room.value
 
-document
+    };    
+    
+    const response =
+    await fetch("assign_schedule.php",{
 
-.getElementById("nurse")
+        method:"POST",
 
-.value,
+        headers:{
+            "Content-Type":"application/json"
+        },
 
-scheduled_time:
+        body:JSON.stringify(payload)
 
-document
+    });
 
-.getElementById("scheduledTime")
+    const result =
+    await response.json();
 
-.value,
+    document
+    .getElementById("result")
+    .textContent =
+    JSON.stringify(result,null,4);
 
-dosage:
+    if(result.success){
 
-document
+        alert("Medication schedule assigned successfully.");
 
-.getElementById("dosage")
+        location.reload();
 
-.value,
-
-route:
-
-document
-
-.getElementById("route")
-
-.value,
-
-status:
-
-document
-
-.getElementById("status")
-
-.value
-
-};
-
-const response=
-
-await fetch(
-
-"assign_schedule.php",
-
-{
-
-method:"POST",
-
-headers:{
-
-"Content-Type":
-
-"application/json"
-
-},
-
-body:
-
-JSON.stringify(payload)
-
-}
-
-);
-
-const result=
-
-await response.json();
-
-document
-
-.getElementById("result")
-
-.textContent=
-
-JSON.stringify(result,null,4);
+    }
 
 });
 

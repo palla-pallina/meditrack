@@ -32,9 +32,7 @@ Search
 <tr>
 
 <th>Patient</th>
-<th>Assigned Physician</th>
 <th>Status</th>
-<th>Date Created</th>
 <th>Medications</th>
 <th>Actions</th>
 
@@ -95,29 +93,87 @@ loadPrescriptions();
 
 async function loadPrescriptions(){
 
-const snapshot=
+    const prescriptionSnap =
+    await get(ref(database, "prescriptions"));
 
-await get(ref(database,"prescriptions"));
+    const itemSnap =
+    await get(ref(database, "prescription_items"));
 
-prescriptions=[];
+    prescriptions = [];
 
-if(snapshot.exists()){
+    if(!prescriptionSnap.exists()){
 
-snapshot.forEach(child=>{
+        renderTable([]);
 
-prescriptions.push({
+        return;
 
-id:child.key,
+    }
 
-...child.val()
+    const today =
+    new Date().toISOString().split("T")[0];
 
-});
+    // Build map of prescription items
+    const itemsByPrescription = {};
 
-});
+    if(itemSnap.exists()){
 
-}
+        itemSnap.forEach(child => {
 
-renderTable(prescriptions);
+            const item = child.val();
+
+            if(!itemsByPrescription[item.prescription_id]){
+
+                itemsByPrescription[item.prescription_id] = [];
+
+            }
+
+            itemsByPrescription[item.prescription_id].push({
+                id: child.key,
+                ...item
+            });
+
+        });
+
+    }
+
+    // Validate prescription status
+    for(const child of Object.entries(prescriptionSnap.val())){
+
+        const id = child[0];
+        const prescription = child[1];
+
+        const items =
+        itemsByPrescription[id] || [];
+
+        // Prescription is Done only if ALL items have end_date and end_date <= today
+        const isDone =
+            items.length > 0 &&
+            items.every(item =>
+                item.end_date &&
+                item.end_date <= today
+            );
+
+        // Update Firebase if status changed
+        if(isDone && prescription.status !== "Done"){
+
+            await set(
+                ref(database, "prescriptions/" + id + "/status"),
+                "Done"
+            );
+
+            prescription.status = "Done";
+
+        }
+
+        prescriptions.push({
+            id,
+            ...prescription
+        });
+
+    }
+
+    renderTable(prescriptions);
+
 }
 
 async function renderTable(data){
@@ -176,11 +232,7 @@ tr.innerHTML=`
 
 <td>${prescription.patient_name}</td>
 
-<td>${prescription.physicianName}</td>
-
 <td>${prescription.status}</td>
-
-<td>${new Date(prescription.created_at).toLocaleString()}</td>
 
 <td>${count}</td>
 
@@ -500,14 +552,6 @@ const filtered=
 prescriptions.filter(p=>
 
 p.patient_name
-
-.toLowerCase()
-
-.includes(keyword)
-
-||
-
-p.physicianNname
 
 .toLowerCase()
 
