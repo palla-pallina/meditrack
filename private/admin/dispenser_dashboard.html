@@ -44,8 +44,6 @@
 
             <th>Brand</th>
 
-            <th>Drug Class</th>
-
             <th>Form</th>
 
             <th>Inventory</th>
@@ -161,11 +159,9 @@ async function loadCompartments(){
 
             <td>${c.brand_name || "-"}</td>
 
-            <td>${c.drug_class || "-"}</td>
-
             <td>${c.form || "-"}</td>
 
-            <td>${c.inventory_amount}/10</td>
+            <td>${c.inventory_amount}/21</td>
 
             <td>${getStatus(c.inventory_amount)}</td>
 

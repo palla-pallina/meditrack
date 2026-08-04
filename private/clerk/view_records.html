@@ -340,8 +340,19 @@ tbody tr:hover{
 
         <input
             type="text"
-            placeholder="Search patient..."
-            disabled>
+            id="searchInput"
+            placeholder="Search patient...">
+
+        <select id="statusFilter">
+            <option value="Admitted" selected>Admitted</option>
+            <option value="Discharged">Discharged</option>
+            <option value="All">All Patients</option>
+        </select>
+
+        <select id="sortOrder">
+            <option value="recent">Recent</option>
+            <option value="oldest">Oldest</option>
+        </select>
 
     </section>
 
@@ -429,68 +440,211 @@ tbody tr:hover{
             const db = getDatabase(app);
 
             const table = document.querySelector("#patientTable");
+            let patients = [];
             const refreshBtn = document.querySelector("#refreshBtn");
 
             function loadPatients() {
+
                 table.innerHTML = "";
 
                 get(ref(db, "patients"))
-                    .then((snapshot) => {
-                        if (snapshot.exists()) {
-                            snapshot.forEach((childSnapshot) => {
-                                const id = childSnapshot.key;
-                                const patient = childSnapshot.val();
 
-                                let row = `
-                                    <tr>
-                                        <td>${patient.firstName ?? ""} ${patient.middleName ?? ""} ${patient.lastName ?? ""}</td>
-                                        <td>${patient.age ?? ""}</td>
-                                        <td>${patient.sex ?? ""}</td>
-                                        <td>${patient.contactNumber ?? ""}</td>
-                                        <td>${patient.city ?? ""}</td>
-                                        <td>${patient.chiefComplaint ?? ""}</td>
+                .then((snapshot) => {
 
-                                        <td>
+                    patients = [];
 
-                                            <a href="view_patient.html?id=${id}">
-                                                <button class="action-btn view">
-                                                    View
-                                                </button>
-                                            </a>
+                    if (!snapshot.exists()) {
 
-                                            <a href="edit_patient.html?id=${id}">
-                                                <button class="action-btn edit">
-                                                    Edit
-                                                </button>
-                                            </a>
+                        table.innerHTML = `
+                            <tr>
+                                <td colspan="7">
+                                    No patient records found.
+                                </td>
+                            </tr>
+                        `;
 
-                                            <button
-                                                class="action-btn delete deleteBtn"
-                                                data-id="${id}">
-                                                Delete
-                                            </button>
+                        return;
+                    }
 
-                                        </td>
-                                    </tr>
-                                `;
+                    snapshot.forEach((child) => {
 
-                                table.innerHTML += row;
-                            });
+                        patients.push({
 
-                            addDeleteListeners();
-                        } else {
-                            table.innerHTML = `
-                                <tr>
-                                    <td colspan="8">
-                                        No patient records found.
-                                    </td>
-                                </tr>
-                            `;
-                        }
-                    })
-                    .catch((error) => {
-                        alert(error.message);
+                            id: child.key,
+
+                            ...child.val()
+
+                        });
+
                     });
+
+                    renderPatients();
+
+                })
+
+                .catch((error)=>{
+
+                    alert(error.message);
+
+                });
+
+            }
+
+            function renderPatients() {
+
+                table.innerHTML = "";
+
+                const status =
+                    document.getElementById("statusFilter").value;
+
+                const sort =
+                    document.getElementById("sortOrder").value;
+
+                const search =
+                    document
+                    .getElementById("searchInput")
+                    .value
+                    .trim()
+                    .toLowerCase();
+
+                let filtered = [...patients];
+
+                // Filter
+
+                if(status !== "All"){
+
+                    filtered = filtered.filter(patient =>
+                        patient.admissionStatus === status
+                    );
+
+                }
+
+                if(search){
+
+                    filtered = filtered.filter(patient => {
+
+                        const fullName = [
+                            patient.firstName,
+                            patient.middleName,
+                            patient.lastName,
+                            patient.suffix
+                        ]
+                        .filter(Boolean)
+                        .join(" ")
+                        .toLowerCase();
+
+                        return (
+
+                            fullName.includes(search) ||
+
+                            (patient.admissionNumber || "")
+                                .toLowerCase()
+                                .includes(search) ||
+
+                            (patient.contactNumber || "")
+                                .toLowerCase()
+                                .includes(search) ||
+
+                            (patient.city || "")
+                                .toLowerCase()
+                                .includes(search) ||
+
+                            (patient.chiefComplaint || "")
+                                .toLowerCase()
+                                .includes(search)
+
+                        );
+
+                    });
+
+                }
+
+                // Sort
+
+                filtered.sort((a,b)=>{
+
+                    const dateA =
+                        new Date(
+                            (a.createdAt || "") + ""
+                        );
+
+                    const dateB =
+                        new Date(
+                            (b.createdAt || "") + ""
+                        );
+
+                    if(sort === "recent"){
+
+                        return dateB - dateA;
+
+                    }
+
+                    return dateA - dateB;
+
+                });
+
+                if(filtered.length === 0){
+
+                    table.innerHTML = `
+                        <tr>
+                            <td colspan="7">
+                                No patient records found.
+                            </td>
+                        </tr>
+                    `;
+
+                    return;
+
+                }
+
+                filtered.forEach(patient=>{
+
+                    table.innerHTML += `
+
+                    <tr>
+
+                        <td>${patient.firstName ?? ""} ${patient.middleName ?? ""} ${patient.lastName ?? ""}</td>
+
+                        <td>${patient.age ?? ""}</td>
+
+                        <td>${patient.sex ?? ""}</td>
+
+                        <td>${patient.contactNumber ?? ""}</td>
+
+                        <td>${patient.city ?? ""}</td>
+
+                        <td>${patient.chiefComplaint ?? ""}</td>
+
+                        <td>
+
+                            <a href="view_patient.html?id=${patient.id}">
+                                <button class="action-btn view">
+                                    View
+                                </button>
+                            </a>
+
+                            <a href="edit_patient.html?id=${patient.id}">
+                                <button class="action-btn edit">
+                                    Edit
+                                </button>
+                            </a>
+
+                            <button
+                                class="action-btn delete deleteBtn"
+                                data-id="${patient.id}">
+                                Delete
+                            </button>
+
+                        </td>
+
+                    </tr>
+
+                    `;
+
+                });
+
+                addDeleteListeners();
+
             }
 
             function addDeleteListeners() {
@@ -518,6 +672,18 @@ tbody tr:hover{
 
             refreshBtn.addEventListener("click", loadPatients);
             loadPatients();
+
+            document
+            .getElementById("searchInput")
+            .addEventListener("input", renderPatients);
+
+            document
+            .getElementById("statusFilter")
+            .addEventListener("change", renderPatients);
+
+            document
+            .getElementById("sortOrder")
+            .addEventListener("change", renderPatients);
         </script>
 
 </main>

@@ -41,12 +41,6 @@ type="text"
 id="brandName"
 readonly><br><br>
 
-<label>Drug Class</label><br>
-<input
-type="text"
-id="drugClass"
-readonly><br><br>
-
 <label>Dosage Form</label><br>
 <input
 type="text"
@@ -58,13 +52,13 @@ readonly><br><br>
 type="number"
 id="inventoryAmount"
 min="0"
-max="10"
+max="21"
 required><br><br>
 
 <label>Maximum Capacity</label><br>
 <input
 type="number"
-value="10"
+value="21"
 readonly>
 
 </fieldset>
@@ -128,9 +122,6 @@ document.getElementById("medicationName");
 
 const brandName =
 document.getElementById("brandName");
-
-const drugClass =
-document.getElementById("drugClass");
 
 const form =
 document.getElementById("form");
@@ -236,7 +227,6 @@ if(!med){
 
 medicationName.value="";
 brandName.value="";
-drugClass.value="";
 form.value="";
 return;
 
@@ -247,9 +237,6 @@ med.generic_name;
 
 brandName.value =
 med.brand_name;
-
-drugClass.value =
-med.drug_class;
 
 form.value =
 med.form;
@@ -293,9 +280,9 @@ return;
 const qty =
 Number(inventoryAmount.value);
 
-if(qty>10){
+if(qty>21){
 
-alert("Maximum capacity is 10.");
+alert("Maximum capacity is 21.");
 
 return;
 
@@ -324,9 +311,6 @@ qty,
 
 brand_name:
 med.brand_name,
-
-drug_class:
-med.drug_class,
 
 form:
 med.form,

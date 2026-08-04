@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>MediTrack | Discharge Patient</title>
+</head>
+
+<body>
+
+<a href="view_records.html">Dashboard</a><br><br>
+
+<h2>Discharge Patient</h2>
+
+<form id="dischargeForm">
+
+<fieldset>
+
+<legend><strong>Patient Information</strong></legend>
+
+<p>
+<strong>Admission Number:</strong>
+<span id="admissionNumber"></span>
+</p>
+
+<p>
+<strong>Patient Name:</strong>
+<span id="patientName"></span>
+</p>
+
+<p>
+<strong>Assigned Doctor:</strong>
+<span id="assignedDoctor"></span>
+</p>
+
+<p>
+<strong>Ward:</strong>
+<span id="assignedArea"></span>
+</p>
+
+<p>
+<strong>Room:</strong>
+<span id="room"></span>
+</p>
+
+<p>
+<strong>Admission Date:</strong>
+<span id="admissionDate"></span>
+</p>
+
+</fieldset>
+
+<br>
+
+<fieldset>
+
+<legend><strong>Discharge Information</strong></legend>
+
+<label>Discharge Date</label><br>
+
+<input
+type="date"
+id="dischargeDate"
+readonly>
+
+<br><br>
+
+<label>Discharge Time</label><br>
+
+<input
+type="time"
+id="dischargeTime"
+readonly>
+
+<br><br>
+
+<label>Discharge Type *</label><br>
+
+<select
+id="dischargeType"
+required>
+
+<option value="">Select</option>
+
+<option value="Recovered">
+Recovered
+</option>
+
+<option value="Transferred">
+Transferred
+</option>
+
+<option value="Home Against Medical Advice">
+Home Against Medical Advice
+</option>
+
+<option value="Referred">
+Referred
+</option>
+
+<option value="Expired">
+Expired
+</option>
+
+</select>
+
+<br><br>
+
+<label>Discharge Summary *</label><br>
+
+<textarea
+id="dischargeSummary"
+rows="6"
+cols="60"
+required></textarea>
+
+</fieldset>
+
+<br>
+
+<button type="submit">
+Officially Discharge Patient
+</button>
+
+<button
+type="button"
+onclick="history.back()">
+Cancel
+</button>
+
+</form>
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+
+import {
+
+getDatabase,
+ref,
+get,
+update
+
+}
+from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyBRm3dUt3HreTquM_Ba9JfYmZD2CLVV0Gc",
+    authDomain: "meditrack-59cca.firebaseapp.com",
+    databaseURL: "https://meditrack-59cca-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "meditrack-59cca",
+    storageBucket: "meditrack-59cca.firebasestorage.app",
+    messagingSenderId: "656003988692",
+    appId: "1:656003988692:web:badfe96b7d830837a4cf41"
+};
+
+const app = initializeApp(firebaseConfig);
+
+const db = getDatabase();
+
+const params =
+new URLSearchParams(window.location.search);
+
+const id =
+params.get("id");
+
+const now =
+new Date();
+
+document.getElementById("dischargeDate").value =
+now.toISOString().split("T")[0];
+
+document.getElementById("dischargeTime").value =
+now.toTimeString().slice(0,5);
+
+async function loadPatient(){
+
+const snapshot =
+await get(ref(db,"patients/" + id));
+
+if(!snapshot.exists()){
+
+alert("Patient not found.");
+
+location.href="view_records.html";
+
+return;
+
+}
+
+const p =
+snapshot.val();
+
+if(p.admissionStatus==="Discharged"){
+
+alert("Patient has already been discharged.");
+
+location.href=
+"view_patient.html?id="+id;
+
+return;
+
+}
+
+document.getElementById("admissionNumber").textContent =
+p.admissionNumber;
+
+document.getElementById("patientName").textContent =
+p.fullName;
+
+document.getElementById("assignedDoctor").textContent =
+p.assignedDoctor;
+
+document.getElementById("assignedArea").textContent =
+p.assignedArea;
+
+document.getElementById("room").textContent =
+p.room;
+
+document.getElementById("admissionDate").textContent =
+p.admissionDate;
+
+}
+
+await loadPatient();
+
+document
+.getElementById("dischargeForm")
+.addEventListener("submit",async(e)=>{
+
+e.preventDefault();
+
+if(!confirm(
+"Officially discharge this patient?"
+))
+return;
+
+await update(
+
+ref(db,"patients/"+id),
+
+{
+
+admissionStatus:
+"Discharged",
+
+dischargeStatus:
+"Discharged",
+
+dischargeDate:
+document.getElementById("dischargeDate").value,
+
+dischargeTime:
+document.getElementById("dischargeTime").value,
+
+dischargeType:
+document.getElementById("dischargeType").value,
+
+dischargeSummary:
+document.getElementById("dischargeSummary").value,
+
+dischargedBy:
+sessionStorage.getItem("uid") || "",
+
+updatedAt:
+new Date().toISOString()
+
+}
+
+);
+
+alert(
+"Patient successfully discharged."
+);
+
+window.location.href =
+"view_patient.html?id="+id;
+
+});
+
+</script>
+
+</body>
+</html>

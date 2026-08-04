@@ -1,5 +1,5 @@
 #### Hardware (Arduino)
-- Medicine dispenser with **5 carousel compartments** capable of storing *10 oral medications each*
+- Medicine dispenser with **5 carousel compartments** capable of storing *19 or 49 oral medications each*
 - ESP32 controls the rotation of the carousel, aligns the correct compartment for dispensing, and manages the release of medications one drug at a time
 
 #### Mobile App (Kotlin)
@@ -21,6 +21,15 @@
 	- Digital Prescription Management (Head Nurse)
 	- Assign Medicine Administration (Head Nurse)
 
-#### Website Dashboard (CSS)
-- ...wait matapos yung PHP+Java portion before starting
+---
 
+# How to set up the source code
+
+**NOTE**
+- For Windows users, need mag install ng apache server. See tutorial: (How to install apache)[https://clevertechie.com/guides/install-apache-windows-11]
+- If hindi makapag install ng apache, deploying will still work (pages will open) pero hindi gagana CRUD and logout functions.
+
+**Setting up (without apache)
+1. Download the source code by clicking "Code" and selecting "Download ZIP"
+2. Extract zip file sa gusto mong directory (pwede sa htdocs)
+3. Access by typing address (ex. `file:///home/pau/Documents/meditrack_web/public/login.html`) or double clicking the file on your file manager

@@ -27,12 +27,6 @@
             id="brandName"
             readonly><br><br>
 
-        <label>Drug Class</label><br>
-        <input
-            type="text"
-            id="drugClass"
-            readonly><br><br>
-
         <label>Dosage Form</label><br>
         <input
             type="text"
@@ -44,14 +38,14 @@
             type="number"
             id="inventoryAmount"
             min="0"
-            max="10"
+            max="21"
             value="0"
             required><br><br>
 
         <label>Maximum Capacity</label><br>
         <input
             type="number"
-            value="10"
+            value="21"
             readonly><br><br>
 
     </fieldset>
@@ -83,7 +77,8 @@ import {
     getDatabase,
     ref,
     get,
-    set
+    set,
+    update
 }
 from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
 
@@ -119,11 +114,10 @@ const medicationSelect = document.getElementById("medicationSelect");
 
 const compartmentName = document.getElementById("compartmentName");
 const brandName = document.getElementById("brandName");
-const drugClass = document.getElementById("drugClass");
 const dosageForm = document.getElementById("form");
 const inventoryAmount = document.getElementById("inventoryAmount");
 
-let medications = {};
+let inventoryItems = {};
 
 // --------------------------
 // Generate Compartment ID
@@ -163,7 +157,7 @@ async function generateCompartmentId(){
 }
 
 // --------------------------
-// Load Oral Medications
+// Load Oral Medications From Inventory
 // --------------------------
 
 async function loadMedications(){
@@ -174,11 +168,11 @@ async function loadMedications(){
         '<option value="">Select Medication</option>';
 
         const snapshot =
-        await get(ref(db,"medications"));
+        await get(ref(db,"inventory"));
 
         if(!snapshot.exists()){
 
-            alert("No medications found.");
+            alert("No inventory items found.");
 
             return;
 
@@ -186,11 +180,12 @@ async function loadMedications(){
 
         snapshot.forEach(child=>{
 
-            const med = child.val();
+            const item = child.val();
 
             const dosage =
-            (med.form || "").trim().toLowerCase();
+            (item.form || "").trim().toLowerCase();
 
+            // Only oral solid medications
             if(
                 dosage !== "tablet" &&
                 dosage !== "capsule"
@@ -198,7 +193,12 @@ async function loadMedications(){
                 return;
             }
 
-            medications[child.key] = med;
+            // Skip empty stock
+            if(Number(item.quantity_in_stock || 0) <= 0){
+                return;
+            }
+
+            inventoryItems[child.key] = item;
 
             const option =
             document.createElement("option");
@@ -206,7 +206,7 @@ async function loadMedications(){
             option.value = child.key;
 
             option.textContent =
-            med.generic_name + " (" + med.brand_name + ")";
+                `${item.generic_name} (${item.brand_name}) - Stock: ${item.quantity_in_stock}`;
 
             medicationSelect.appendChild(option);
 
@@ -223,18 +223,17 @@ async function loadMedications(){
 }
 
 // --------------------------
-// Medication Changed
+// Inventory Item Changed
 // --------------------------
 
 medicationSelect.addEventListener("change",()=>{
 
-    const med =
-    medications[medicationSelect.value];
+    const item =
+    inventoryItems[medicationSelect.value];
 
-    if(!med){
+    if(!item){
 
         brandName.value = "";
-        drugClass.value = "";
         dosageForm.value = "";
 
         return;
@@ -242,13 +241,10 @@ medicationSelect.addEventListener("change",()=>{
     }
 
     brandName.value =
-    med.brand_name || "";
-
-    drugClass.value =
-    med.drug_class || "";
+    item.brand_name || "";
 
     dosageForm.value =
-    med.form || "";
+    item.form || "";
 
 });
 
@@ -256,16 +252,20 @@ medicationSelect.addEventListener("change",()=>{
 // Save Compartment
 // --------------------------
 
-compartmentForm.addEventListener("submit",async(e)=>{
+// --------------------------
+// Save Compartment
+// --------------------------
+
+compartmentForm.addEventListener("submit", async (e) => {
 
     e.preventDefault();
 
-    try{
+    try {
 
-        const med =
-        medications[medicationSelect.value];
+        const item =
+        inventoryItems[medicationSelect.value];
 
-        if(!med){
+        if (!item) {
 
             alert("Please select an oral medication.");
 
@@ -274,12 +274,12 @@ compartmentForm.addEventListener("submit",async(e)=>{
         }
 
         const dosage =
-        (med.form || "").trim().toLowerCase();
+        (item.form || "").trim().toLowerCase();
 
-        if(
+        if (
             dosage !== "tablet" &&
             dosage !== "capsule"
-        ){
+        ) {
 
             alert("Only Tablet and Capsule medications are allowed.");
 
@@ -290,9 +290,23 @@ compartmentForm.addEventListener("submit",async(e)=>{
         const inventory =
         Number(inventoryAmount.value);
 
-        if(inventory < 0 || inventory > 10){
+        if (inventory <= 0 || inventory > 21) {
 
-            alert("Inventory must be between 0 and 10.");
+            alert("Inventory must be between 1 and 21.");
+
+            return;
+
+        }
+
+        // Check available stock
+        const currentStock =
+        Number(item.quantity_in_stock || 0);
+
+        if (inventory > currentStock) {
+
+            alert(
+                `Insufficient stock. Available: ${currentStock}`
+            );
 
             return;
 
@@ -301,40 +315,62 @@ compartmentForm.addEventListener("submit",async(e)=>{
         const compartmentId =
         await generateCompartmentId();
 
-await set(
-    ref(
-        db,
-        "dispenser_unit/" +
-        DISPENSER_UNIT +
-        "/" +
-        compartmentId
-    ),
-    {
-        dispenser_unit: DISPENSER_UNIT,
+        // Save compartment
+        await set(
+            ref(
+                db,
+                "dispenser_unit/" +
+                DISPENSER_UNIT +
+                "/" +
+                compartmentId
+            ),
+            {
+                dispenser_unit: DISPENSER_UNIT,
 
-        compartment_id: compartmentId,
+                compartment_id: compartmentId,
 
-        compartment_name:
-            compartmentName.value.trim(),
+                compartment_name:
+                    compartmentName.value.trim(),
 
-        inventory_amount: inventory,
+                inventory_amount: inventory,
 
-        medication_id: med.medication_id,
+                inventory_id: medicationSelect.value,
 
-        medication_name: med.generic_name,
+                medication_id: item.medication_id,
 
-        brand_name: med.brand_name,
+                medication_name: item.generic_name,
 
-        drug_class: med.drug_class,
+                brand_name: item.brand_name,
 
-        form: med.form,
+                form: item.form,
 
-        created_at: new Date().toISOString(),
+                lot_number: item.lot_number || "",
 
-        updated_at: new Date().toISOString()
-    }
-);
-        alert("Compartment created successfully.");
+                batch_number: item.batch_number || "",
+
+                expiration_date: item.expiration_date || "",
+
+                created_at: new Date().toISOString(),
+
+                updated_at: new Date().toISOString()
+            }
+        );
+
+        // Deduct stock from inventory
+        const newStock =
+        currentStock - inventory;
+
+        await update(
+            ref(db, "inventory/" + medicationSelect.value),
+            {
+                quantity_in_stock: newStock,
+                updated_at: new Date().toISOString()
+            }
+        );
+
+        alert(
+            `Compartment created successfully.\nRemaining stock: ${newStock}`
+        );
 
         compartmentForm.reset();
 
@@ -342,7 +378,6 @@ await set(
         '<option value="">Select Medication</option>';
 
         brandName.value = "";
-        drugClass.value = "";
         dosageForm.value = "";
 
         await loadMedications();
@@ -351,7 +386,7 @@ await set(
         "dispenser_dashboard.html";
 
     }
-    catch(error){
+    catch (error) {
 
         console.error(error);
 

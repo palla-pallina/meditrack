@@ -18,10 +18,7 @@
             <!-- ========================= -->
             <label>Admission Number</label><br>
 
-            <input
-                type="text"
-                id="admissionNumber"
-                readonly><br><br>
+            <input type="text" id="admissionNumber" readonly><br><br>
 
             <label>Date of Admission <span style="color:red;">*</span></label><br>
             <input type="date" id="admissionDate" readonly required><br><br>
@@ -29,25 +26,14 @@
             <label>Time of Admission <span style="color:red;">*</span></label><br>
             <input type="time" id="admissionTime" required><br><br>
 
-            <label>Assigned Area <span style="color:red;">*</span></label><br>
-            <select id="assignedArea" required>
-                <option value="">Select Ward</option>
-                <option>Ward 1</option>
-                <option>Ward 2</option>
-                <option>Ward 3</option>
-                <option>Ward 4</option>
-                <option>Ward 5</option>
-                <option>Ward 6</option>
-                <option>Ward 7</option>
-                <option>Ward 8</option>
-            </select><br><br>
+<label>Ward <span style="color:red;">*</span></label><br> <select id="assignedArea" required> <option value="">Select Ward</option> <option value="OB-GYN and Surgery Ward (4th floor)"> OB-GYN and Surgery Ward (4th floor) </option> <option value="Medical Ward (5th floor)"> Medical Ward (5th floor) </option> <option value="Critical Care Ward (5th floor)"> Critical Care Ward (5th floor) </option> <option value="General Ward (6th floor)"> General Ward (6th floor) </option> </select><br><br> <label>Room <span style="color:red;">*</span></label><br> <select id="room" required disabled> <option value="">Select ward first</option> </select><br><br> <small id="roomStatus" style="color:#555;"></small><br><br>
 
-            <label>Room <span style="color:red;">*</span></label><br>
-            <input
-                type="text"
-                id="room"
-                placeholder="Example: Room 203"
-                required><br><br>
+            <label>Assigned Doctor <span style="color:red;">*</span></label><br>
+            <select id="assignedDoctor" required>
+                <option value="">Select Doctor</option>
+            </select>
+            <br><br>
+
         </fieldset><br>
 
         <!-- ========================= -->
@@ -253,7 +239,6 @@
                 <option value="Subcutaneous">Subcutaneous</option>
                 <option value="Topical">Topical</option>
                 <option value="Inhalation">Inhalation</option>
-                <option value="Other">Other</option>
             </select><br><br>
 
             <label>Status</label><br>
@@ -269,7 +254,7 @@
             <textarea id="prescriptionReason" rows="4" cols="60"></textarea>
 
         </fieldset>
-
+        
         <br>
 
         <button type="submit" id="insert">Submit</button>
@@ -299,10 +284,30 @@
         var insertBtn = document.querySelector("#insert");
         var clearBtn = document.querySelector("#clear");
 
-        // Patient Information
+        // Admission Status
         var admissionNumber = document.querySelector("#admissionNumber");
         var admissionDate = document.querySelector("#admissionDate");
         var admissionTime = document.querySelector("#admissionTime");
+        const assignedDoctor = document.getElementById("assignedDoctor");
+        const admissionStatus = document.getElementById("admissionStatus");
+        const expectedDischargeDate = document.getElementById("expectedDischargeDate");
+        const dischargeStatus = document.getElementById("dischargeStatus");
+        const dischargeDate = document.getElementById("dischargeDate");
+        const dischargeTime = document.getElementById("dischargeTime");
+        const dischargeType = document.getElementById("dischargeType");
+        const dischargeSummary = document.getElementById("dischargeSummary");
+        const dischargedBy = document.getElementById("dischargedBy");
+        const wardRooms = { 
+            "OB-GYN and Surgery Ward (4th floor)": ["401", "402", "403", "404", "405", "406", "407"], 
+            
+            "Medical Ward (5th floor)": [ "501", "502", "503", "504", "505", "506", "507", "508", "509", "510", "511", "512", "513", "514", "515" ], 
+            
+            "Critical Care Ward (5th floor)": [ "516", "517", "518", "519", "520" ], 
+            
+            "General Ward (6th floor)": [ "601", "602", "603", "604", "605", "606", "607", "608", "609", "610", "611", "612", "613", "614", "615" ] };
+
+        // Patient Information
+
         var assignedArea = document.querySelector("#assignedArea");
         var room = document.querySelector("#room");
         var firstName = document.querySelector("#fName");
@@ -352,6 +357,127 @@
         var route = document.querySelector("#route");
         var status = document.querySelector("#status");
         var prescriptionReason = document.querySelector("#prescriptionReason");
+
+        async function loadDoctors() {
+
+            const snapshot = await get(ref(db, "users"));
+
+            assignedDoctor.innerHTML =
+                '<option value="">Select Doctor</option>';
+
+            if (!snapshot.exists()) return;
+
+            snapshot.forEach(child => {
+
+                const user = child.val();
+
+                if (user.userType !== "Doctor") return;
+
+                const option = document.createElement("option");
+
+                option.value = child.key;
+
+                option.dataset.name =
+                    "Dr. " +
+                    user.firstName +
+                    " " +
+                    user.lastName;
+
+                option.textContent = option.dataset.name;
+
+                assignedDoctor.appendChild(option);
+
+            });
+
+        }
+
+        loadDoctors();
+
+        async function getOccupiedRooms(ward) {
+
+            const snapshot = await get(ref(db, "patients"));
+            const occupied = [];
+
+            if (snapshot.exists()) {
+
+                snapshot.forEach(child => {
+
+                    const patient = child.val();
+
+                    // Only block rooms of currently admitted patients
+                    if (
+                        patient.assignedArea === ward &&
+                        patient.room &&
+                        patient.admissionStatus === "Admitted"
+                    ) {
+                        occupied.push(patient.room);
+                    }
+
+                });
+
+            }
+
+            return occupied;
+
+        }
+
+        async function populateRooms() {
+
+            const ward = assignedArea.value;
+
+            room.innerHTML = "";
+
+            if (!ward) {
+
+                room.disabled = true;
+
+                room.innerHTML = '<option value="">Select ward first</option>';
+
+                return;
+
+            }
+
+            const allRooms = wardRooms[ward] || [];
+
+            const occupiedRooms = await getOccupiedRooms(ward);
+
+            const availableRooms = allRooms.filter(
+                r => !occupiedRooms.includes(r)
+            );
+
+            room.disabled = false;
+
+            if (availableRooms.length === 0) {
+
+                room.innerHTML = '<option value="">No available rooms</option>';
+
+                document.getElementById("roomStatus").textContent =
+                    "All rooms in this ward are currently occupied.";
+
+                return;
+
+            }
+
+            room.innerHTML = '<option value="">Select Room</option>';
+
+            availableRooms.forEach(r => {
+
+                const option = document.createElement("option");
+
+                option.value = r;
+
+                option.textContent = `Room ${r}`;
+
+                room.appendChild(option);
+
+            });
+
+            document.getElementById("roomStatus").textContent =
+                `${availableRooms.length} room(s) available`;
+
+        }
+
+        assignedArea.addEventListener("change", populateRooms);
 
         function computeAge() {
         if (!dob.value) {
@@ -449,6 +575,8 @@
             .filter(part => part !== "")
             .join(" ");
 
+            const selectedDoctor = assignedDoctor.options[assignedDoctor.selectedIndex];
+
             set(patientRef, {
                 // Admission Information
                 admissionNumber: admissionNumber.value,
@@ -456,6 +584,17 @@
                 admissionTime: admissionTime.value,
                 assignedArea: assignedArea.value,
                 room: room.value,
+                assignedDoctorId: assignedDoctor.value,
+                assignedDoctor: selectedDoctor.dataset.name,
+                
+                admissionStatus: "Admitted",
+                expectedDischargeDate: "",
+                dischargeStatus: "Not Discharged",
+                dischargeDate: "",
+                dischargeTime: "",
+                dischargeType: "",
+                dischargeSummary: "",
+                dischargedBy: "",
 
                 // Patient Information
                 patient_id: patientId,
@@ -512,7 +651,7 @@
             })
             .then(() => {
                 alert("Patient record added successfully!");
-                document.querySelector("form").reset();
+                        window.location.href = "view_records.html";
             })
             .catch((error) => {
                 alert("Error: " + error.message);

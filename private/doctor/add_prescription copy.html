@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+    
+<head>
+<meta charset="UTF-8">
+<title>New Prescription</title>
+</head>
+
+<body>
+
+<a href="dashboard.html">Back to Dashboard</a>
+
+<h2>Create Prescription</h2>
+
+<form id="prescriptionForm">
+
+<h3>Prescription Information</h3>
+
+<label>Patient</label><br>
+<select id="patient" required></select>
+
+<br><br>
+
+<label>Prescribing Physician</label><br>
+
+<input
+    type="text"
+    id="physician"
+    readonly
+    required>
+
+<input
+    type="hidden"
+    id="physicianUid">
+
+<br><br>
+
+<label>General Notes</label><br>
+<textarea id="notes"></textarea>
+
+<hr>
+
+<h3>Add Medication</h3>
+
+<label>Search Medication</label><br>
+
+<input
+    type="text"
+    id="medicationSearch"
+    placeholder="Type generic or brand name">
+
+<div
+    id="searchResults"
+    style="
+        border:1px solid #ccc;
+        max-height:180px;
+        overflow-y:auto;
+        display:none;">
+</div>
+
+<input
+    type="hidden"
+    id="medication">    
+
+<div id="newMedicationPanel" style="display:none; border:1px solid #ccc; padding:15px; margin-top:15px;">
+
+<h4>Add New Medication to Database</h4>
+
+<label>Generic Name</label><br>
+<input type="text" id="newGeneric"><br><br>
+
+<label>Brand Name</label><br>
+<input type="text" id="newBrand"><br><br>
+
+<label>Drug Class</label><br>
+<input type="text" id="newDrugClass"><br><br>
+
+<label>Dosage Form</label><br>
+
+<select id="newForm">
+
+<option>Tablet</option>
+<option>Capsule</option>
+<option>Injection</option>
+<option>Syrup</option>
+<option>Cream</option>
+<option>Inhaler</option>
+<option>Other</option>
+
+</select>
+
+<br><br>
+
+<button
+type="button"
+id="saveMedication">
+
+Save New Medication
+
+</button>
+
+<button
+    type="button"
+    id="cancelMedication">
+
+    Cancel
+
+</button>
+
+</div>
+
+<br><br>
+
+<label>Dosage</label><br>
+<input type="text" id="dosage">
+
+<br><br>
+
+<label>Route</label><br>
+<select id="route">
+
+<option value="oral">Oral</option>
+<option value="iv">IV</option>
+<option value="im">IM</option>
+<option value="subcutaneous">Subcutaneous</option>
+<option value="topical">Topical</option>
+<option value="inhalation">Inhalation</option>
+
+</select>
+
+<br><br>
+
+<label>Frequency</label><br>
+<input
+type="text"
+id="frequency"
+placeholder="Every 8 hours">
+
+<br><br>
+
+<label>Administration Times</label><br>
+
+<input type="time" id="time">
+
+<button
+type="button"
+id="addTime">
+
+Add Time
+
+</button>
+
+<ul id="timeList"></ul>
+
+<br>
+
+<label>Start Date</label><br>
+<input type="date" id="startDate">
+
+<br><br>
+
+<label>End Date</label><br>
+<input type="date" id="endDate">
+
+<br><br>
+
+<button
+type="button"
+id="addMedication">
+
+Add Medication
+
+</button>
+
+<hr>
+
+<h3>Medication List</h3>
+
+<table border="1">
+
+<thead>
+
+<tr>
+
+<th>Medication</th>
+
+<th>Dosage</th>
+
+<th>Frequency</th>
+
+<th>Times</th>
+
+<th>Action</th>
+
+</tr>
+
+</thead>
+
+<tbody id="medicationTable">
+
+</tbody>
+
+</table>
+
+<br>
+
+<button type="submit">
+
+Save Prescription
+
+</button>
+
+</form>
+
+<pre id="status"></pre>
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+
+import {
+
+getDatabase,
+ref,
+get,
+push,
+set
+
+}
+from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
+
+import {
+    getAuth,
+    onAuthStateChanged
+}
+from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+
+const firebaseConfig={
+    apiKey: "AIzaSyBRm3dUt3HreTquM_Ba9JfYmZD2CLVV0Gc",
+    authDomain: "meditrack-59cca.firebaseapp.com",
+    databaseURL: "https://meditrack-59cca-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "meditrack-59cca",
+    storageBucket: "meditrack-59cca.firebasestorage.app",
+    messagingSenderId: "656003988692",
+    appId: "1:656003988692:web:badfe96b7d830837a4cf41"
+};
+
+const app=initializeApp(firebaseConfig);
+
+const database=getDatabase(app);
+
+const auth = getAuth(app);
+
+let medications=[];
+
+let selectedTimes=[];
+
+let prescriptionItems=[];
+
+loadPatients();
+
+loadMedications();
+
+async function loadPatients(){
+
+const snapshot=
+
+await get(ref(database,"patients"));
+
+const patient=document.getElementById("patient");
+
+patient.innerHTML="";
+
+snapshot.forEach(child=>{
+
+const p=child.val();
+
+patient.innerHTML+=
+
+`<option value="${child.key}">
+
+${p.fullName}
+
+</option>`;
+
+});
+
+}
+
+onAuthStateChanged(auth, async(user)=>{
+
+    if(!user){
+
+        location.href="../../public/login.html";
+        return;
+
+    }
+
+    await loadCurrentDoctor(user.uid);
+
+});
+
+async function loadCurrentDoctor(uid){
+
+    const snapshot =
+    await get(ref(database,"users/"+uid));
+
+    if(!snapshot.exists()){
+
+        alert("Doctor account not found.");
+        return;
+
+    }
+
+    const doctor = snapshot.val();
+
+    if(doctor.userType !== "Doctor"){
+
+        alert("Only doctors can create prescriptions.");
+        return;
+
+    }
+
+    document.getElementById("physician").value =
+    doctor.fullName;
+
+    document.getElementById("physicianUid").value =
+    uid;
+
+}
+
+async function loadMedications(){
+
+    medications=[];
+
+    const snapshot=
+    await get(ref(database,"medications"));
+
+    snapshot.forEach(child=>{
+
+        medications.push({
+
+            id:child.key,
+
+            ...child.val()
+
+        });
+
+    });
+
+}
+
+const searchInput =
+document.getElementById("medicationSearch");
+
+const results =
+document.getElementById("searchResults");
+
+searchInput.addEventListener("input", function(){
+
+    const keyword =
+    this.value
+    .toLowerCase()
+    .trim();
+
+    results.innerHTML="";
+
+    if(keyword===""){
+
+        results.style.display="none";
+
+        return;
+
+    }
+
+    const matches =
+    medications.filter(m=>
+
+        m.generic_name
+        .toLowerCase()
+        .includes(keyword)
+
+        ||
+
+        (m.brand_name||"")
+        .toLowerCase()
+        .includes(keyword)
+
+    );
+
+    if(matches.length===0){
+
+        results.innerHTML=`
+
+        <div
+        style="padding:10px;cursor:pointer;">
+
+        Medication not found.
+
+        <br><br>
+
+        <button
+        id="showAddMedication">
+
+        Add New Medication
+
+        </button>
+
+        </div>
+
+        `;
+
+        results.style.display="block";
+
+        document
+        .getElementById("showAddMedication")
+        .onclick=function(){
+
+            document
+            .getElementById("newMedicationPanel")
+            .style.display="block";
+
+            document
+            .getElementById("newGeneric")
+            .value=
+            searchInput.value;
+
+        };
+
+        return;
+
+    }
+
+    matches.forEach(m=>{
+
+        const div=
+        document.createElement("div");
+
+        div.style.padding="10px";
+
+        div.style.cursor="pointer";
+
+        div.innerHTML=`
+
+        <b>${m.generic_name}</b>
+
+        ${m.brand_name
+        ? "("+m.brand_name+")"
+        : ""}
+
+        `;
+
+        div.onclick=function(){
+
+            document
+            .getElementById("medication")
+            .value=m.id;
+
+            searchInput.value=m.generic_name;
+
+            results.style.display="none";
+
+        };
+
+        results.appendChild(div);
+
+    });
+
+    results.style.display="block";
+
+});
+
+document
+.getElementById("saveMedication")
+.onclick=async function(){
+
+    if(document.getElementById("newGeneric").value.trim()==""){
+
+    alert("Generic name is required.");
+    return;
+
+    }
+
+    const medRef=
+    push(ref(database,"medications"));
+
+    const medication={
+
+        medication_id:medRef.key,
+
+        generic_name:
+        document.getElementById("newGeneric").value,
+
+        brand_name:
+        document.getElementById("newBrand").value,
+
+        drug_class:
+        document.getElementById("newDrugClass").value,
+
+        form:
+        document.getElementById("newForm").value,
+
+        created_at:
+        new Date().toISOString()
+
+    };
+
+    await set(
+
+        medRef,
+
+        medication
+
+    );
+
+    medications.push({
+
+        id:medRef.key,
+
+        ...medication
+
+    });
+
+    document
+    .getElementById("medication")
+    .value=medRef.key;
+
+    document
+    .getElementById("medicationSearch")
+    .value=medication.generic_name;
+
+    document
+    .getElementById("newMedicationPanel")
+    .style.display = "none";
+
+    document.getElementById("newGeneric").value = "";
+    document.getElementById("newBrand").value = "";
+    document.getElementById("newDrugClass").value = "";
+    document.getElementById("newForm").selectedIndex = 0;
+
+    alert("Medication added.");
+
+};
+
+results.style.display = "none";
+results.innerHTML = "";
+
+document
+.getElementById("cancelMedication")
+.onclick = function(){
+
+    document
+    .getElementById("newMedicationPanel")
+    .style.display = "none";
+
+    // Clear all fields
+    document.getElementById("newGenericName").value = "";
+    document.getElementById("newBrandName").value = "";
+    document.getElementById("newDrugClass").value = "";
+    document.getElementById("newDosageForm").selectedIndex = 0;
+
+};
+
+document
+.getElementById("addTime")
+.onclick=function(){
+
+const t=document
+.getElementById("time")
+.value;
+
+if(!t)return;
+
+selectedTimes.push(t);
+
+renderTimes();
+
+};
+
+function renderTimes(){
+
+const ul=
+
+document.getElementById("timeList");
+
+ul.innerHTML="";
+
+selectedTimes.forEach(time=>{
+
+ul.innerHTML+=
+
+`<li>${time}</li>`;
+
+});
+
+}
+
+document
+.getElementById("addMedication")
+.onclick=function(){
+
+const medId =
+document.getElementById("medication").value;
+
+const med =
+medications.find(
+m=>m.id===medId
+);
+
+if(!med){
+
+    alert("Select a medication first.");
+
+    return;
+
+}
+
+prescriptionItems.push({
+
+medication_id:med.id,
+
+medication_name:med.generic_name,
+
+dosage:
+
+document
+.getElementById("dosage")
+.value,
+
+route:
+
+document
+.getElementById("route")
+.value,
+
+frequency:
+
+document
+.getElementById("frequency")
+.value,
+
+administration_times:
+
+[...selectedTimes],
+
+start_date:
+
+document
+.getElementById("startDate")
+.value,
+
+end_date:
+
+document
+.getElementById("endDate")
+.value
+
+});
+
+document.getElementById("dosage").value = "";
+document.getElementById("frequency").value = "";
+document.getElementById("time").value = "";
+document.getElementById("startDate").value = "";
+document.getElementById("endDate").value = "";
+document.getElementById("medication").value = "";
+document.getElementById("medicationSearch").value = "";
+
+selectedTimes = [];
+
+renderTimes();
+
+renderMedications();
+
+};
+
+function renderMedications(){
+
+const tbody=
+
+document.getElementById("medicationTable");
+
+tbody.innerHTML="";
+
+prescriptionItems.forEach((item,index)=>{
+
+tbody.innerHTML+=`
+
+<tr>
+
+<td>${item.medication_name}</td>
+
+<td>${item.dosage}</td>
+
+<td>${item.frequency}</td>
+
+<td>${item.administration_times.join(", ")}</td>
+
+<td>
+
+<button
+
+type="button"
+
+onclick="removeMedication(${index})">
+
+Remove
+
+</button>
+
+</td>
+
+</tr>
+
+`;
+
+});
+
+}
+
+window.removeMedication=function(index){
+
+prescriptionItems.splice(index,1);
+
+renderMedications();
+
+}
+
+document
+.getElementById("prescriptionForm")
+.addEventListener("submit",
+async function(e){
+
+e.preventDefault();
+
+const payload = {
+
+    patient_id:
+    document.getElementById("patient").value,
+
+    physician_uid:
+    document.getElementById("physicianUid").value,
+
+    physician_name:
+    document.getElementById("physician").value,
+
+    notes:
+    document.getElementById("notes").value,
+
+    items:
+    prescriptionItems
+
+};
+
+const response=
+
+await fetch(
+
+"add_prescription.php",
+
+{
+
+method:"POST",
+
+headers:{
+
+"Content-Type":
+
+"application/json"
+
+},
+
+body:
+
+JSON.stringify(payload)
+
+}
+
+);
+
+const result=
+
+await response.json();
+
+document
+.getElementById("status")
+.textContent=
+
+JSON.stringify(result,null,4);
+
+});
+
+</script>
+
+</body>
+</html>

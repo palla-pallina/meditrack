@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
+    
 <head>
 <meta charset="UTF-8">
 <title>New Prescription</title>
 </head>
+
 <body>
 
 <a href="dashboard.html">Back to Dashboard</a>
@@ -136,18 +138,11 @@ placeholder="Every 8 hours">
 
 <br><br>
 
-<label>Administration Times</label><br>
+<label>First Dose Time</label><br> <input type="time" id="time"> 
 
-<input type="time" id="time">
+<br><br> 
 
-<button
-type="button"
-id="addTime">
-
-Add Time
-
-</button>
-
+<label>Calculated Administration Times</label> 
 <ul id="timeList"></ul>
 
 <br>
@@ -253,6 +248,102 @@ const auth = getAuth(app);
 let medications=[];
 
 let selectedTimes=[];
+
+function addHours(timeString, hours){
+
+    const [h,m] = timeString.split(":").map(Number);
+
+    const date = new Date();
+
+    date.setHours(h,m,0,0);
+
+    date.setHours(date.getHours() + hours);
+
+    return date.toTimeString().slice(0,5);
+
+}
+
+function calculateAdministrationTimes(){
+
+    const frequency =
+        document.getElementById("frequency").value
+        .toLowerCase()
+        .trim();
+
+    const firstTime =
+        document.getElementById("time").value;
+
+    if(!firstTime){
+
+        selectedTimes = [];
+        renderTimes();
+        return;
+
+    }
+
+    let interval = null;
+
+    // Detect common patterns
+
+    if(frequency.includes("every 4") || frequency.includes("q4h")){
+
+        interval = 4;
+
+    }else if(frequency.includes("every 5") || frequency.includes("q5h")){
+
+        interval = 5;
+
+    }else if(frequency.includes("every 6") || frequency.includes("q6h")){
+
+        interval = 6;
+
+    }else if(frequency.includes("every 8") || frequency.includes("q8h")){
+
+        interval = 8;
+
+    }else if(frequency.includes("every 12") || frequency.includes("q12h")){
+
+        interval = 12;
+
+    }else if(
+        frequency.includes("once daily") ||
+        frequency.includes("od") ||
+        frequency.includes("daily")
+    ){
+
+        interval = 24;
+
+    }
+
+    // If not recognized, use only the first time
+
+    if(interval === null){
+
+        selectedTimes = [firstTime];
+
+        renderTimes();
+
+        return;
+
+    }
+
+    selectedTimes = [];
+
+    let current = firstTime;
+
+    const dosesPerDay = Math.floor(24 / interval);
+
+    for(let i=0; i<dosesPerDay; i++){
+
+        selectedTimes.push(current);
+
+        current = addHours(current, interval);
+
+    }
+
+    renderTimes();
+
+}
 
 let prescriptionItems=[];
 
@@ -560,39 +651,18 @@ document
 
 };
 
-document
-.getElementById("addTime")
-.onclick=function(){
-
-const t=document
-.getElementById("time")
-.value;
-
-if(!t)return;
-
-selectedTimes.push(t);
-
-renderTimes();
-
-};
-
-function renderTimes(){
-
-const ul=
-
-document.getElementById("timeList");
-
-ul.innerHTML="";
-
-selectedTimes.forEach(time=>{
-
-ul.innerHTML+=
-
-`<li>${time}</li>`;
-
-});
-
+function renderTimes(){ 
+    const ul = document.getElementById("timeList"); 
+    
+    ul.innerHTML = ""; 
+    
+    selectedTimes.forEach(time => { 
+        ul.innerHTML += `<li>${time}</li>`; 
+    }); 
 }
+
+document.getElementById("frequency").addEventListener("input", calculateAdministrationTimes);
+document.getElementById("time").addEventListener("change", calculateAdministrationTimes);
 
 document
 .getElementById("addMedication")
@@ -656,12 +726,12 @@ document
 
 });
 
-document.getElementById("dosage").value = "";
-document.getElementById("frequency").value = "";
-document.getElementById("time").value = "";
-document.getElementById("startDate").value = "";
-document.getElementById("endDate").value = "";
-document.getElementById("medication").value = "";
+document.getElementById("dosage").value = ""; 
+document.getElementById("frequency").value = ""; 
+document.getElementById("time").value = ""; 
+document.getElementById("startDate").value = ""; 
+document.getElementById("endDate").value = ""; 
+document.getElementById("medication").value = ""; 
 document.getElementById("medicationSearch").value = "";
 
 selectedTimes = [];

@@ -9,11 +9,57 @@
 
         <h2>Patient Admission Record</h2>
 
+        <button id="dischargeBtn"> Discharge Patient </button>
         <button id="deleteBtn">Delete Patient Record</button>
         <button id="editBtn">Edit Patient Record</button>
 
         <hr>
 
+        <h3>Admission Information</h3>
+
+        <p><strong>Admission Number:</strong> <span id="admissionNumber"></span></p>
+        <p><strong>Admission Date:</strong> <span id="admissionDate"></span></p>
+        <p><strong>Admission Time:</strong> <span id="admissionTime"></span></p>
+
+        <p><strong>Assigned Ward:</strong> <span id="assignedArea"></span></p>
+        <p><strong>Room:</strong> <span id="room"></span></p>
+
+        <p><strong>Assigned Doctor:</strong> <span id="assignedDoctor"></span></p>
+
+        <p><strong>Admission Status:</strong> <span id="admissionStatus"></span></p>
+
+        <hr>
+
+        <div id="dischargeSection" style="display:none;">
+
+            <h3>Discharge Information</h3>
+
+            <p>
+                <span id="dischargeStatus"></span>
+            </p>
+
+            <p>
+                <strong>Discharge Date:</strong>
+                <span id="dischargeDate"></span>
+            </p>
+
+            <p>
+                <strong>Discharge Time:</strong>
+                <span id="dischargeTime"></span>
+            </p>
+
+            <p>
+                <strong>Discharge Type:</strong>
+                <span id="dischargeType"></span>
+            </p>
+
+            <p><strong>Discharge Summary:</strong></p>
+            <p id="dischargeSummary"></p>
+
+            <hr>
+
+        </div>
+        
         <h3>Patient Information</h3>
 
         <p><strong>Name:</strong> <span id="firstName"></span></p>
@@ -97,7 +143,6 @@
         <p><strong>Frequency:</strong> <span id="frequency"></span></p>
         <p><strong>Route:</strong> <span id="route"></span></p>
         <p><strong>Status:</strong> <span id="status"></span></p>
-
         <p><strong>Reason:</strong></p>
         <p id="prescriptionReason"></p>
 
@@ -130,6 +175,8 @@
 
             const params = new URLSearchParams(window.location.search);
             const id = params.get("id");
+            
+            const dischargeSection = document.getElementById("dischargeSection");
 
             if (id) {
                 get(ref(db, "patients/" + id))
@@ -137,6 +184,47 @@
                         if (snapshot.exists()) {
                             const p = snapshot.val();
 
+                            document.getElementById("admissionNumber").textContent =
+                                p.admissionNumber || "";
+                            document.getElementById("admissionDate").textContent =
+                                p.admissionDate || "";
+                            document.getElementById("admissionTime").textContent =
+                                p.admissionTime || "";
+                            document.getElementById("assignedArea").textContent =
+                                p.assignedArea || "";
+                            document.getElementById("room").textContent =
+                                p.room || "";
+                            document.getElementById("assignedDoctor").textContent =
+                                p.assignedDoctor || "";
+                            document.getElementById("admissionStatus").textContent =
+                                p.admissionStatus || "";
+
+                            if (p.admissionStatus === "Discharged") {
+
+                                dischargeSection.style.display = "block";
+
+                                document.getElementById("dischargeBtn").style.display = "none";
+                                document.getElementById("editBtn").style.display = "none";
+                                document.getElementById("deleteBtn").style.display = "none";
+
+                                document.getElementById("dischargeDate").textContent =
+                                    p.dischargeDate || "";
+
+                                document.getElementById("dischargeTime").textContent =
+                                    p.dischargeTime || "";
+
+                                document.getElementById("dischargeType").textContent =
+                                    p.dischargeType || "";
+
+                                document.getElementById("dischargeSummary").textContent =
+                                    p.dischargeSummary || "";
+
+                            } else {
+
+                                dischargeSection.style.display = "none";
+
+                            }
+                                
                             document.getElementById("firstName").textContent = p.firstName || "";
                             document.getElementById("middleName").textContent = p.middleName || "";
                             document.getElementById("lastName").textContent = p.lastName || "";
@@ -177,6 +265,7 @@
                             document.getElementById("route").textContent = p.route || "";
                             document.getElementById("status").textContent = p.status || "";
                             document.getElementById("prescriptionReason").textContent = p.prescriptionReason || "";
+
                         } else {
                             alert("Patient record not found.");
                         }
