@@ -1,4 +1,4 @@
-USER CREDENTIALS
+## USER CREDENTIALS
 
 <b><u>Password (ALL)</u></b>
 `pallapallina`
@@ -23,34 +23,51 @@ USER CREDENTIALS
 
 ---
 
-PRESENTATION SEQUENCE
+## PRESENTATION SEQUENCE
+
 1.) Scrum Backlog -- PAULINE
+
 2.) Record Patient Admission Form (Clerk) -- ERICKA
+
 3.) Create Prescription (Doctor) -- ERLSHAWN
+
 4.) Assign Dispenser Compartment (Admin) -- VICTOR
+
 5.) Refill Dispenser Carousel (Pharmacist) -- PAULINE
+
 6.) Assign Medication Administration (Head Nurse) - ERLSHAWN
+
 7.) Dispense Medicine (Nurse) -- VICTOR
+
 8.) View Activity Logs (ADMIN) -- ERICKA
 
 ---
 
-BY ASSIGNMENT
-PAULINE
+## BY ASSIGNMENT
+
+**PAULINE**
+
 1.) Scrum Backlog
+
 5.) Refill Dispenser Carousel (Pharmacist)
 
-ERICKA
+**ERICKA**
+
 2.) Record Patient Admission Form (Clerk)
+
 8.) View Activity Logs (ADMIN)
 
-ERLSHAWN
+**ERLSHAWN**
+
 3.) Create Prescription (Doctor)
+
 6.) Assign Medication Administration (Head Nurse)
 
-VICTOR
-4.) Assign Dispenser Carousel (Admin) -- VIC
-7.) Dispense Medicine (Nurse) -- VIC
+**VICTOR**
+
+4.) Assign Dispenser Carousel (Admin)
+
+7.) Dispense Medicine (Nurse)
 
 ---
 
