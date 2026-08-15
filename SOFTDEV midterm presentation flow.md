@@ -15,17 +15,11 @@ USER CREDENTIALS
 **DOCTOR (Bichael Pasado)**
 `pasionpg@students.nu-fairview.edu.ph`
 
-DOCTOR (John Winston McCartney)
-`pgpasion@student.apc.edu.ph`
-
-HEAD NURSE
+**HEAD NURSE**
 `pjpauu@gmail.com`
 
 **NURSE (Blessica Pasado)**
 `meditrackweb.noreply@gmail.com`
-
-NURSE (Victor Garlitos)
-`pjpauu@gmail.com`
 
 ---
 
