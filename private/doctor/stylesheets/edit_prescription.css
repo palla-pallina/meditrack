@@ -1,0 +1,335 @@
+:root {
+    --blue-950: #0b2a4a;
+    --blue-900: #103f73;
+    --blue-800: #155aa0;
+    --blue-700: #1f6fbd;
+    --blue-600: #2c82d8;
+    --blue-500: #4096e8;
+    --blue-100: #eaf4ff;
+    --blue-50: #f6faff;
+
+    --white: #ffffff;
+    --text: #21364a;
+    --muted: #718294;
+    --line: #dce8f3;
+    --line-strong: #bfd4e8;
+
+    --danger: #c94444;
+    --danger-bg: #fff2f2;
+    --success: #19835d;
+    --success-bg: #edf9f4;
+
+    --radius-lg: 20px;
+    --radius-md: 14px;
+    --radius-sm: 10px;
+
+    --shadow-sm: 0 8px 24px rgba(37, 82, 124, 0.07);
+    --shadow-md: 0 16px 40px rgba(37, 82, 124, 0.11);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    min-height: 100%;
+    background: var(--blue-50);
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: var(--text);
+    background:
+        radial-gradient(circle at top left, rgba(64, 150, 232, 0.08), transparent 30rem),
+        linear-gradient(180deg, #ffffff 0%, #f8fbff 48%, #f4f9fe 100%);
+}
+
+a {
+    color: var(--blue-700);
+    text-decoration: none;
+}
+
+a:hover {
+    color: var(--blue-900);
+}
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+    transition:
+        color 160ms ease,
+        background-color 160ms ease,
+        border-color 160ms ease,
+        box-shadow 160ms ease,
+        transform 160ms ease;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 3px solid rgba(44, 130, 216, 0.2);
+    outline-offset: 3px;
+}
+
+input,
+select,
+textarea {
+    width: 100%;
+    border: 1px solid var(--line-strong);
+    border-radius: 11px;
+    background: var(--white);
+    color: var(--text);
+    outline: none;
+}
+
+input,
+select {
+    min-height: 44px;
+    padding: 10px 13px;
+}
+
+textarea {
+    min-height: 108px;
+    padding: 12px 13px;
+    resize: vertical;
+    line-height: 1.55;
+}
+
+input:hover,
+select:hover,
+textarea:hover {
+    border-color: #91bde2;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: var(--blue-600);
+    box-shadow: 0 0 0 4px rgba(44, 130, 216, 0.10);
+}
+
+input[readonly],
+input:disabled,
+select:disabled {
+    background: #f2f7fb;
+    color: #708395;
+    border-color: #dbe7f1;
+}
+
+label {
+    color: var(--blue-950);
+    font-size: 0.88rem;
+    font-weight: 700;
+}
+
+button {
+    min-height: 42px;
+    padding: 0 16px;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.86rem;
+    font-weight: 750;
+}
+
+button:hover {
+    transform: translateY(-1px);
+}
+
+hr {
+    margin: 24px 0;
+    border: 0;
+    border-top: 1px solid var(--line);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--white);
+}
+
+thead {
+    background: #f1f7fd;
+    color: var(--blue-900);
+}
+
+th {
+    padding: 13px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--line);
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+}
+
+td {
+    padding: 13px 14px;
+    border-bottom: 1px solid #edf3f8;
+    font-size: 0.84rem;
+    vertical-align: middle;
+}
+
+tbody tr:hover {
+    background: var(--blue-50);
+}
+
+body {
+    width: min(100% - 36px, 1040px);
+    margin: 0 auto;
+    padding: 38px 0 52px;
+}
+
+body > a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 0 14px;
+    border: 1px solid var(--line-strong);
+    border-radius: 10px;
+    background: var(--white);
+    box-shadow: var(--shadow-sm);
+    font-size: 0.84rem;
+    font-weight: 700;
+}
+
+body > a:hover {
+    color: var(--white);
+    background: var(--blue-700);
+    border-color: var(--blue-700);
+}
+
+h2 {
+    margin: 24px 0 20px;
+    color: var(--blue-950);
+    font-size: clamp(1.9rem, 4vw, 2.5rem);
+    letter-spacing: -0.035em;
+}
+
+#editForm {
+    display: grid;
+    gap: 16px;
+}
+
+fieldset {
+    margin: 0;
+    padding: 24px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--white);
+    box-shadow: var(--shadow-sm);
+}
+
+legend {
+    padding: 0 10px;
+    color: var(--blue-900);
+    font-size: 1.02rem;
+    font-weight: 800;
+}
+
+label {
+    display: inline-block;
+    margin-bottom: 7px;
+}
+
+fieldset label + br {
+    display: none;
+}
+
+fieldset input + br,
+fieldset select + br,
+fieldset textarea + br {
+    display: block;
+    content: "";
+    margin-bottom: 16px;
+}
+
+#addMedicationBtn,
+#editForm > button[type="submit"] {
+    color: var(--white);
+    background: var(--blue-700);
+    box-shadow: 0 8px 18px rgba(31, 111, 189, 0.16);
+}
+
+#addMedicationBtn:hover,
+#editForm > button[type="submit"]:hover {
+    background: var(--blue-800);
+}
+
+#editForm > button[type="submit"] {
+    justify-self: start;
+    min-width: 130px;
+}
+
+fieldset:has(table) {
+    padding: 0;
+    overflow-x: auto;
+}
+
+fieldset:has(table) legend {
+    margin-left: 22px;
+}
+
+#medTable input,
+#medTable select {
+    min-width: 115px;
+    min-height: 36px;
+    padding: 7px 9px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+}
+
+#medTable button {
+    min-height: 32px;
+    padding: 0 10px;
+    color: var(--danger);
+    background: var(--danger-bg);
+    border-color: #efcaca;
+    font-size: 0.75rem;
+}
+
+#status {
+    min-height: 52px;
+    margin: 16px 0 0;
+    padding: 14px 16px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--white);
+    color: var(--muted);
+    box-shadow: var(--shadow-sm);
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+@media (max-width: 700px) {
+    body {
+        width: min(100% - 24px, 1040px);
+        padding-top: 24px;
+    }
+
+    fieldset {
+        padding: 19px 16px;
+    }
+
+    fieldset:has(table) {
+        padding: 0;
+    }
+
+    #editForm > button[type="submit"],
+    #addMedicationBtn {
+        width: 100%;
+    }
+}

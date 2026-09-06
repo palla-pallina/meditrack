@@ -1,71 +1,544 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <title>MediTrack | Dispenser Compartments</title>
+
+<meta charset="UTF-8">
+
+<title>MediTrack | Dispenser Dashboard</title>
+
+<link rel="stylesheet"
+      href="stylesheets/dispenser_dashboard.css">
+
+<style>
+
+*{
+    box-sizing:border-box;
+}
+
+.container{
+    max-width:1400px;
+    margin:auto;
+}
+
+header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center; 
+    margin-bottom:20px;
+}
+
+header h1{
+    margin:0;
+}
+
+.dashboard-button{
+    display:inline-block;
+    padding:10px 16px;
+    background:#1976d2;
+    color:white;
+    text-decoration:none;
+    border-radius:5px;
+}
+
+.toolbar{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    margin-bottom:20px;
+    flex-wrap:wrap;
+}
+
+.create-button{
+    padding:11px 18px;
+    border:none;
+    border-radius:5px;
+    background:#1976d2;
+    color:white;
+    cursor:pointer;
+    font-size:14px;
+}
+
+.refill-search-button{
+    padding:11px 18px;
+    border:none;
+    border-radius:5px;
+    background:#fd7e14;
+    color:white;
+    cursor:pointer;
+    font-size:14px;
+}
+
+.refill-search-button:hover{
+    background:#e96b05;
+}
+
+.search-container{
+    display:flex;
+    gap:8px;
+    flex:1;
+    min-width:300px;
+}
+
+.search-container input{
+    flex:1;
+    padding:11px;
+    border:1px solid #ccc;
+    border-radius:5px;
+    font-size:14px;
+}
+
+.search-container button{
+    padding:11px 18px;
+    border:none;
+    border-radius:5px;
+    background:#555;
+    color:white;
+    cursor:pointer;
+}
+
+.summary{
+    display:grid;
+    grid-template-columns:
+        repeat(5,1fr);
+    gap:15px;
+    margin-bottom:20px;
+}
+
+.summary-card{
+    background:white;
+    border:1px solid #ddd;
+    border-radius:8px;
+    padding:18px;
+}
+
+.summary-card strong{
+    display:block;
+    font-size:12px;
+    color:#666;
+    margin-bottom:7px;
+}
+
+.summary-value{
+    font-size:25px;
+    font-weight:bold;
+}
+
+.table-container{
+    background:white;
+    border-radius:8px;
+    overflow-x:auto;
+    border:1px solid #ddd;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    min-width:1200px;
+}
+
+thead{
+    background:#1976d2;
+    color:white;
+}
+
+th,
+td{
+    padding:12px;
+    border-bottom:1px solid #ddd;
+    text-align:left;
+    vertical-align:middle;
+}
+
+tbody tr:hover{
+    background:#f8f9fa;
+}
+
+.patient-name{
+    font-weight:bold;
+}
+
+.medication-list{
+    margin:0;
+    padding-left:18px;
+}
+
+.medication-list li{
+    margin-bottom:3px;
+}
+
+.badge{
+    display:inline-block;
+    padding:5px 9px;
+    border-radius:12px;
+    font-size:12px;
+    font-weight:bold;
+}
+
+.badge-empty{
+    background:#f8d7da;
+    color:#842029;
+}
+
+.badge-normal{
+    background:#d1e7dd;
+    color:#0f5132;
+}
+
+.badge-low{
+    background:#fff3cd;
+    color:#664d03;
+}
+
+.badge-refill{
+    background:#ffe5b4;
+    color:#8a4b00;
+}
+
+.badge-full{
+    background:#cfe2ff;
+    color:#084298;
+}
+
+.action-button{
+    padding:7px 10px;
+    border:none;
+    border-radius:4px;
+    cursor:pointer;
+    margin:2px;
+    color:white;
+}
+
+.view-button{
+    background:#1976d2;
+}
+
+.edit-button{
+    background:#198754;
+}
+
+.delete-button{
+    background:#dc3545;
+}
+
+.refill-button{
+    background:#fd7e14;
+}
+
+.message{
+    padding:15px;
+    margin-bottom:15px;
+    border-radius:6px;
+    background:#eef4ff;
+}
+
+.warning{
+    background:#fff3cd;
+    color:#664d03;
+}
+
+.error{
+    background:#f8d7da;
+    color:#842029;
+}
+
+.success{
+    background:#d1e7dd;
+    color:#0f5132;
+}
+
+.slot-progress{
+    width:100%;
+    min-width:100px;
+    height:8px;
+    background:#e9ecef;
+    border-radius:5px;
+    overflow:hidden;
+    margin-top:5px;
+}
+
+.slot-progress-bar{
+    height:100%;
+    background:#1976d2;
+}
+
+@media(max-width:900px){
+
+    .summary{
+        grid-template-columns:
+            repeat(2,1fr);
+    }
+
+}
+
+@media(max-width:600px){
+
+    .summary{
+        grid-template-columns:1fr;
+    }
+
+}
+
+</style>
+
 </head>
+
+
 <body>
 
-<a href="home.html">Dashboard</a><br><br>
+<div class="container">
 
-<h1>Medicine Dispenser Compartments</h1>
 
-<hr>
+<header>
 
-<button onclick="location.href='add_dispenser_compartment.html'">
-    + Create Compartment
-</button>
+    <div>
 
-<br><br>
+        <a href="home.html"
+           class="dashboard-button">
 
-<input
-    type="text"
-    id="searchInput"
-    placeholder="Search compartment, medication or brand">
+            Dashboard
 
-<button id="searchBtn">
-    Search
-</button>
+        </a>
 
-<br><br>
+    </div>
 
-<table border="1" cellpadding="8" cellspacing="0" width="100%">
+    <h1>
+        Medicine Dispenser Dashboard
+    </h1>
 
-    <thead>
+    <div></div>
 
-        <tr>
+</header>
 
-            <th>Dispenser Unit</th>
 
-            <th>Compartment ID</th>
+<!-- ================================================= -->
+<!-- TOOLBAR -->
+<!-- ================================================= -->
 
-            <th>Compartment Name</th>
+<div class="toolbar">
 
-            <th>Medication</th>
 
-            <th>Brand</th>
+    <button
+        class="create-button"
+        onclick="location.href='add_dispenser_compartment.html'">
 
-            <th>Form</th>
+        + Assign Dispenser
 
-            <th>Inventory</th>
+    </button>
 
-            <th>Status</th>
 
-            <th>Actions</th>
+    <div class="search-container">
 
-        </tr>
+        <input
+            type="text"
+            id="searchInput"
+            placeholder="Search carousel, patient, medication, ward or room">
 
-    </thead>
 
-    <tbody id="compartmentTable">
+        <button id="searchBtn">
 
-    </tbody>
+            Search
+
+        </button>
+
+
+    </div>
+
+
+</div>
+
+
+
+<!-- 
+
+
+<div id="message"
+     class="message">
+
+    Loading dispenser information...
+
+</div>
+-->
+
+
+<!-- ================================================= -->
+<!-- SUMMARY -->
+<!-- ================================================= -->
+
+<div class="summary">
+
+
+    <div class="summary-card">
+
+        <strong>
+            Total Carousels
+        </strong>
+
+        <div
+            id="totalCarousels"
+            class="summary-value">
+
+            0
+
+        </div>
+
+    </div>
+
+
+    <div class="summary-card">
+
+        <strong>
+            Assigned
+        </strong>
+
+        <div
+            id="assignedCarousels"
+            class="summary-value">
+
+            0
+
+        </div>
+
+    </div>
+
+
+    <div class="summary-card">
+
+        <strong>
+            Available
+        </strong>
+
+        <div
+            id="availableCarousels"
+            class="summary-value">
+
+            0
+
+        </div>
+
+    </div>
+
+
+    <div class="summary-card">
+
+        <strong>
+            Refill Required
+        </strong>
+
+        <div
+            id="refillCarousels"
+            class="summary-value">
+
+            0
+
+        </div>
+
+    </div>
+
+
+    <div class="summary-card">
+
+        <strong>
+            Empty
+        </strong>
+
+        <div
+            id="emptyCarousels"
+            class="summary-value">
+
+            0
+
+        </div>
+
+    </div>
+
+
+</div>
+
+
+
+<!-- ================================================= -->
+<!-- TABLE -->
+<!-- ================================================= -->
+
+<div class="table-container">
+
+<table>
+
+<thead>
+
+<tr>
+
+    <th>
+        Dispenser Unit
+    </th>
+
+    <th>
+        Carousel
+    </th>
+
+    <th>
+        Assigned Patient
+    </th>
+
+    <th>
+        Ward / Room
+    </th>
+
+    <th>
+        Medications
+    </th>
+
+    <th>
+        Slots
+    </th>
+
+    <th>
+        Refill
+    </th>
+
+    <th>
+        Inventory
+    </th>
+
+    <th>
+        Status
+    </th>
+
+    <th>
+        Actions
+    </th>
+
+</tr>
+
+</thead>
+
+
+<tbody id="compartmentTable">
+
+</tbody>
 
 </table>
 
+</div>
+
+
+</div>
+
+
+
 <script type="module">
 
-import { initializeApp }
+
+/* =====================================================
+   FIREBASE
+===================================================== */
+
+import {
+    initializeApp
+}
 from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+
 
 import {
     getDatabase,
@@ -74,6 +547,16 @@ import {
     remove
 }
 from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
+
+
+import {
+    requireRole
+}
+from "../../public/auth_guard.js";
+
+
+requireRole("Admin");
+
 
 const firebaseConfig = {
     apiKey: "AIzaSyBRm3dUt3HreTquM_Ba9JfYmZD2CLVV0Gc",
@@ -85,155 +568,1709 @@ const firebaseConfig = {
     appId: "1:656003988692:web:badfe96b7d830837a4cf41"
 };
 
-const app = initializeApp(firebaseConfig);
 
-const db = getDatabase();
+
+const app =
+    initializeApp(
+        firebaseConfig
+    );
+
+
+const db =
+    getDatabase(app);
+
+
+
+/* =====================================================
+   CONSTANTS
+===================================================== */
+
+const DISPENSER_UNIT =
+    "Main Dispenser";
+
+const MAX_CAROUSELS =
+    3;
+
+const MAX_SLOTS =
+    21;
+
+
+
+/* =====================================================
+   ELEMENTS
+===================================================== */
 
 const table =
-document.getElementById("compartmentTable");
+    document.getElementById(
+        "compartmentTable"
+    );
+
 
 const searchInput =
-document.getElementById("searchInput");
+    document.getElementById(
+        "searchInput"
+    );
 
-function getStatus(inventory){
 
-    inventory = Number(inventory);
+const searchBtn =
+    document.getElementById(
+        "searchBtn"
+    );
 
-    if(inventory == 0)
+
+const message =
+    document.getElementById(
+        "message"
+    );
+
+
+const totalCarousels =
+    document.getElementById(
+        "totalCarousels"
+    );
+
+
+const assignedCarousels =
+    document.getElementById(
+        "assignedCarousels"
+    );
+
+
+const availableCarousels =
+    document.getElementById(
+        "availableCarousels"
+    );
+
+
+const refillCarousels =
+    document.getElementById(
+        "refillCarousels"
+    );
+
+
+const emptyCarousels =
+    document.getElementById(
+        "emptyCarousels"
+    );
+
+
+
+/* =====================================================
+   DATA
+===================================================== */
+
+let carouselData = [];
+
+
+
+/* =====================================================
+   HTML ESCAPE
+===================================================== */
+
+function escapeHtml(
+    value
+){
+
+    return String(
+        value ?? ""
+    )
+    .replace(
+        /&/g,
+        "&amp;"
+    )
+    .replace(
+        /</g,
+        "&lt;"
+    )
+    .replace(
+        />/g,
+        "&gt;"
+    )
+    .replace(
+        /"/g,
+        "&quot;"
+    )
+    .replace(
+        /'/g,
+        "&#039;"
+    );
+
+}
+
+
+
+/* =====================================================
+   STATUS
+===================================================== */
+
+function getStatus(
+    compartment
+){
+
+    const inventory =
+        Number(
+            compartment.inventory_amount || 0
+        );
+
+
+    /*
+       Use the stored status if available.
+    */
+
+    if(
+        compartment.status
+    ){
+
+        return compartment.status;
+
+    }
+
+
+    if(
+        inventory === 0
+    ){
+
         return "Empty";
 
-    if(inventory <= 2)
+    }
+
+
+    if(
+        inventory <= 2
+    ){
+
         return "Low Stock";
 
-    if(inventory <= 7)
+    }
+
+
+    if(
+        inventory <= 7
+    ){
+
         return "Normal";
 
-    if(inventory <= 9)
+    }
+
+
+    if(
+        inventory <= 9
+    ){
+
         return "Nearly Full";
+
+    }
+
 
     return "Full";
 
 }
 
+
+
+/* =====================================================
+   STATUS BADGE
+===================================================== */
+
+function getStatusBadge(
+    status
+){
+
+    const normalized =
+        String(
+            status || ""
+        )
+        .toLowerCase();
+
+
+    let className =
+        "badge-normal";
+
+
+    if(
+        normalized === "empty"
+    ){
+
+        className =
+            "badge-empty";
+
+    }
+    else if(
+        normalized.includes(
+            "low"
+        )
+    ){
+
+        className =
+            "badge-low";
+
+    }
+    else if(
+        normalized.includes(
+            "refill"
+        )
+    ){
+
+        className =
+            "badge-refill";
+
+    }
+    else if(
+        normalized === "full"
+    ){
+
+        className =
+            "badge-full";
+
+    }
+
+
+    return `
+
+        <span class="badge ${className}">
+
+            ${escapeHtml(status)}
+
+        </span>
+
+    `;
+
+}
+
+
+
+/* =====================================================
+   GET SLOT COUNT
+===================================================== */
+
+function getSlotCount(
+    compartment
+){
+
+    if(
+        !compartment.slots
+    ){
+
+        return 0;
+
+    }
+
+
+    return Object.keys(
+        compartment.slots
+    ).length;
+
+}
+
+
+
+/* =====================================================
+   GET MEDICATIONS
+===================================================== */
+
+function getMedications(
+    compartment
+){
+
+    const medications = {};
+
+
+    /*
+       Read medications from physical slots.
+    */
+
+    if(
+        compartment.slots
+    ){
+
+        Object.values(
+            compartment.slots
+        )
+        .forEach(
+            slot => {
+
+                if(
+                    !slot.medicines
+                ){
+
+                    return;
+
+                }
+
+
+                Object.values(
+                    slot.medicines
+                )
+                .forEach(
+                    medicine => {
+
+                        const id =
+                            medicine.medication_id ||
+                            medicine.medication_name ||
+                            Math.random();
+
+
+                        if(
+                            !medications[id]
+                        ){
+
+                            medications[id] = {
+
+                                medication_name:
+                                    medicine.medication_name ||
+                                    "Unknown",
+
+                                brand_name:
+                                    medicine.brand_name ||
+                                    "",
+
+                                dosage:
+                                    medicine.dosage ||
+                                    "",
+
+                                form:
+                                    medicine.form ||
+                                    ""
+
+                            };
+
+                        }
+
+                    }
+                );
+
+            }
+        );
+
+    }
+
+
+    /*
+       Backward compatibility with older
+       compartment records.
+    */
+
+    if(
+        Object.keys(
+            medications
+        ).length === 0 &&
+        compartment.medication_name
+    ){
+
+        medications[
+            compartment.medication_id ||
+            compartment.medication_name
+        ] = {
+
+            medication_name:
+                compartment.medication_name,
+
+            brand_name:
+                compartment.brand_name ||
+                "",
+
+            dosage:
+                compartment.dosage ||
+                "",
+
+            form:
+                compartment.form ||
+                ""
+
+        };
+
+    }
+
+
+    return Object.values(
+        medications
+    );
+
+}
+
+
+
+/* =====================================================
+   GET MEDICATION HTML
+===================================================== */
+
+function getMedicationHtml(
+    compartment
+){
+
+    const medications =
+        getMedications(
+            compartment
+        );
+
+
+    if(
+        medications.length === 0
+    ){
+
+        return "-";
+
+    }
+
+
+    return `
+
+        <ul class="medication-list">
+
+            ${
+                medications
+                .map(
+                    medicine => `
+
+                        <li>
+
+                            <strong>
+
+                                ${escapeHtml(
+                                    medicine.medication_name
+                                )}
+
+                            </strong>
+
+                            ${
+                                medicine.dosage
+                                ?
+                                ` - ${escapeHtml(
+                                    medicine.dosage
+                                )}`
+                                :
+                                ""
+                            }
+
+                            ${
+                                medicine.brand_name
+                                ?
+                                `<br>
+                                <small>
+                                    ${escapeHtml(
+                                        medicine.brand_name
+                                    )}
+                                </small>`
+                                :
+                                ""
+                            }
+
+                        </li>
+
+                    `
+                )
+                .join("")
+            }
+
+        </ul>
+
+    `;
+
+}
+
+
+
+/* =====================================================
+   GET WARD / ROOM
+===================================================== */
+
+function getWardRoom(
+    compartment
+){
+
+    let ward =
+        compartment.ward ||
+        "";
+
+
+    let room =
+        compartment.room ||
+        "";
+
+
+    /*
+       If ward / room aren't stored directly,
+       inspect the first slot medication.
+    */
+
+    if(
+        (
+            !ward ||
+            !room
+        ) &&
+        compartment.slots
+    ){
+
+        const slots =
+            Object.values(
+                compartment.slots
+            );
+
+
+        for(
+            const slot of slots
+        ){
+
+            if(
+                slot.medicines
+            ){
+
+                const medicines =
+                    Object.values(
+                        slot.medicines
+                    );
+
+
+                if(
+                    medicines.length > 0
+                ){
+
+                    /*
+                       Ward and room normally live
+                       on prescription_items rather
+                       than the medicine stored in
+                       the carousel.
+
+                       They are therefore not assumed
+                       here.
+                    */
+
+                    break;
+
+                }
+
+            }
+
+        }
+
+    }
+
+
+    if(
+        !ward &&
+        !room
+    ){
+
+        return "-";
+
+    }
+
+
+    if(
+        ward &&
+        room
+    ){
+
+        return `
+
+            ${escapeHtml(ward)}
+
+            <br>
+
+            <small>
+                Room ${escapeHtml(room)}
+            </small>
+
+        `;
+
+    }
+
+
+    if(ward){
+
+        return escapeHtml(
+            ward
+        );
+
+    }
+
+
+    return `Room ${
+        escapeHtml(room)
+    }`;
+
+}
+
+
+
+/* =====================================================
+   GET SLOT PROGRESS
+===================================================== */
+
+function getSlotProgress(
+    compartment
+){
+
+    const slots =
+        getSlotCount(
+            compartment
+        );
+
+
+    const percentage =
+        Math.min(
+            100,
+            (
+                slots /
+                MAX_SLOTS
+            ) * 100
+        );
+
+
+    return `
+
+        <strong>
+
+            ${slots}/${MAX_SLOTS}
+
+        </strong>
+
+
+        <div class="slot-progress">
+
+            <div
+                class="slot-progress-bar"
+                style="width:${percentage}%">
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+
+/* =====================================================
+   REFILL INFORMATION
+===================================================== */
+
+function getRefillHtml(
+    compartment
+){
+
+    if(
+        !compartment.refill_required
+    ){
+
+        return `
+
+            <span class="badge badge-normal">
+
+                Not Required
+
+            </span>
+
+        `;
+
+    }
+
+
+    const interval =
+        compartment.refill_interval_days;
+
+
+    const nextDate =
+        compartment.next_refill_date;
+
+
+    return `
+
+        <span class="badge badge-refill">
+
+            Every ${escapeHtml(
+                interval
+            )} day(s)
+
+        </span>
+
+
+        ${
+            nextDate
+            ?
+            `<br>
+            <small>
+                Next:
+                ${escapeHtml(
+                    nextDate
+                )}
+            </small>`
+            :
+            ""
+        }
+
+    `;
+
+}
+
+
+
+/* =====================================================
+   LOAD CAROUSELS
+===================================================== */
+
 async function loadCompartments(){
 
-    table.innerHTML = "";
+    table.innerHTML =
+        "";
 
-    const snapshot =
-    await get(ref(db,"dispenser_unit"));
 
-    if(!snapshot.exists()){
+    carouselData =
+        [];
+
+
+    try{
+
+        const snapshot =
+            await get(
+                ref(
+                    db,
+                    "dispenser_unit/" +
+                    DISPENSER_UNIT
+                )
+            );
+
+
+        /*
+           Always display Carousel 1-3.
+        */
+
+        for(
+            let i = 1;
+            i <= MAX_CAROUSELS;
+            i++
+        ){
+
+            const id =
+                "MD-C" +
+                String(i)
+                    .padStart(
+                        2,
+                        "0"
+                    );
+
+
+            let compartment = {
+
+                dispenser_unit:
+                    DISPENSER_UNIT,
+
+                compartment_id:
+                    id,
+
+                compartment_name:
+                    "Carousel " + i,
+
+                patient_id:
+                    null,
+
+                patient_name:
+                    null,
+
+                inventory_amount:
+                    0,
+
+                maximum_capacity:
+                    MAX_SLOTS,
+
+                status:
+                    "Empty"
+
+            };
+
+
+            if(
+                snapshot.exists()
+            ){
+
+                const child =
+                    snapshot.child(id);
+
+
+                if(
+                    child.exists()
+                ){
+
+                    compartment = {
+
+                        ...compartment,
+
+                        ...child.val()
+
+                    };
+
+                }
+
+            }
+
+
+            carouselData.push(
+                compartment
+            );
+
+        }
+
+
+        updateSummary();
+
+
+        renderTable(
+            carouselData
+        );
+
+
+        message.className =
+            "message success";
+
+
+        message.textContent =
+            "Dispenser information loaded successfully.";
+
+    }
+    catch(error){
+
+        console.error(
+            error
+        );
+
+
+        message.className =
+            "message error";
+
+
+        message.textContent =
+            "Failed to load dispenser information: " +
+            error.message;
+
+    }
+
+}
+
+
+
+/* =====================================================
+   SUMMARY
+===================================================== */
+
+function updateSummary(){
+
+    const total =
+        MAX_CAROUSELS;
+
+
+    const assigned =
+        carouselData.filter(
+            carousel =>
+                carousel.patient_id
+        ).length;
+
+
+    const available =
+        total -
+        assigned;
+
+
+    const refill =
+        carouselData.filter(
+            carousel =>
+                carousel.refill_required === true
+        ).length;
+
+
+    const empty =
+        carouselData.filter(
+            carousel =>
+                Number(
+                    carousel.inventory_amount || 0
+                ) === 0
+        ).length;
+
+
+    totalCarousels.textContent =
+        total;
+
+
+    assignedCarousels.textContent =
+        assigned;
+
+
+    availableCarousels.textContent =
+        available;
+
+
+    refillCarousels.textContent =
+        refill;
+
+
+    emptyCarousels.textContent =
+        empty;
+
+}
+
+
+
+/* =====================================================
+   RENDER TABLE
+===================================================== */
+
+function renderTable(
+    data
+){
+
+    table.innerHTML =
+        "";
+
+
+    if(
+        data.length === 0
+    ){
 
         table.innerHTML = `
-        <tr>
-            <td colspan="10">
-                No compartments found.
-            </td>
-        </tr>
+
+            <tr>
+
+                <td colspan="10">
+
+                    No carousels found.
+
+                </td>
+
+            </tr>
+
         `;
 
         return;
 
     }
 
-    snapshot.forEach(unit=>{
 
-        const unitName = unit.key;
-
-        unit.forEach(compartment=>{
-
-            const c = compartment.val();
+    data.forEach(
+        compartment => {
 
             const row =
-            document.createElement("tr");
+                document.createElement(
+                    "tr"
+                );
+
+
+            const assigned =
+                Boolean(
+                    compartment.patient_id
+                );
+
+
+            const status =
+                getStatus(
+                    compartment
+                );
+
+
+            const medications =
+                getMedications(
+                    compartment
+                );
+
+
+            const medicationSearchText =
+                medications
+                .map(
+                    medicine =>
+                        [
+
+                            medicine.medication_name,
+
+                            medicine.brand_name,
+
+                            medicine.dosage,
+
+                            medicine.form
+
+                        ]
+                        .join(" ")
+                )
+                .join(" ");
+
+
+            row.dataset.search =
+                [
+
+                    compartment.dispenser_unit,
+
+                    compartment.compartment_id,
+
+                    compartment.compartment_name,
+
+                    compartment.patient_name,
+
+                    compartment.patient_id,
+
+                    compartment.ward,
+
+                    compartment.room,
+
+                    medicationSearchText,
+
+                    status
+
+                ]
+                .join(" ")
+                .toLowerCase();
+
 
             row.innerHTML = `
 
-            <td>${unitName}</td>
+                <td>
 
-            <td>${c.compartment_id}</td>
+                    ${escapeHtml(
+                        compartment.dispenser_unit
+                    )}
 
-            <td>${c.compartment_name}</td>
+                </td>
 
-            <td>${c.medication_name || "-"}</td>
 
-            <td>${c.brand_name || "-"}</td>
+                <td>
 
-            <td>${c.form || "-"}</td>
+                    <strong>
 
-            <td>${c.inventory_amount}/21</td>
+                        ${escapeHtml(
+                            compartment.compartment_name ||
+                            compartment.compartment_id
+                        )}
 
-            <td>${getStatus(c.inventory_amount)}</td>
+                    </strong>
 
-            <td>
+                    <br>
 
-                <button
-                onclick="window.location='view_compartment.html?unit=${unitName}&id=${c.compartment_id}'">
-                View
-                </button>
+                    <small>
 
-                <button
-                onclick="window.location='edit_compartment.html?unit=${unitName}&id=${c.compartment_id}'">
-                Edit
-                </button>
+                        ${escapeHtml(
+                            compartment.compartment_id
+                        )}
 
-                <button
-                onclick="deleteCompartment('${unitName}','${c.compartment_id}')">
-                Delete
-                </button>
+                    </small>
 
-            </td>
+                </td>
+
+
+                <td>
+
+                    ${
+                        assigned
+
+                        ?
+
+                        `
+
+                            <div class="patient-name">
+
+                                ${escapeHtml(
+                                    compartment.patient_name ||
+                                    "Unknown Patient"
+                                )}
+
+                            </div>
+
+                            <small>
+
+                                ID:
+                                ${escapeHtml(
+                                    compartment.patient_id
+                                )}
+
+                            </small>
+
+                        `
+
+                        :
+
+                        `
+
+                            <span class="badge badge-normal">
+
+                                Available
+
+                            </span>
+
+                        `
+
+                    }
+
+                </td>
+
+
+                <td>
+
+                    ${
+                        assigned
+
+                        ?
+
+                        getWardRoom(
+                            compartment
+                        )
+
+                        :
+
+                        "-"
+
+                    }
+
+                </td>
+
+
+                <td>
+
+                    ${
+                        assigned
+
+                        ?
+
+                        getMedicationHtml(
+                            compartment
+                        )
+
+                        :
+
+                        "-"
+
+                    }
+
+                </td>
+
+
+                <td>
+
+                    ${
+                        assigned
+
+                        ?
+
+                        getSlotProgress(
+                            compartment
+                        )
+
+                        :
+
+                        `
+
+                            <strong>
+                                0/${MAX_SLOTS}
+                            </strong>
+
+                        `
+
+                    }
+
+                </td>
+
+
+                <td>
+
+                    ${
+                        assigned
+
+                        ?
+
+                        getRefillHtml(
+                            compartment
+                        )
+
+                        :
+
+                        "-"
+
+                    }
+
+                </td>
+
+
+                <td>
+
+                    <strong>
+
+                        ${Number(
+                            compartment.inventory_amount || 0
+                        )}
+
+                        /
+
+                        ${MAX_SLOTS}
+
+                    </strong>
+
+                </td>
+
+
+                <td>
+
+                    ${getStatusBadge(
+                        status
+                    )}
+
+                </td>
+
+
+                <td>
+
+                    <button
+                        class="action-button view-button"
+                        onclick="viewCompartment(
+                            '${escapeHtml(
+                                compartment.dispenser_unit
+                            )}',
+                            '${escapeHtml(
+                                compartment.compartment_id
+                            )}'
+                        )">
+
+                        View
+
+                    </button>
+
+
+                    ${
+                        assigned
+
+                        ?
+
+                        `
+
+                            <button
+                                class="action-button edit-button"
+                                onclick="editCompartment(
+                                    '${escapeHtml(
+                                        compartment.dispenser_unit
+                                    )}',
+                                    '${escapeHtml(
+                                        compartment.compartment_id
+                                    )}'
+                                )">
+
+                                Edit
+
+                            </button>
+
+                        `
+
+                        :
+
+                        ""
+
+                    }
+
+
+                    <button
+                        class="action-button delete-button"
+                        onclick="deleteCompartment(
+                            '${escapeHtml(
+                                compartment.dispenser_unit
+                            )}',
+                            '${escapeHtml(
+                                compartment.compartment_id
+                            )}'
+                        )">
+
+                        Delete
+
+                    </button>
+
+                </td>
 
             `;
 
-            table.appendChild(row);
 
-        });
+            table.appendChild(
+                row
+            );
 
-    });
-
-}
-
-window.deleteCompartment = async function(unit,id){
-
-    if(!confirm("Delete this compartment?"))
-        return;
-
-    await remove(
-        ref(db,
-        "dispenser_unit/" + unit + "/" + id)
+        }
     );
 
-    alert("Compartment deleted.");
 
-    loadCompartments();
+    applySearch();
 
 }
 
-searchInput.addEventListener("keyup",()=>{
+
+
+/* =====================================================
+   SEARCH
+===================================================== */
+
+function applySearch(){
 
     const filter =
-    searchInput.value.toLowerCase();
+        searchInput.value
+            .trim()
+            .toLowerCase();
+
 
     const rows =
-    table.getElementsByTagName("tr");
+        table.getElementsByTagName(
+            "tr"
+        );
 
-    for(let row of rows){
+
+    for(
+        const row of rows
+    ){
+
+        const searchText =
+            row.dataset.search ||
+            row.innerText ||
+            "";
+
 
         row.style.display =
-        row.innerText
-        .toLowerCase()
-        .includes(filter)
-        ? ""
-        : "none";
+
+            searchText
+                .toLowerCase()
+                .includes(
+                    filter
+                )
+
+            ?
+
+            ""
+
+            :
+
+            "none";
 
     }
 
-});
+}
+
+
+searchBtn.addEventListener(
+    "click",
+    applySearch
+);
+
+searchInput.addEventListener(
+    "input",
+    applySearch
+);
+
+
+searchInput.addEventListener(
+    "keyup",
+    event => {
+
+        if(
+            event.key === "Enter"
+        ){
+
+            applySearch();
+
+        }
+
+    }
+);
+
+
+
+/* =====================================================
+   VIEW
+===================================================== */
+
+window.viewCompartment =
+function(
+    unit,
+    id
+){
+
+    window.location.href =
+
+        "view_compartment.html" +
+
+        "?unit=" +
+        encodeURIComponent(unit) +
+
+        "&id=" +
+        encodeURIComponent(id);
+
+};
+
+
+
+/* =====================================================
+   EDIT
+===================================================== */
+
+window.editCompartment =
+function(
+    unit,
+    id
+){
+
+    window.location.href =
+
+        "edit_compartment.html" +
+
+        "?unit=" +
+        encodeURIComponent(unit) +
+
+        "&id=" +
+        encodeURIComponent(id);
+
+};
+
+
+
+/* =====================================================
+   REFILL
+===================================================== */
+
+window.viewRefill =
+function(
+    unit,
+    id
+){
+
+    window.location.href =
+
+        "refill_dispenser.html" +
+
+        "?unit=" +
+        encodeURIComponent(unit) +
+
+        "&id=" +
+        encodeURIComponent(id) +
+
+        "&action=refill";
+
+};
+
+
+
+/* =====================================================
+   DELETE
+===================================================== */
+
+window.deleteCompartment =
+async function(
+    unit,
+    id
+){
+
+    const compartment =
+        carouselData.find(
+            item =>
+                item.compartment_id === id
+        );
+
+
+    if(!compartment){
+
+        alert(
+            "Carousel not found."
+        );
+
+        return;
+
+    }
+
+
+    let confirmationMessage =
+
+        "Delete " +
+
+        (
+            compartment.compartment_name ||
+            id
+        ) +
+
+        "?";
+
+
+    if(
+        compartment.patient_id
+    ){
+
+        confirmationMessage +=
+
+            "\n\nPatient: " +
+
+            (
+                compartment.patient_name ||
+                "Unknown Patient"
+            ) +
+
+            "\n\n" +
+
+            "This will remove the patient's " +
+
+            "carousel assignment.";
+
+    }
+
+
+    if(
+        !confirm(
+            confirmationMessage
+        )
+    ){
+
+        return;
+
+    }
+
+
+    try{
+
+        /*
+           Delete the entire carousel.
+        */
+
+        await remove(
+
+            ref(
+
+                db,
+
+                "dispenser_unit/" +
+
+                unit +
+
+                "/" +
+
+                id
+
+            )
+
+        );
+
+
+        /*
+           Remove carousel assignment from
+           prescription items.
+        */
+
+        if(
+            compartment.patient_id
+        ){
+
+            const updates = {};
+
+
+            const prescriptionSnapshot =
+                await get(
+                    ref(
+                        db,
+                        "prescription_items"
+                    )
+                );
+
+
+            if(
+                prescriptionSnapshot.exists()
+            ){
+
+                prescriptionSnapshot.forEach(
+                    child => {
+
+                        const item =
+                            child.val();
+
+
+                        if(
+                            item.patient_id ===
+                            compartment.patient_id
+                        ){
+
+                            updates[
+                                "prescription_items/" +
+                                child.key +
+                                "/carousel_id"
+                            ] =
+                                null;
+
+
+                            updates[
+                                "prescription_items/" +
+                                child.key +
+                                "/carousel_name"
+                            ] =
+                                null;
+
+                        }
+
+                    }
+                );
+
+            }
+
+
+            if(
+                Object.keys(
+                    updates
+                ).length > 0
+            ){
+
+                /*
+                   Firebase update cannot reliably
+                   use undefined. null removes
+                   the values.
+                */
+
+                const {
+                    update
+                } =
+                    await import(
+                        "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js"
+                    );
+
+
+                await update(
+                    ref(db),
+                    updates
+                );
+
+            }
+
+        }
+
+
+        alert(
+            "Carousel deleted successfully."
+        );
+
+
+        await loadCompartments();
+
+    }
+    catch(error){
+
+        console.error(
+            error
+        );
+
+
+        alert(
+
+            "Failed to delete carousel:\n\n" +
+
+            error.message
+
+        );
+
+    }
+
+};
+
+
+
+/* =====================================================
+   INITIALIZE
+===================================================== */
 
 loadCompartments();
+
 
 </script>
 
 </body>
+
 </html>

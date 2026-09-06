@@ -4,6 +4,8 @@
 <head>
 <meta charset="UTF-8">
 <title>New Prescription</title>
+
+<link rel="stylesheet" href="stylesheets/add_prescription.css">
 </head>
 
 <body>
@@ -220,6 +222,9 @@ Save Prescription
 <pre id="status"></pre>
 
 <script type="module">
+import {
+    logPrescriptionCreated
+} from "../js/activity_log.js";
 
 import { initializeApp }
 from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
@@ -509,73 +514,224 @@ searchInput.addEventListener("input", function(){
 
 document
 .getElementById("saveMedication")
-.onclick=async function(){
+.onclick = async function () {
 
-    if(document.getElementById("newGeneric").value.trim()==""){
+    // =========================================================
+    // Validate Generic Name
+    // =========================================================
 
-    alert("Generic name is required.");
-    return;
+    const genericName =
+        document
+            .getElementById("newGeneric")
+            .value
+            .trim();
 
+    if (genericName === "") {
+
+        alert(
+            "Generic name is required."
+        );
+
+        return;
     }
 
-    const medRef=
-    push(ref(database,"medications"));
 
-    const medication={
+    try {
 
-        medication_id:medRef.key,
+        // =====================================================
+        // Create Medication Reference
+        // =====================================================
 
-        generic_name:
-        document.getElementById("newGeneric").value,
+        const medRef =
+            push(
+                ref(
+                    database,
+                    "medications"
+                )
+            );
 
-        brand_name:
-        document.getElementById("newBrand").value,
 
-        drug_class:
-        document.getElementById("newDrugClass").value,
+        const medicationId =
+            medRef.key;
 
-        form:
-        document.getElementById("newForm").value,
 
-        created_at:
-        new Date().toISOString()
+        // =====================================================
+        // Create Medication Object
+        // =====================================================
 
-    };
+        const medication = {
 
-    await set(
+            medication_id:
+                medicationId,
 
-        medRef,
+            generic_name:
+                genericName,
 
-        medication
+            brand_name:
+                document
+                    .getElementById("newBrand")
+                    .value
+                    .trim(),
 
-    );
+            drug_class:
+                document
+                    .getElementById("newDrugClass")
+                    .value
+                    .trim(),
 
-    medications.push({
+            form:
+                document
+                    .getElementById("newForm")
+                    .value,
 
-        id:medRef.key,
+            created_at:
+                new Date().toISOString()
 
-        ...medication
+        };
 
-    });
 
-    document
-    .getElementById("medication")
-    .value=medRef.key;
+        // =====================================================
+        // Save Medication
+        // =====================================================
 
-    document
-    .getElementById("medicationSearch")
-    .value=medication.generic_name;
+        await set(
+            medRef,
+            medication
+        );
 
-    document
-    .getElementById("newMedicationPanel")
-    .style.display = "none";
 
-    document.getElementById("newGeneric").value = "";
-    document.getElementById("newBrand").value = "";
-    document.getElementById("newDrugClass").value = "";
-    document.getElementById("newForm").selectedIndex = 0;
+        // =====================================================
+        // Log Medicine Creation
+        // =====================================================
 
-    alert("Medication added.");
+        try {
+
+            await logMedicineCreated(
+                database,
+                auth,
+                {
+
+                    medicationId:
+                        medicationId,
+
+                    genericName:
+                        medication.generic_name,
+
+                    brandName:
+                        medication.brand_name,
+
+                    drugClass:
+                        medication.drug_class,
+
+                    dosageForm:
+                        medication.form
+
+                }
+            );
+
+
+            console.log(
+                "Medicine creation activity logged."
+            );
+
+        }
+        catch (logError) {
+
+            /*
+             * The medication was already saved.
+             * A logging error should not make the
+             * medication creation appear unsuccessful.
+             */
+
+            console.error(
+                "Activity logging failed:",
+                logError
+            );
+
+        }
+
+
+        // =====================================================
+        // Add Medication To Local Array
+        // =====================================================
+
+        medications.push({
+
+            id:
+                medicationId,
+
+            ...medication
+
+        });
+
+
+        // =====================================================
+        // Select Newly Created Medication
+        // =====================================================
+
+        document
+            .getElementById("medication")
+            .value =
+            medicationId;
+
+
+        document
+            .getElementById("medicationSearch")
+            .value =
+            medication.generic_name;
+
+
+        // =====================================================
+        // Hide New Medication Panel
+        // =====================================================
+
+        document
+            .getElementById("newMedicationPanel")
+            .style.display =
+                "none";
+
+
+        // =====================================================
+        // Clear Fields
+        // =====================================================
+
+        document
+            .getElementById("newGeneric")
+            .value = "";
+
+        document
+            .getElementById("newBrand")
+            .value = "";
+
+        document
+            .getElementById("newDrugClass")
+            .value = "";
+
+        document
+            .getElementById("newForm")
+            .selectedIndex = 0;
+
+
+        alert(
+            "Medication added."
+        );
+
+
+    }
+    catch (error) {
+
+        console.error(
+            "Error creating medication:",
+            error
+        );
+
+
+        alert(
+            "Failed to add medication: " +
+            error.message
+        );
+
+    }
 
 };
 
@@ -758,67 +914,263 @@ renderMedications();
 
 document
 .getElementById("prescriptionForm")
-.addEventListener("submit",
-async function(e){
+.addEventListener(
+    "submit",
+    async function(e) {
 
-e.preventDefault();
+        e.preventDefault();
 
-const payload = {
 
-    patient_id:
-    document.getElementById("patient").value,
+        // =====================================================
+        // Validate Medications
+        // =====================================================
 
-    physician_uid:
-    document.getElementById("physicianUid").value,
+        if (prescriptionItems.length === 0) {
 
-    physician_name:
-    document.getElementById("physician").value,
+            alert(
+                "Please add at least one medication."
+            );
 
-    notes:
-    document.getElementById("notes").value,
+            return;
+        }
 
-    items:
-    prescriptionItems
 
-};
+        // =====================================================
+        // Build Payload
+        // =====================================================
 
-const response=
+        const payload = {
 
-await fetch(
+            patient_id:
+                document
+                    .getElementById("patient")
+                    .value,
 
-"add_prescription.php",
+            physician_uid:
+                document
+                    .getElementById("physicianUid")
+                    .value,
 
-{
+            physician_name:
+                document
+                    .getElementById("physician")
+                    .value,
 
-method:"POST",
+            notes:
+                document
+                    .getElementById("notes")
+                    .value,
 
-headers:{
+            items:
+                prescriptionItems
 
-"Content-Type":
+        };
 
-"application/json"
 
-},
+        const statusElement =
+            document.getElementById("status");
 
-body:
 
-JSON.stringify(payload)
+        statusElement.textContent =
+            "Saving prescription...";
 
-}
 
+        try {
+
+            // =================================================
+            // Save Prescription Through PHP
+            // =================================================
+
+            const response =
+                await fetch(
+                    "add_prescription.php",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body:
+                            JSON.stringify(payload)
+                    }
+                );
+
+
+            // =================================================
+            // Read PHP Response
+            // =================================================
+
+            const result =
+                await response.json();
+
+
+            console.log(
+                "Prescription PHP response:",
+                result
+            );
+
+
+            // =================================================
+            // Check PHP Result
+            // =================================================
+
+            if (
+                !response.ok ||
+                result.success !== true
+            ) {
+
+                throw new Error(
+                    result.message ||
+                    "Failed to save prescription."
+                );
+
+            }
+
+
+            // =================================================
+            // Get Prescription ID
+            // =================================================
+
+            const prescriptionId =
+                result.prescription_id;
+
+
+            // =================================================
+            // Build Medication List For Activity Log
+            // =================================================
+
+            const medicationsForLog =
+                prescriptionItems.map(item => ({
+
+                    medicationId:
+                        item.medication_id,
+
+                    medicationName:
+                        item.medication_name,
+
+                    dosage:
+                        item.dosage,
+
+                    route:
+                        item.route,
+
+                    frequency:
+                        item.frequency,
+
+                    administrationTimes:
+                        item.administration_times,
+
+                    startDate:
+                        item.start_date,
+
+                    endDate:
+                        item.end_date
+
+                }));
+
+
+            // =================================================
+            // Write Activity Log
+            // =================================================
+
+            try {
+
+                await logPrescriptionCreated(
+                    database,
+                    auth,
+                    {
+
+                        prescriptionId:
+                            prescriptionId,
+
+                        patientId:
+                            payload.patient_id,
+
+                        patientName:
+                            document
+                                .getElementById("patient")
+                                .selectedOptions[0]
+                                ?.textContent
+                                .trim() || "",
+
+                        physicianUid:
+                            payload.physician_uid,
+
+                        physicianName:
+                            payload.physician_name,
+
+                        medications:
+                            medicationsForLog
+
+                    }
+                );
+
+
+                console.log(
+                    "Prescription activity logged."
+                );
+
+            }
+            catch (logError) {
+
+                /*
+                 * The prescription was already saved.
+                 * A logging failure should not make the
+                 * user think the prescription failed.
+                 */
+
+                console.error(
+                    "Activity logging failed:",
+                    logError
+                );
+
+            }
+
+
+            // =================================================
+            // Display Success
+            // =================================================
+
+            statusElement.textContent =
+                JSON.stringify(
+                    result,
+                    null,
+                    4
+                );
+
+
+            // =================================================
+            // Redirect
+            // =================================================
+
+            window.location.href =
+                "view_prescriptions.html";
+
+
+        }
+        catch (error) {
+
+            console.error(
+                "Error saving prescription:",
+                error
+            );
+
+
+            statusElement.textContent =
+                "Failed to save prescription.\n\n" +
+                error.message;
+
+
+            alert(
+                error.message
+            );
+
+        }
+
+    }
 );
-
-const result=
-
-await response.json();
-
-document
-.getElementById("status")
-.textContent=
-
-JSON.stringify(result,null,4);
-
-});
 
 </script>
 

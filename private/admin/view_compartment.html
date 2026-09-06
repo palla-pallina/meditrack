@@ -1,69 +1,829 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <title>MediTrack | View Dispenser Compartment</title>
+
+<meta charset="UTF-8">
+
+<title>
+MediTrack | View Dispenser Carousel
+</title>
+
+<link rel="stylesheet"
+      href="stylesheets/view_compartment.css">
+
+<style>
+
+*{
+    box-sizing:border-box;
+}
+
+body{
+    padding:20px;
+}
+
+
+.top-bar{
+    margin-bottom:20px;
+}
+
+.dashboard-link{
+    display:inline-block;
+    padding:9px 15px;
+    background:#1976d2;
+    color:white;
+    text-decoration:none;
+    border-radius:5px;
+}
+
+h1{
+    margin-bottom:5px;
+}
+
+.subtitle{
+    color:#666;
+    margin-top:0;
+}
+
+fieldset{
+    background:white;
+    border:1px solid #ddd;
+    border-radius:8px;
+    padding:20px;
+    margin-bottom:20px;
+}
+
+legend{
+    padding:0 10px;
+}
+
+.info-grid{
+    display:grid;
+    grid-template-columns:
+        repeat(3,1fr);
+    gap:15px;
+}
+
+.info-box{
+    display:flex;
+    flex-direction:column;
+}
+
+.info-box label{
+    font-size:12px;
+    font-weight:bold;
+    color:#666;
+    margin-bottom:5px;
+}
+
+.info-box input{
+    padding:10px;
+    border:1px solid #ddd;
+    border-radius:5px;
+    background:#f8f9fa;
+}
+
+.patient-name{
+    font-size:20px;
+    font-weight:bold;
+}
+
+.status-badge{
+    display:inline-block;
+    width:max-content;
+    padding:6px 11px;
+    border-radius:14px;
+    font-size:12px;
+    font-weight:bold;
+}
+
+.status-empty{
+    background:#f8d7da;
+    color:#842029;
+}
+
+.status-low{
+    background:#fff3cd;
+    color:#664d03;
+}
+
+.status-normal{
+    background:#d1e7dd;
+    color:#0f5132;
+}
+
+.status-full{
+    background:#cfe2ff;
+    color:#084298;
+}
+
+.status-refill{
+    background:#ffe5b4;
+    color:#8a4b00;
+}
+
+.progress-container{
+    margin-top:8px;
+    height:12px;
+    width:100%;
+    background:#e9ecef;
+    border-radius:10px;
+    overflow:hidden;
+}
+
+.progress-bar{
+    height:100%;
+    background:#1976d2;
+}
+
+.summary-grid{
+    display:grid;
+    grid-template-columns:
+        repeat(4,1fr);
+    gap:15px;
+}
+
+.summary-card{
+    background:white;
+    border:1px solid #ddd;
+    border-radius:8px;
+    padding:18px;
+}
+
+.summary-card label{
+    display:block;
+    font-size:12px;
+    font-weight:bold;
+    color:#666;
+    margin-bottom:8px;
+}
+
+.summary-value{
+    font-size:24px;
+    font-weight:bold;
+}
+
+.medication-card{
+    border:1px solid #ddd;
+    border-radius:8px;
+    padding:15px;
+    margin-bottom:12px;
+    background:#fafafa;
+}
+
+.medication-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:10px;
+}
+
+.medication-name{
+    font-size:17px;
+    font-weight:bold;
+}
+
+.medication-details{
+    display:grid;
+    grid-template-columns:
+        repeat(4,1fr);
+    gap:10px;
+}
+
+.medication-detail{
+    font-size:13px;
+}
+
+.medication-detail strong{
+    display:block;
+    color:#666;
+    font-size:11px;
+}
+
+.slots-table-container{
+    background:white;
+    border:1px solid #ddd;
+    border-radius:8px;
+    overflow-x:auto;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    min-width:1000px;
+}
+
+thead{
+    background:#1976d2;
+    color:white;
+}
+
+th,
+td{
+    padding:12px;
+    border-bottom:1px solid #ddd;
+    text-align:left;
+    vertical-align:top;
+}
+
+tbody tr:hover{
+    background:#f8f9fa;
+}
+
+.slot-number{
+    font-weight:bold;
+    font-size:16px;
+}
+
+.medicine-item{
+    background:#f1f5f9;
+    border-left:4px solid #1976d2;
+    padding:8px 10px;
+    margin-bottom:6px;
+    border-radius:4px;
+}
+
+.medicine-item:last-child{
+    margin-bottom:0;
+}
+
+.medicine-item strong{
+    display:block;
+}
+
+.medicine-item small{
+    color:#666;
+}
+
+.empty-slot{
+    color:#999;
+    font-style:italic;
+}
+
+.refill-box{
+    background:#fff3cd;
+    border:1px solid #ffecb5;
+    border-radius:7px;
+    padding:15px;
+    margin-top:15px;
+}
+
+.refill-box h3{
+    margin-top:0;
+    color:#664d03;
+}
+
+.action-bar{
+    display:flex;
+    gap:10px;
+    margin-top:20px;
+}
+
+button{
+    padding:10px 18px;
+    border:none;
+    border-radius:5px;
+    cursor:pointer;
+}
+
+.edit-button{
+    background:#198754;
+    color:white;
+}
+
+.back-button{
+    background:#6c757d;
+    color:white;
+}
+
+.refill-button{
+    background:#fd7e14;
+    color:white;
+}
+
+.loading{
+    padding:20px;
+    background:white;
+    border-radius:8px;
+}
+
+.error{
+    padding:15px;
+    background:#f8d7da;
+    color:#842029;
+    border-radius:7px;
+}
+
+@media(max-width:1000px){
+
+    .info-grid,
+    .medication-details,
+    .summary-grid{
+        grid-template-columns:
+            repeat(2,1fr);
+    }
+
+}
+
+@media(max-width:600px){
+
+    .info-grid,
+    .medication-details,
+    .summary-grid{
+        grid-template-columns:1fr;
+    }
+
+}
+
+</style>
+
 </head>
+
+
 <body>
 
-<a href="dispenser_dashboard.html">Dashboard</a>
 
-<h2>Dispenser Compartment Details</h2>
+<div class="container">
+
+
+<!-- ================================================= -->
+<!-- TOP BAR -->
+<!-- ================================================= -->
+
+<div class="top-bar">
+
+    <a
+        href="dispenser_dashboard.html"
+        class="dashboard-link">
+
+        ← Dispenser Dashboard
+
+    </a>
+
+</div>
+
+
+
+<h1>
+    Dispenser Carousel Details
+</h1>
+
+<p class="subtitle">
+    View the patient assignment, medication schedule,
+    slot allocation and refill information.
+</p>
+
+
+
+<!-- ================================================= -->
+<!-- LOADING -->
+<!-- ================================================= -->
+
+<div
+    id="loadingMessage"
+    class="loading">
+
+    Loading carousel information...
+
+</div>
+
+
+
+<div id="content"
+     style="display:none;">
+
+
+
+<!-- ================================================= -->
+<!-- CAROUSEL INFORMATION -->
+<!-- ================================================= -->
 
 <fieldset>
 
-    <legend><strong>Compartment Information</strong></legend>
+<legend>
+    <strong>Carousel Information</strong>
+</legend>
 
-    <label>Compartment ID</label><br>
-    <input type="text" id="compartmentId" readonly><br><br>
 
-    <label>Dispenser Unit</label><br>
-    <input type="text" id="dispenserUnit" readonly><br><br>
+<div class="info-grid">
 
-    <label>Compartment Name</label><br>
-    <input type="text" id="compartmentName" readonly><br><br>
 
-    <label>Medication</label><br>
-    <input type="text" id="medicationName" readonly><br><br>
+    <div class="info-box">
 
-    <label>Brand Name</label><br>
-    <input type="text" id="brandName" readonly><br><br>
+        <label>
+            Carousel ID
+        </label>
 
-    <label>Drug Class</label><br>
-    <input type="text" id="drugClass" readonly><br><br>
+        <input
+            type="text"
+            id="compartmentId"
+            readonly>
 
-    <label>Dosage Form</label><br>
-    <input type="text" id="form" readonly><br><br>
+    </div>
 
-    <label>Inventory Amount</label><br>
-    <input type="number" id="inventoryAmount" readonly><br><br>
 
-    <label>Maximum Capacity</label><br>
-    <input type="number" id="maximumCapacity" readonly><br><br>
+    <div class="info-box">
 
-    <label>Created At</label><br>
-    <input type="text" id="createdAt" readonly><br><br>
+        <label>
+            Carousel Name
+        </label>
 
-    <label>Last Updated</label><br>
-    <input type="text" id="updatedAt" readonly>
+        <input
+            type="text"
+            id="compartmentName"
+            readonly>
+
+    </div>
+
+
+    <div class="info-box">
+
+        <label>
+            Dispenser Unit
+        </label>
+
+        <input
+            type="text"
+            id="dispenserUnit"
+            readonly>
+
+    </div>
+
+
+    <div class="info-box">
+
+        <label>
+            Assigned Patient
+        </label>
+
+        <input
+            type="text"
+            id="patientName"
+            class="patient-name"
+            readonly>
+
+    </div>
+
+
+    <div class="info-box">
+
+        <label>
+            Patient ID
+        </label>
+
+        <input
+            type="text"
+            id="patientId"
+            readonly>
+
+    </div>
+
+
+    <div class="info-box">
+
+        <label>
+            Ward
+        </label>
+
+        <input
+            type="text"
+            id="ward"
+            readonly>
+
+    </div>
+
+
+    <div class="info-box">
+
+        <label>
+            Room
+        </label>
+
+        <input
+            type="text"
+            id="room"
+            readonly>
+
+    </div>
+
+
+    <div class="info-box">
+
+        <label>
+            Status
+        </label>
+
+        <div
+            id="statusContainer">
+
+        </div>
+
+    </div>
+
+
+    <div class="info-box">
+
+        <label>
+            Inventory
+        </label>
+
+        <input
+            type="text"
+            id="inventory"
+            readonly>
+
+        <div
+            id="inventoryProgress"
+            class="progress-container">
+
+            <div
+                id="inventoryProgressBar"
+                class="progress-bar">
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+</div>
 
 </fieldset>
 
+
+
+<!-- ================================================= -->
+<!-- SUMMARY -->
+<!-- ================================================= -->
+
+<div class="summary-grid">
+
+
+    <div class="summary-card">
+
+        <label>
+            Used Slots
+        </label>
+
+        <div
+            id="slotCount"
+            class="summary-value">
+
+            0 / 21
+
+        </div>
+
+    </div>
+
+
+    <div class="summary-card">
+
+        <label>
+            Total Medicines
+        </label>
+
+        <div
+            id="medicineCount"
+            class="summary-value">
+
+            0
+
+        </div>
+
+    </div>
+
+
+    <div class="summary-card">
+
+        <label>
+            Current Cycle
+        </label>
+
+        <div
+            id="currentCycle"
+            class="summary-value">
+
+            1
+
+        </div>
+
+    </div>
+
+
+    <div class="summary-card">
+
+        <label>
+            Refill Interval
+        </label>
+
+        <div
+            id="refillInterval"
+            class="summary-value">
+
+            -
+
+        </div>
+
+    </div>
+
+
+</div>
+
+
+
 <br>
 
-<button id="editBtn">
-    Edit Compartment
-</button>
 
-<button
-    type="button"
-    onclick="history.back()">
-    Back
-</button>
+
+<!-- ================================================= -->
+<!-- REFILL INFORMATION -->
+<!-- ================================================= -->
+
+<div
+    id="refillContainer">
+
+</div>
+
+
+
+<!-- ================================================= -->
+<!-- MEDICATIONS -->
+<!-- ================================================= -->
+
+<fieldset>
+
+<legend>
+    <strong>Assigned Medications</strong>
+</legend>
+
+
+<div id="medicationContainer">
+
+</div>
+
+
+</fieldset>
+
+
+
+<!-- ================================================= -->
+<!-- SLOT SCHEDULE -->
+<!-- ================================================= -->
+
+<fieldset style="margin-left: -157px;">
+
+<legend>
+    <strong>Carousel Slot Schedule</strong>
+</legend>
+
+
+<p>
+
+    Each physical slot can contain
+    <strong>1–4 medicines</strong>.
+
+</p>
+
+
+<div class="slots-table-container">
+
+<table>
+
+<thead>
+
+<tr>
+
+    <th>
+        Slot
+    </th>
+
+    <th>
+        Date
+    </th>
+
+    <th>
+        Administration Time
+    </th>
+
+    <th>
+        Cycle / Day
+    </th>
+
+    <th>
+        Medicines
+    </th>
+
+    <th>
+        Medicine Count
+    </th>
+
+</tr>
+
+</thead>
+
+
+<tbody
+    id="slotTable">
+
+</tbody>
+
+
+</table>
+
+</div>
+
+
+</fieldset>
+
+
+
+<!-- ================================================= -->
+<!-- RECORD INFORMATION -->
+<!-- ================================================= -->
+
+<fieldset>
+
+<legend>
+    <strong>Record Information</strong>
+</legend>
+
+
+<div class="info-grid">
+
+
+    <div class="info-box">
+
+        <label>
+            Created At
+        </label>
+
+        <input
+            type="text"
+            id="createdAt"
+            readonly>
+
+    </div>
+
+
+    <div class="info-box">
+
+        <label>
+            Last Updated
+        </label>
+
+        <input
+            type="text"
+            id="updatedAt"
+            readonly>
+
+    </div>
+
+
+</div>
+
+
+</fieldset>
+
+
+
+<!-- ================================================= -->
+<!-- ACTIONS -->
+<!-- ================================================= -->
+
+<div class="action-bar">
+
+    <button
+        id="backBtn"
+        class="back-button">
+
+        Back
+
+    </button>
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
 
 <script type="module">
 
-import { initializeApp }
+
+/* =====================================================
+   FIREBASE
+===================================================== */
+
+import {
+    initializeApp
+}
 from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+
 
 import {
     getDatabase,
@@ -71,6 +831,16 @@ import {
     get
 }
 from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
+
+
+import {
+    requireRole
+}
+from "../../public/auth_guard.js";
+
+
+requireRole("Admin");
+
 
 const firebaseConfig = {
     apiKey: "AIzaSyBRm3dUt3HreTquM_Ba9JfYmZD2CLVV0Gc",
@@ -82,136 +852,1419 @@ const firebaseConfig = {
     appId: "1:656003988692:web:badfe96b7d830837a4cf41"
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
 
-const DISPENSER_UNIT = "Main Dispenser";
+const app =
+    initializeApp(
+        firebaseConfig
+    );
 
-const params = new URLSearchParams(window.location.search);
 
-const id = params.get("id");
+const db =
+    getDatabase(app);
+
+
+
+/* =====================================================
+   CONSTANTS
+===================================================== */
+
+const DISPENSER_UNIT =
+    "Main Dispenser";
+
+const MAX_SLOTS =
+    21;
+
+
+
+/* =====================================================
+   URL PARAMETERS
+===================================================== */
+
+const params =
+    new URLSearchParams(
+        window.location.search
+    );
+
+
+const id =
+    params.get(
+        "id"
+    );
+
+
+const unit =
+    params.get(
+        "unit"
+    ) ||
+    DISPENSER_UNIT;
+
+
+
+/* =====================================================
+   ELEMENTS
+===================================================== */
+
+const loadingMessage =
+    document.getElementById(
+        "loadingMessage"
+    );
+
+
+const content =
+    document.getElementById(
+        "content"
+    );
+
 
 const compartmentId =
-document.getElementById("compartmentId");
+    document.getElementById(
+        "compartmentId"
+    );
 
-const dispenserUnit =
-document.getElementById("dispenserUnit");
 
 const compartmentName =
-document.getElementById("compartmentName");
+    document.getElementById(
+        "compartmentName"
+    );
 
-const medicationName =
-document.getElementById("medicationName");
 
-const brandName =
-document.getElementById("brandName");
+const dispenserUnit =
+    document.getElementById(
+        "dispenserUnit"
+    );
 
-const drugClass =
-document.getElementById("drugClass");
 
-const form =
-document.getElementById("form");
+const patientName =
+    document.getElementById(
+        "patientName"
+    );
 
-const inventoryAmount =
-document.getElementById("inventoryAmount");
 
-const maximumCapacity =
-document.getElementById("maximumCapacity");
+const patientId =
+    document.getElementById(
+        "patientId"
+    );
+
+
+const ward =
+    document.getElementById(
+        "ward"
+    );
+
+
+const room =
+    document.getElementById(
+        "room"
+    );
+
+
+const statusContainer =
+    document.getElementById(
+        "statusContainer"
+    );
+
+
+const inventory =
+    document.getElementById(
+        "inventory"
+    );
+
+
+const inventoryProgressBar =
+    document.getElementById(
+        "inventoryProgressBar"
+    );
+
+
+const slotCount =
+    document.getElementById(
+        "slotCount"
+    );
+
+
+const medicineCount =
+    document.getElementById(
+        "medicineCount"
+    );
+
+
+const currentCycle =
+    document.getElementById(
+        "currentCycle"
+    );
+
+
+const refillInterval =
+    document.getElementById(
+        "refillInterval"
+    );
+
+
+const refillContainer =
+    document.getElementById(
+        "refillContainer"
+    );
+
+
+const medicationContainer =
+    document.getElementById(
+        "medicationContainer"
+    );
+
+
+const slotTable =
+    document.getElementById(
+        "slotTable"
+    );
+
 
 const createdAt =
-document.getElementById("createdAt");
+    document.getElementById(
+        "createdAt"
+    );
+
 
 const updatedAt =
-document.getElementById("updatedAt");
+    document.getElementById(
+        "updatedAt"
+    );
+
+
+
+/* =====================================================
+   ESCAPE HTML
+===================================================== */
+
+function escapeHtml(
+    value
+){
+
+    return String(
+        value ?? ""
+    )
+    .replace(
+        /&/g,
+        "&amp;"
+    )
+    .replace(
+        /</g,
+        "&lt;"
+    )
+    .replace(
+        />/g,
+        "&gt;"
+    )
+    .replace(
+        /"/g,
+        "&quot;"
+    )
+    .replace(
+        /'/g,
+        "&#039;"
+    );
+
+}
+
+
+
+/* =====================================================
+   FORMAT DATE
+===================================================== */
+
+function formatDate(
+    value
+){
+
+    if(!value){
+
+        return "-";
+
+    }
+
+
+    const date =
+        new Date(
+            value
+        );
+
+
+    if(
+        Number.isNaN(
+            date.getTime()
+        )
+    ){
+
+        return value;
+
+    }
+
+
+    return date.toLocaleString();
+
+}
+
+
+
+/* =====================================================
+   FORMAT SCHEDULE DATE
+===================================================== */
+
+function formatScheduleDate(
+    value
+){
+
+    if(!value){
+
+        return "-";
+
+    }
+
+
+    const date =
+        new Date(
+            value + "T00:00:00"
+        );
+
+
+    if(
+        Number.isNaN(
+            date.getTime()
+        )
+    ){
+
+        return value;
+
+    }
+
+
+    return date.toLocaleDateString(
+        undefined,
+        {
+            year:"numeric",
+            month:"short",
+            day:"numeric"
+        }
+    );
+
+}
+
+
+
+/* =====================================================
+   STATUS
+===================================================== */
+
+function createStatusBadge(
+    status
+){
+
+    const normalized =
+        String(
+            status || ""
+        )
+        .toLowerCase();
+
+
+    let className =
+        "status-normal";
+
+
+    if(
+        normalized === "empty"
+    ){
+
+        className =
+            "status-empty";
+
+    }
+    else if(
+        normalized.includes(
+            "low"
+        )
+    ){
+
+        className =
+            "status-low";
+
+    }
+    else if(
+        normalized === "full"
+    ){
+
+        className =
+            "status-full";
+
+    }
+    else if(
+        normalized.includes(
+            "refill"
+        )
+    ){
+
+        className =
+            "status-refill";
+
+    }
+
+
+    return `
+
+        <span
+            class="status-badge ${className}">
+
+            ${escapeHtml(status)}
+
+        </span>
+
+    `;
+
+}
+
+
+
+/* =====================================================
+   GET STATUS
+===================================================== */
+
+function getStatus(
+    c
+){
+
+    if(
+        c.status
+    ){
+
+        return c.status;
+
+    }
+
+
+    const amount =
+        Number(
+            c.inventory_amount || 0
+        );
+
+
+    if(
+        amount === 0
+    ){
+
+        return "Empty";
+
+    }
+
+
+    if(
+        amount <= 2
+    ){
+
+        return "Low Stock";
+
+    }
+
+
+    if(
+        amount <= 7
+    ){
+
+        return "Normal";
+
+    }
+
+
+    if(
+        amount <= 9
+    ){
+
+        return "Nearly Full";
+
+    }
+
+
+    return "Full";
+
+}
+
+
+
+/* =====================================================
+   GET ALL MEDICINES
+===================================================== */
+
+function getAllMedicines(
+    c
+){
+
+    const medicines = {};
+
+
+    if(
+        !c.slots
+    ){
+
+        return medicines;
+
+    }
+
+
+    Object.values(
+        c.slots
+    )
+    .forEach(
+        slot => {
+
+            if(
+                !slot.medicines
+            ){
+
+                return;
+
+            }
+
+
+            Object.values(
+                slot.medicines
+            )
+            .forEach(
+                medicine => {
+
+                    const key =
+                        medicine.medication_id ||
+                        medicine.medication_name ||
+                        medicine.brand_name;
+
+
+                    if(
+                        !key
+                    ){
+
+                        return;
+
+                    }
+
+
+                    if(
+                        !medicines[key]
+                    ){
+
+                        medicines[key] = {
+
+                            medication_id:
+                                medicine.medication_id ||
+                                "",
+
+                            medication_name:
+                                medicine.medication_name ||
+                                "Unknown Medication",
+
+                            brand_name:
+                                medicine.brand_name ||
+                                "",
+
+                            dosage:
+                                medicine.dosage ||
+                                "",
+
+                            form:
+                                medicine.form ||
+                                "",
+
+                            route:
+                                medicine.route ||
+                                "",
+
+                            frequency:
+                                medicine.frequency ||
+                                "",
+
+                            administration_times:
+                                medicine.administration_times ||
+                                []
+
+                        };
+
+                    }
+
+                }
+            );
+
+        }
+    );
+
+
+    return medicines;
+
+}
+
+
+
+/* =====================================================
+   RENDER MEDICATIONS
+===================================================== */
+
+function renderMedications(
+    c
+){
+
+    const medicines =
+        Object.values(
+            getAllMedicines(
+                c
+            )
+        );
+
+
+    medicationContainer.innerHTML =
+        "";
+
+
+    if(
+        medicines.length === 0
+    ){
+
+        medicationContainer.innerHTML = `
+
+            <p>
+                No medications assigned.
+            </p>
+
+        `;
+
+        medicineCount.textContent =
+            "0";
+
+        return;
+
+    }
+
+
+    medicineCount.textContent =
+        medicines.length;
+
+
+    medicines.forEach(
+        medicine => {
+
+            const card =
+                document.createElement(
+                    "div"
+                );
+
+
+            card.className =
+                "medication-card";
+
+
+            card.innerHTML = `
+
+                <div class="medication-header">
+
+                    <div class="medication-name">
+
+                        ${escapeHtml(
+                            medicine.medication_name
+                        )}
+
+                    </div>
+
+                </div>
+
+
+                <div class="medication-details">
+
+
+                    <div class="medication-detail">
+
+                        <strong>
+                            Brand
+                        </strong>
+
+                        ${escapeHtml(
+                            medicine.brand_name ||
+                            "-"
+                        )}
+
+                    </div>
+
+
+                    <div class="medication-detail">
+
+                        <strong>
+                            Dosage
+                        </strong>
+
+                        ${escapeHtml(
+                            medicine.dosage ||
+                            "-"
+                        )}
+
+                    </div>
+
+
+                    <div class="medication-detail">
+
+                        <strong>
+                            Form
+                        </strong>
+
+                        ${escapeHtml(
+                            medicine.form ||
+                            "-"
+                        )}
+
+                    </div>
+
+
+                    <div class="medication-detail">
+
+                        <strong>
+                            Route
+                        </strong>
+
+                        ${escapeHtml(
+                            medicine.route ||
+                            "-"
+                        )}
+
+                    </div>
+
+
+                </div>
+
+            `;
+
+
+            medicationContainer.appendChild(
+                card
+            );
+
+        }
+    );
+
+}
+
+
+
+/* =====================================================
+   RENDER SLOTS
+===================================================== */
+
+function renderSlots(
+    c
+){
+
+    slotTable.innerHTML =
+        "";
+
+
+    if(
+        !c.slots
+    ){
+
+        slotTable.innerHTML = `
+
+            <tr>
+
+                <td colspan="6">
+
+                    No slots assigned.
+
+                </td>
+
+            </tr>
+
+        `;
+
+        slotCount.textContent =
+            "0 / 21";
+
+        return;
+
+    }
+
+
+    /*
+       Sort slots numerically.
+    */
+
+    const slots =
+        Object.entries(
+            c.slots
+        )
+        .sort(
+            (
+                [a],
+                [b]
+            ) => {
+
+                const numberA =
+                    Number(
+                        a.replace(
+                            "slot_",
+                            ""
+                        )
+                    );
+
+
+                const numberB =
+                    Number(
+                        b.replace(
+                            "slot_",
+                            ""
+                        )
+                    );
+
+
+                return numberA -
+                    numberB;
+
+            }
+        );
+
+
+    slotCount.textContent =
+        `${slots.length} / ${MAX_SLOTS}`;
+
+
+    slots.forEach(
+        (
+            [
+                slotId,
+                slot
+            ],
+            index
+        ) => {
+
+
+            const medicines =
+                slot.medicines
+                ?
+
+                Object.values(
+                    slot.medicines
+                )
+
+                :
+
+                [];
+
+
+            const row =
+                document.createElement(
+                    "tr"
+                );
+
+
+            const medicineHtml =
+                medicines.length > 0
+
+                ?
+
+                medicines
+                .map(
+                    medicine => `
+
+                        <div class="medicine-item">
+
+                            <strong>
+
+                                ${escapeHtml(
+                                    medicine.medication_name ||
+                                    "Unknown Medication"
+                                )}
+
+                            </strong>
+
+
+                            <small>
+
+                                ${
+                                    medicine.brand_name
+                                    ?
+                                    escapeHtml(
+                                        medicine.brand_name
+                                    ) +
+                                    " · "
+                                    :
+                                    ""
+                                }
+
+
+                                ${
+                                    medicine.dosage
+                                    ?
+                                    escapeHtml(
+                                        medicine.dosage
+                                    ) +
+                                    " · "
+                                    :
+                                    ""
+                                }
+
+
+                                ${
+                                    medicine.form
+                                    ?
+                                    escapeHtml(
+                                        medicine.form
+                                    )
+                                    :
+                                    ""
+                                }
+
+                            </small>
+
+                        </div>
+
+                    `
+                )
+                .join("")
+
+                :
+
+                `<span class="empty-slot">
+                    Empty slot
+                </span>`;
+
+
+            const cycle =
+                slot.cycle_number ??
+                c.current_cycle ??
+                1;
+
+
+            const day =
+                slot.day_number
+                ?
+
+                `Day ${escapeHtml(
+                    slot.day_number
+                )}`
+
+                :
+
+                `Day ${index + 1}`;
+
+
+            row.innerHTML = `
+
+                <td>
+
+                    <div class="slot-number">
+
+                        ${escapeHtml(
+                            slot.slot_number ??
+                            index + 1
+                        )}
+
+                    </div>
+
+                    <small>
+
+                        ${escapeHtml(
+                            slotId
+                        )}
+
+                    </small>
+
+                </td>
+
+
+                <td>
+
+                    ${formatScheduleDate(
+                        slot.date
+                    )}
+
+                </td>
+
+
+                <td>
+
+                    <strong>
+
+                        ${escapeHtml(
+                            slot.administration_time ||
+                            "-"
+                        )}
+
+                    </strong>
+
+                </td>
+
+
+                <td>
+
+                    Cycle ${escapeHtml(
+                        cycle
+                    )}
+
+                    <br>
+
+                    <small>
+
+                        ${day}
+
+                    </small>
+
+                </td>
+
+
+                <td>
+
+                    ${medicineHtml}
+
+                </td>
+
+
+                <td>
+
+                    <strong>
+
+                        ${
+                            slot.medicine_count ??
+                            medicines.length
+                        }
+
+                    </strong>
+
+                    / 4
+
+                </td>
+
+            `;
+
+
+            slotTable.appendChild(
+                row
+            );
+
+        }
+    );
+
+}
+
+
+
+/* =====================================================
+   REFILL
+===================================================== */
+
+function renderRefill(
+    c
+){
+
+    refillContainer.innerHTML =
+        "";
+
+
+    if(
+        !c.refill_required
+    ){
+
+        refillInterval.textContent =
+            "Not required";
+
+
+        return;
+
+    }
+
+
+    const interval =
+        Number(
+            c.refill_interval_days || 0
+        );
+
+
+    refillInterval.textContent =
+        interval > 0
+
+        ?
+
+        `${interval} day(s)`
+
+        :
+
+        "Required";
+
+
+    refillContainer.innerHTML = `
+
+        <div class="refill-box">
+
+            <h3>
+                Refill Reminder
+            </h3>
+
+
+            <p>
+
+                The medication schedule exceeds
+                the available 21 physical slots.
+
+            </p>
+
+
+            <p>
+
+                <strong>
+                    Refill every:
+                </strong>
+
+                ${
+                    interval > 0
+                    ?
+                    interval + " day(s)"
+                    :
+                    "Not specified"
+                }
+
+            </p>
+
+
+            ${
+                c.next_refill_date
+
+                ?
+
+                `
+
+                    <p>
+
+                        <strong>
+                            Next refill:
+                        </strong>
+
+                        ${escapeHtml(
+                            c.next_refill_date
+                        )}
+
+                    </p>
+
+                `
+
+                :
+
+                ""
+
+            }
+
+
+            ${
+                c.refill_cycle_count
+
+                ?
+
+                `
+
+                    <p>
+
+                        <strong>
+                            Refill cycles:
+                        </strong>
+
+                        ${escapeHtml(
+                            c.refill_cycle_count
+                        )}
+
+                    </p>
+
+                `
+
+                :
+
+                ""
+
+            }
+
+        </div>
+
+    `;
+
+}
+
+
+
+/* =====================================================
+   LOAD CAROUSEL
+===================================================== */
 
 async function loadCompartment(){
+
+    if(
+        !id
+    ){
+
+        loadingMessage.className =
+            "error";
+
+
+        loadingMessage.textContent =
+            "No carousel ID was provided.";
+
+
+        return;
+
+    }
+
 
     try{
 
         const snapshot =
-        await get(
-            ref(
-                db,
-                "dispenser_unit/" +
-                DISPENSER_UNIT +
-                "/" +
-                id
-            )
-        );
+            await get(
 
-        if(!snapshot.exists()){
+                ref(
 
-            alert("Compartment not found.");
+                    db,
 
-            history.back();
+                    "dispenser_unit/" +
+
+                    unit +
+
+                    "/" +
+
+                    id
+
+                )
+
+            );
+
+
+        if(
+            !snapshot.exists()
+        ){
+
+            loadingMessage.className =
+                "error";
+
+
+            loadingMessage.textContent =
+                "Carousel not found.";
+
 
             return;
 
         }
 
-        const c = snapshot.val();
+
+        const c =
+            snapshot.val();
+
+
+
+        /* =============================================
+           BASIC INFORMATION
+        ============================================= */
 
         compartmentId.value =
-        c.compartment_id || "";
+            c.compartment_id ||
+            id;
 
-        dispenserUnit.value =
-        c.dispenser_unit || "";
 
         compartmentName.value =
-        c.compartment_name || "";
+            c.compartment_name ||
+            "";
 
-        medicationName.value =
-        c.medication_name || "";
 
-        brandName.value =
-        c.brand_name || "";
+        dispenserUnit.value =
+            c.dispenser_unit ||
+            unit;
 
-        drugClass.value =
-        c.drug_class || "";
 
-        form.value =
-        c.form || "";
+        patientName.value =
+            c.patient_name ||
+            "No Patient Assigned";
 
-        inventoryAmount.value =
-        c.inventory_amount ?? 0;
 
-        maximumCapacity.value =
-        c.maximum_capacity ?? 10;
+        patientId.value =
+            c.patient_id ||
+            "-";
+
+
+        ward.value =
+            c.ward ||
+            "-";
+
+
+        room.value =
+            c.room ||
+            "-";
+
+
+
+        /* =============================================
+           STATUS
+        ============================================= */
+
+        const status =
+            getStatus(
+                c
+            );
+
+
+        statusContainer.innerHTML =
+            createStatusBadge(
+                status
+            );
+
+
+
+        /* =============================================
+           INVENTORY
+        ============================================= */
+
+        const amount =
+            Number(
+                c.inventory_amount || 0
+            );
+
+
+        const capacity =
+            Number(
+                c.maximum_capacity ||
+                MAX_SLOTS
+            );
+
+
+        inventory.value =
+            `${amount} / ${capacity}`;
+
+
+        const inventoryPercentage =
+            Math.min(
+                100,
+                (
+                    amount /
+                    capacity
+                ) * 100
+            );
+
+
+        inventoryProgressBar.style.width =
+            inventoryPercentage +
+            "%";
+
+
+
+        /* =============================================
+           CYCLE
+        ============================================= */
+
+        currentCycle.textContent =
+            c.current_cycle ||
+            c.cycle_number ||
+            1;
+
+
+
+        /* =============================================
+           MEDICATIONS
+        ============================================= */
+
+        renderMedications(
+            c
+        );
+
+
+
+        /* =============================================
+           SLOTS
+        ============================================= */
+
+        renderSlots(
+            c
+        );
+
+
+
+        /* =============================================
+           REFILL
+        ============================================= */
+
+        renderRefill(
+            c
+        );
+
+
+
+        /* =============================================
+           RECORD INFORMATION
+        ============================================= */
 
         createdAt.value =
-        c.created_at
-            ? new Date(c.created_at).toLocaleString()
-            : "";
+            formatDate(
+                c.created_at
+            );
+
 
         updatedAt.value =
-        c.updated_at
-            ? new Date(c.updated_at).toLocaleString()
-            : "";
+            formatDate(
+                c.updated_at
+            );
+
+
+
+        /* =============================================
+           SHOW PAGE
+        ============================================= */
+
+        loadingMessage.style.display =
+            "none";
+
+
+        content.style.display =
+            "block";
 
     }
-
     catch(error){
 
-        console.error(error);
+        console.error(
+            error
+        );
 
-        alert(error.message);
+
+        loadingMessage.className =
+            "error";
+
+
+        loadingMessage.textContent =
+            "Failed to load carousel: " +
+            error.message;
 
     }
 
 }
 
-loadCompartment();
+/* =====================================================
+   BACK
+===================================================== */
 
 document
-.getElementById("editBtn")
-.addEventListener("click",()=>{
+.getElementById(
+    "backBtn"
+)
+.addEventListener(
+    "click",
+    () => {
 
-    window.location.href =
-    "edit_compartment.html?id=" + id;
+        window.location.href =
+            "dispenser_dashboard.html";
 
-});
+    }
+);
+
+
+
+/* =====================================================
+   INITIALIZE
+===================================================== */
+
+loadCompartment();
+
 
 </script>
 
 </body>
+
 </html>

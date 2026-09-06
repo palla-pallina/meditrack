@@ -1,0 +1,2637 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>MediTrack | Activity Logs</title>
+
+    <link
+        rel="stylesheet"
+        href="stylesheets/activity_logs.css"
+    >
+
+</head>
+
+
+<body>
+
+    <!-- ======================================================
+         HEADER
+    ======================================================= -->
+
+    <header class="topbar">
+
+        <div class="topbar-left">
+
+            <h1>MediTrack</h1>
+
+            <span>
+                Activity Logs
+            </span>
+
+        </div>
+
+
+        <div class="topbar-right">
+
+            <a href="home.html">
+                Dashboard
+            </a>
+
+            <button
+                id="refreshBtn"
+                type="button"
+            >
+                Refresh
+            </button>
+
+        </div>
+
+    </header>
+
+
+    <!-- ======================================================
+         MAIN CONTENT
+    ======================================================= -->
+
+    <main class="container">
+
+        <section class="page-header">
+
+            <div>
+
+                <h2>
+                    Activity Logs
+                </h2>
+
+                <p>
+                    Review system activities performed in MediTrack.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- ==================================================
+             FILTER PANEL
+        =================================================== -->
+
+        <section class="filter-panel">
+
+            <div class="filter-group search-group">
+
+                <label for="searchInput">
+                    Search
+                </label>
+
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Search activity logs..."
+                >
+
+            </div>
+
+
+            <div class="filter-group">
+
+                <label for="actionFilter">
+                    Action
+                </label>
+
+                <select id="actionFilter">
+
+                    <option value="">
+                        All Actions
+                    </option>
+
+                    <option value="LOGIN">
+                        Login
+                    </option>
+
+                    <option value="MEDICINE_CREATED">
+                        Medicine Created
+                    </option>
+
+                    <option value="INVENTORY_ADDED">
+                        Inventory Added
+                    </option>
+
+                    <option value="INVENTORY_DEDUCTED">
+                        Inventory Deducted
+                    </option>
+
+                    <option value="INVENTORY_ADJUSTED">
+                        Inventory Adjusted
+                    </option>
+
+                    <option value="PRESCRIPTION_CREATED">
+                        Prescription Created
+                    </option>
+
+                    <option value="DISPENSER_ASSIGNED">
+                        Dispenser Assigned
+                    </option>
+
+                    <option value="DISPENSER_REFILLED">
+                        Dispenser Refilled
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="filter-group">
+
+                <label for="roleFilter">
+                    User Type
+                </label>
+
+                <select id="roleFilter">
+
+                    <option value="">
+                        All User Types
+                    </option>
+
+                    <option value="Admin">
+                        Admin
+                    </option>
+
+                    <option value="Doctor">
+                        Doctor
+                    </option>
+
+                    <option value="Clerk">
+                        Clerk
+                    </option>
+
+                    <option value="Head Nurse">
+                        Head Nurse
+                    </option>
+
+                    <option value="Nurse">
+                        Nurse
+                    </option>
+
+                    <option value="Pharmacist">
+                        Pharmacist
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="filter-group">
+
+                <label for="statusFilter">
+                    Status
+                </label>
+
+                <select id="statusFilter">
+
+                    <option value="">
+                        All Statuses
+                    </option>
+
+                    <option value="SUCCESS">
+                        Success
+                    </option>
+
+                    <option value="FAILED">
+                        Failed
+                    </option>
+
+                    <option value="WARNING">
+                        Warning
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="filter-group">
+
+                <label for="sortSelect">
+                    Sort By
+                </label>
+
+                <select id="sortSelect">
+                    <option value="timestamp-desc">Newest First</option>
+                    <option value="timestamp-asc">Oldest First</option>
+                    <option value="user-asc">User A-Z</option>
+                    <option value="user-desc">User Z-A</option>
+                    <option value="action-asc">Action A-Z</option>
+                    <option value="action-desc">Action Z-A</option>
+                    <option value="source-asc">Source A-Z</option>
+                    <option value="source-desc">Source Z-A</option>
+                    <option value="target-asc">Target A-Z</option>
+                    <option value="target-desc">Target Z-A</option>
+                    <option value="status-asc">Status A-Z</option>
+                    <option value="status-desc">Status Z-A</option>
+                </select>
+
+            </div>
+
+
+            <div class="filter-group">
+
+                <label for="limitSelect">
+                    Rows
+                </label>
+
+                <select id="limitSelect">
+
+                    <option value="25">
+                        25
+                    </option>
+
+                    <option value="50" selected>
+                        50
+                    </option>
+
+                    <option value="100">
+                        100
+                    </option>
+
+                    <option value="250">
+                        250
+                    </option>
+
+                    <option value="all">
+                        All
+                    </option>
+
+                </select>
+
+            </div>
+
+        </section>
+
+
+        <!-- ==================================================
+             SUMMARY
+        =================================================== -->
+
+        <section class="summary-panel">
+
+            <div class="summary-card">
+
+                <span class="summary-label">
+                    Total Logs
+                </span>
+
+                <strong
+                    id="totalLogs"
+                    class="summary-value"
+                >
+                    0
+                </strong>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <span class="summary-label">
+                    Visible Logs
+                </span>
+
+                <strong
+                    id="visibleLogs"
+                    class="summary-value"
+                >
+                    0
+                </strong>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <span class="summary-label">
+                    Successful
+                </span>
+
+                <strong
+                    id="successLogs"
+                    class="summary-value success-text"
+                >
+                    0
+                </strong>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <span class="summary-label">
+                    Failed
+                </span>
+
+                <strong
+                    id="failedLogs"
+                    class="summary-value failed-text"
+                >
+                    0
+                </strong>
+
+            </div>
+
+        </section>
+
+
+        <!-- ==================================================
+             TABLE
+        =================================================== -->
+
+        <section class="table-card">
+
+            <div
+                id="loadingMessage"
+                class="loading-message"
+            >
+                Loading activity logs...
+            </div>
+
+
+            <div
+                id="emptyMessage"
+                class="empty-message hidden"
+            >
+                No activity logs found.
+            </div>
+
+
+            <div class="table-wrapper">
+
+                <table id="activityTable">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Date / Time</th>
+
+                            <th>User</th>
+
+                            <th>Role</th>
+
+                            <th>Source</th>
+
+                            <th>Action</th>
+
+                            <th>Description</th>
+
+                            <th>Target</th>
+
+                            <th>Status</th>
+
+                            <th>Details</th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody
+                        id="activityTableBody"
+                    >
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- ======================================================
+         DETAILS MODAL
+    ======================================================= -->
+
+    <div
+        id="detailsModal"
+        class="modal hidden"
+    >
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h3>
+                    Activity Details
+                </h3>
+
+                <button
+                    id="closeModal"
+                    type="button"
+                    class="close-btn"
+                >
+                    &times;
+                </button>
+
+            </div>
+
+
+            <div
+                id="modalBody"
+                class="modal-body"
+            >
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ======================================================
+         FIREBASE + JAVASCRIPT
+    ======================================================= -->
+
+<script type="module">
+
+// ============================================================
+// FIREBASE
+// ============================================================
+
+import {
+    initializeApp
+}
+from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+
+
+import {
+    getDatabase,
+    ref,
+    get,
+    onValue
+}
+from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
+
+
+import {
+    getAuth,
+    onAuthStateChanged
+}
+from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+
+
+import {
+    requireRole
+}
+from "../../public/auth_guard.js";
+
+
+// ============================================================
+// ADMIN ACCESS
+// ============================================================
+
+requireRole("Admin");
+
+
+// ============================================================
+// FIREBASE CONFIGURATION
+// ============================================================
+
+const firebaseConfig = {
+    apiKey: "AIzaSyBRm3dUt3HreTquM_Ba9JfYmZD2CLVV0Gc",
+    authDomain: "meditrack-59cca.firebaseapp.com",
+    databaseURL: "https://meditrack-59cca-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "meditrack-59cca",
+    storageBucket: "meditrack-59cca.firebasestorage.app",
+    messagingSenderId: "656003988692",
+    appId: "1:656003988692:web:badfe96b7d830837a4cf41"
+};
+
+
+// ============================================================
+// INITIALIZE FIREBASE
+// ============================================================
+
+const app =
+    initializeApp(firebaseConfig);
+
+
+const db =
+    getDatabase(app);
+
+
+const auth =
+    getAuth(app);
+
+
+// ============================================================
+// DOM ELEMENTS
+// ============================================================
+
+const searchInput =
+    document.getElementById("searchInput");
+
+const actionFilter =
+    document.getElementById("actionFilter");
+
+const roleFilter =
+    document.getElementById("roleFilter");
+
+const statusFilter =
+    document.getElementById("statusFilter");
+
+const sortSelect =
+    document.getElementById("sortSelect");
+
+const limitSelect =
+    document.getElementById("limitSelect");
+
+const refreshBtn =
+    document.getElementById("refreshBtn");
+
+const tableBody =
+    document.getElementById("activityTableBody");
+
+const loadingMessage =
+    document.getElementById("loadingMessage");
+
+const emptyMessage =
+    document.getElementById("emptyMessage");
+
+const totalLogs =
+    document.getElementById("totalLogs");
+
+const visibleLogs =
+    document.getElementById("visibleLogs");
+
+const successLogs =
+    document.getElementById("successLogs");
+
+const failedLogs =
+    document.getElementById("failedLogs");
+
+const detailsModal =
+    document.getElementById("detailsModal");
+
+const modalBody =
+    document.getElementById("modalBody");
+
+const closeModal =
+    document.getElementById("closeModal");
+
+
+// ============================================================
+// DATA
+// ============================================================
+
+let activityLogs = [];
+
+let usersByUid = {};
+
+let stopActivityListener = null;
+
+let stopMedicationListener = null;
+
+
+// ============================================================
+// AUTHENTICATION CHECK
+// ============================================================
+
+onAuthStateChanged(
+    auth,
+    user => {
+
+        if (!user) {
+
+            window.location.href =
+                "../../public/login.html";
+
+        }
+
+    }
+);
+
+
+// ============================================================
+// LOAD USERS
+//
+// Used to resolve nurse_uid, uid, etc. into actual
+// MediTrack user information.
+// ============================================================
+
+async function loadUsers() {
+
+    usersByUid = {};
+
+
+    try {
+
+        const snapshot =
+            await get(
+                ref(
+                    db,
+                    "users"
+                )
+            );
+
+
+        if (!snapshot.exists()) {
+
+            return;
+
+        }
+
+
+        snapshot.forEach(
+            child => {
+
+                const user =
+                    child.val();
+
+
+                usersByUid[
+                    child.key
+                ] = {
+
+                    uid:
+                        child.key,
+
+                    userName:
+                        user.fullName ||
+                        buildUserName(user),
+
+                    userType:
+                        user.userType || "",
+
+                    email:
+                        user.email || ""
+
+                };
+
+            }
+        );
+
+    }
+    catch (error) {
+
+        console.error(
+            "Error loading users:",
+            error
+        );
+
+    }
+
+}
+
+
+// ============================================================
+// LOAD ALL ACTIVITY SOURCES
+// ============================================================
+
+function loadActivityLogs() {
+
+    loadingMessage.classList.remove(
+        "hidden"
+    );
+
+    emptyMessage.classList.add(
+        "hidden"
+    );
+
+
+    // --------------------------------------------------------
+    // Remove old listeners before creating new ones
+    // --------------------------------------------------------
+
+    if (stopActivityListener) {
+
+        stopActivityListener();
+
+        stopActivityListener = null;
+
+    }
+
+
+    if (stopMedicationListener) {
+
+        stopMedicationListener();
+
+        stopMedicationListener = null;
+
+    }
+
+
+    let normalActivityLogs = [];
+
+    let medicationLogs = [];
+
+
+    // ========================================================
+    // PROCESS COMBINED LOGS
+    // ========================================================
+
+    function processLogs() {
+
+        const combinedLogs = [
+
+            ...normalActivityLogs,
+
+            ...medicationLogs
+
+        ];
+
+
+        // ----------------------------------------------------
+        // Resolve user information
+        // ----------------------------------------------------
+
+        combinedLogs.forEach(
+            log => {
+
+                const user =
+                    usersByUid[
+                        log.uid
+                    ];
+
+
+                if (user) {
+
+                    log.userName =
+                        user.userName ||
+                        log.userName;
+
+                    log.userType =
+                        user.userType ||
+                        log.userType;
+
+                    log.email =
+                        user.email ||
+                        log.email;
+
+                }
+
+            }
+        );
+
+
+        // ----------------------------------------------------
+        // Save final data
+        // ----------------------------------------------------
+
+        activityLogs =
+            combinedLogs;
+
+
+        totalLogs.textContent =
+            activityLogs.length;
+
+
+        loadingMessage.classList.add(
+            "hidden"
+        );
+
+
+        renderLogs();
+
+    }
+
+
+    // ========================================================
+    // ACTIVITY LOGS
+    // ========================================================
+
+    const activityRef =
+        ref(
+            db,
+            "activity_logs"
+        );
+
+
+    stopActivityListener =
+        onValue(
+            activityRef,
+            snapshot => {
+
+                normalActivityLogs = [];
+
+
+                if (
+                    snapshot.exists()
+                ) {
+
+                    snapshot.forEach(
+                        child => {
+
+                            const log =
+                                child.val();
+
+
+                            normalActivityLogs.push({
+
+                                id:
+                                    child.key,
+
+                                source:
+                                    "Activity Log",
+
+                                logType:
+                                    "activity",
+
+                                uid:
+                                    log.uid || "",
+
+                                userName:
+                                    log.userName || "",
+
+                                userType:
+                                    log.userType || "",
+
+                                email:
+                                    log.email || "",
+
+                                action:
+                                    log.action || "",
+
+                                description:
+                                    log.description || "",
+
+                                targetType:
+                                    log.targetType || "",
+
+                                targetId:
+                                    log.targetId || "",
+
+                                status:
+                                    log.status || "",
+
+                                timestamp:
+                                    normalizeTimestamp(
+                                        log.timestamp
+                                    ),
+
+                                details:
+                                    log.details || {}
+
+                            });
+
+                        }
+                    );
+
+                }
+
+
+                processLogs();
+
+            },
+            error => {
+
+                console.error(
+                    "Error reading activity_logs:",
+                    error
+                );
+
+
+                loadingMessage.classList.add(
+                    "hidden"
+                );
+
+
+                emptyMessage.textContent =
+                    "Failed to load activity logs: " +
+                    error.message;
+
+
+                emptyMessage.classList.remove(
+                    "hidden"
+                );
+
+            }
+        );
+
+
+    // ========================================================
+    // MEDICATION LOGS
+    // ========================================================
+
+    const medicationRef =
+        ref(
+            db,
+            "medication_logs"
+        );
+
+
+    stopMedicationListener =
+        onValue(
+            medicationRef,
+            snapshot => {
+
+                medicationLogs = [];
+
+
+                if (
+                    snapshot.exists()
+                ) {
+
+                    snapshot.forEach(
+                        child => {
+
+                            const log =
+                                child.val();
+
+
+                            const nurseUid =
+                                log.nurse_uid ||
+                                "";
+
+
+                            medicationLogs.push({
+
+                                id:
+                                    child.key,
+
+                                source:
+                                    "Medication Log",
+
+                                logType:
+                                    "medication",
+
+                                uid:
+                                    nurseUid,
+
+                                userName:
+                                    "",
+
+                                userType:
+                                    "Nurse",
+
+                                email:
+                                    "",
+
+                                action:
+                                    buildMedicationAction(
+                                        log
+                                    ),
+
+                                description:
+                                    buildMedicationDescription(
+                                        log
+                                    ),
+
+                                targetType:
+                                    "Patient",
+
+                                targetId:
+                                    log.schedule_id ||
+                                    "",
+
+                                status:
+                                    log.administration_status ||
+                                    "",
+
+                                timestamp:
+                                    normalizeTimestamp(
+                                        log.timestamp ||
+                                        log.administered_at
+                                    ),
+
+                                details: {
+
+                                    medicationName:
+                                        log.medication_name ||
+                                        "",
+
+                                    patientName:
+                                        log.patient_name ||
+                                        "",
+
+                                    scheduleId:
+                                        log.schedule_id ||
+                                        "",
+
+                                    administrationStatus:
+                                        log.administration_status ||
+                                        "",
+
+                                    timingStatus:
+                                        log.timing_status ||
+                                        "",
+
+                                    administeredAt:
+                                        log.administered_at ||
+                                        "",
+
+                                    nurseUid:
+                                        nurseUid
+
+                                }
+
+                            });
+
+                        }
+                    );
+
+                }
+
+
+                processLogs();
+
+            },
+            error => {
+
+                console.error(
+                    "Error reading medication_logs:",
+                    error
+                );
+
+            }
+        );
+
+}
+
+
+// ============================================================
+// RENDER LOGS
+// ============================================================
+
+function renderLogs() {
+
+    let filteredLogs =
+        [...activityLogs];
+
+
+    // ========================================================
+    // SEARCH
+    // ========================================================
+
+    const keyword =
+        searchInput.value
+            .toLowerCase()
+            .trim();
+
+
+    if (keyword !== "") {
+
+        filteredLogs =
+            filteredLogs.filter(
+                log => {
+
+                    const searchableText = [
+
+                        log.userName,
+
+                        log.userType,
+
+                        log.email,
+
+                        log.source,
+
+                        log.action,
+
+                        log.description,
+
+                        log.targetType,
+
+                        log.targetId,
+
+                        log.uid,
+
+                        log.details?.medicationName,
+
+                        log.details?.patientName,
+
+                        log.details?.scheduleId,
+
+                        log.details?.timingStatus,
+
+                        log.details?.administrationStatus
+
+                    ]
+                    .map(
+                        value =>
+                            String(
+                                value || ""
+                            )
+                            .toLowerCase()
+                    )
+                    .join(" ");
+
+
+                    return searchableText
+                        .includes(keyword);
+
+                }
+            );
+
+    }
+
+
+    // ========================================================
+    // ACTION FILTER
+    // ========================================================
+
+    if (
+        actionFilter.value !== ""
+    ) {
+
+        filteredLogs =
+            filteredLogs.filter(
+                log =>
+                    log.action ===
+                    actionFilter.value
+            );
+
+    }
+
+
+    // ========================================================
+    // USER TYPE FILTER
+    // ========================================================
+
+    if (
+        roleFilter.value !== ""
+    ) {
+
+        filteredLogs =
+            filteredLogs.filter(
+                log =>
+                    log.userType ===
+                    roleFilter.value
+            );
+
+    }
+
+
+    // ========================================================
+    // STATUS FILTER
+    // ========================================================
+
+    if (
+        statusFilter.value !== ""
+    ) {
+
+        filteredLogs =
+            filteredLogs.filter(
+                log => {
+
+                    return normalizeStatus(
+                        log
+                    ) ===
+                    statusFilter.value;
+
+                }
+            );
+
+    }
+
+
+    // ========================================================
+    // SORT
+    // ========================================================
+
+    const sortValue =
+        sortSelect.value;
+
+
+    filteredLogs.sort(
+        (a, b) => {
+
+            switch (sortValue) {
+
+                case "timestamp-desc":
+
+                    return (
+                        getTimestamp(b) -
+                        getTimestamp(a)
+                    );
+
+
+                case "timestamp-asc":
+
+                    return (
+                        getTimestamp(a) -
+                        getTimestamp(b)
+                    );
+
+
+                case "user-asc":
+
+                    return compareStrings(
+                        a.userName,
+                        b.userName
+                    );
+
+
+                case "user-desc":
+
+                    return compareStrings(
+                        b.userName,
+                        a.userName
+                    );
+
+
+                case "action-asc":
+
+                    return compareStrings(
+                        a.action,
+                        b.action
+                    );
+
+
+                case "action-desc":
+
+                    return compareStrings(
+                        b.action,
+                        a.action
+                    );
+
+
+                case "source-asc":
+
+                    return compareStrings(
+                        a.source,
+                        b.source
+                    );
+
+
+                case "source-desc":
+
+                    return compareStrings(
+                        b.source,
+                        a.source
+                    );
+
+
+                case "target-asc":
+
+                    return compareStrings(
+                        buildTarget(a),
+                        buildTarget(b)
+                    );
+
+
+                case "target-desc":
+
+                    return compareStrings(
+                        buildTarget(b),
+                        buildTarget(a)
+                    );
+
+
+                case "status-asc":
+
+                    return compareStrings(
+                        normalizeStatus(a),
+                        normalizeStatus(b)
+                    );
+
+
+                case "status-desc":
+
+                    return compareStrings(
+                        normalizeStatus(b),
+                        normalizeStatus(a)
+                    );
+
+
+                default:
+
+                    return (
+                        getTimestamp(b) -
+                        getTimestamp(a)
+                    );
+
+            }
+
+        }
+    );
+
+
+    // ========================================================
+    // SUMMARY
+    // ========================================================
+
+    visibleLogs.textContent =
+        filteredLogs.length;
+
+
+    successLogs.textContent =
+        filteredLogs.filter(
+            log =>
+                normalizeStatus(log) ===
+                "SUCCESS"
+        ).length;
+
+
+    failedLogs.textContent =
+        filteredLogs.filter(
+            log =>
+                normalizeStatus(log) ===
+                "FAILED"
+        ).length;
+
+
+    // ========================================================
+    // ROW LIMIT
+    // ========================================================
+
+    let displayLogs =
+        filteredLogs;
+
+
+    if (
+        limitSelect.value !== "all"
+    ) {
+
+        displayLogs =
+            filteredLogs.slice(
+                0,
+                Number(
+                    limitSelect.value
+                )
+            );
+
+    }
+
+
+    // ========================================================
+    // CLEAR TABLE
+    // ========================================================
+
+    tableBody.innerHTML = "";
+
+
+    if (
+        displayLogs.length === 0
+    ) {
+
+        emptyMessage.classList.remove(
+            "hidden"
+        );
+
+        return;
+
+    }
+
+
+    emptyMessage.classList.add(
+        "hidden"
+    );
+
+
+    // ========================================================
+    // CREATE TABLE ROWS
+    // ========================================================
+
+    displayLogs.forEach(
+        log => {
+
+            const row =
+                document.createElement(
+                    "tr"
+                );
+
+
+            // ------------------------------------------------
+            // Date / Time
+            // ------------------------------------------------
+
+            const dateCell =
+                document.createElement(
+                    "td"
+                );
+
+
+            dateCell.textContent =
+                formatDateTime(
+                    log.timestamp
+                );
+
+
+            // ------------------------------------------------
+            // User
+            // ------------------------------------------------
+
+            const userCell =
+                document.createElement(
+                    "td"
+                );
+
+
+            userCell.innerHTML = `
+
+                <div class="user-name">
+
+                    ${escapeHTML(
+                        log.userName ||
+                        "Unknown User"
+                    )}
+
+                </div>
+
+                <div class="user-email">
+
+                    ${escapeHTML(
+                        log.email ||
+                        ""
+                    )}
+
+                </div>
+
+            `;
+
+
+            // ------------------------------------------------
+            // Role
+            // ------------------------------------------------
+
+            const roleCell =
+                document.createElement(
+                    "td"
+                );
+
+
+            roleCell.textContent =
+                log.userType ||
+                "-";
+
+
+            // ------------------------------------------------
+            // Source
+            // ------------------------------------------------
+
+            const sourceCell =
+                document.createElement(
+                    "td"
+                );
+
+
+            const sourceClass =
+                log.logType ===
+                "medication"
+                    ?
+                    "source-medication"
+                    :
+                    "source-activity";
+
+
+            sourceCell.innerHTML = `
+
+                <span
+                    class="source-badge ${sourceClass}"
+                >
+
+                    ${escapeHTML(
+                        log.source ||
+                        "-"
+                    )}
+
+                </span>
+
+            `;
+
+
+            // ------------------------------------------------
+            // Action
+            // ------------------------------------------------
+
+            const actionCell =
+                document.createElement(
+                    "td"
+                );
+
+
+            actionCell.innerHTML = `
+
+                <span class="action-badge">
+
+                    ${escapeHTML(
+                        formatAction(
+                            log.action
+                        )
+                    )}
+
+                </span>
+
+            `;
+
+
+            // ------------------------------------------------
+            // Description
+            // ------------------------------------------------
+
+            const descriptionCell =
+                document.createElement(
+                    "td"
+                );
+
+
+            descriptionCell.textContent =
+                log.description ||
+                "-";
+
+
+            // ------------------------------------------------
+            // Target
+            // ------------------------------------------------
+
+            const targetCell =
+                document.createElement(
+                    "td"
+                );
+
+
+            targetCell.innerHTML = `
+
+                <strong>
+
+                    ${escapeHTML(
+                        log.targetType ||
+                        "-"
+                    )}
+
+                </strong>
+
+                <br>
+
+                <small>
+
+                    ${escapeHTML(
+                        log.targetId ||
+                        ""
+                    )}
+
+                </small>
+
+            `;
+
+
+            // ------------------------------------------------
+            // Status
+            // ------------------------------------------------
+
+            const statusCell =
+                document.createElement(
+                    "td"
+                );
+
+
+            const displayStatus =
+                normalizeStatus(
+                    log
+                );
+
+
+            statusCell.innerHTML = `
+
+                <span
+                    class="
+                        status-badge
+                        status-${displayStatus.toLowerCase()}
+                    "
+                >
+
+                    ${escapeHTML(
+                        displayStatus ||
+                        "-"
+                    )}
+
+                </span>
+
+            `;
+
+
+            // ------------------------------------------------
+            // Details Button
+            // ------------------------------------------------
+
+            const detailsCell =
+                document.createElement(
+                    "td"
+                );
+
+
+            const detailsButton =
+                document.createElement(
+                    "button"
+                );
+
+
+            detailsButton.type =
+                "button";
+
+
+            detailsButton.className =
+                "details-btn";
+
+
+            detailsButton.textContent =
+                "View";
+
+
+            detailsButton.addEventListener(
+                "click",
+                () => {
+
+                    showDetails(
+                        log
+                    );
+
+                }
+            );
+
+
+            detailsCell.appendChild(
+                detailsButton
+            );
+
+
+            // ------------------------------------------------
+            // Append Cells
+            // ------------------------------------------------
+
+            row.appendChild(
+                dateCell
+            );
+
+            row.appendChild(
+                userCell
+            );
+
+            row.appendChild(
+                roleCell
+            );
+
+            row.appendChild(
+                sourceCell
+            );
+
+            row.appendChild(
+                actionCell
+            );
+
+            row.appendChild(
+                descriptionCell
+            );
+
+            row.appendChild(
+                targetCell
+            );
+
+            row.appendChild(
+                statusCell
+            );
+
+            row.appendChild(
+                detailsCell
+            );
+
+
+            tableBody.appendChild(
+                row
+            );
+
+        }
+    );
+
+}
+
+
+// ============================================================
+// MEDICATION ACTION
+// ============================================================
+
+function buildMedicationAction(
+    log
+) {
+
+    const administrationStatus =
+        String(
+            log.administration_status ||
+            ""
+        )
+        .toLowerCase();
+
+
+    if (
+        administrationStatus ===
+        "given"
+    ) {
+
+        return "MEDICATION_DISPENSED";
+
+    }
+
+
+    if (
+        administrationStatus ===
+        "missed"
+    ) {
+
+        return "MEDICATION_MISSED";
+
+    }
+
+
+    if (
+        administrationStatus ===
+        "refused"
+    ) {
+
+        return "MEDICATION_REFUSED";
+
+    }
+
+
+    return "MEDICATION_ADMINISTRATION";
+
+}
+
+
+// ============================================================
+// MEDICATION DESCRIPTION
+// ============================================================
+
+function buildMedicationDescription(
+    log
+) {
+
+    const medication =
+        log.medication_name ||
+        "Unknown Medication";
+
+
+    const patient =
+        log.patient_name ||
+        "Unknown Patient";
+
+
+    const administrationStatus =
+        log.administration_status ||
+        "Unknown Status";
+
+
+    const timingStatus =
+        log.timing_status ||
+        "";
+
+
+    let description =
+        `${medication} administered to ${patient} (${administrationStatus})`;
+
+
+    if (timingStatus) {
+
+        description +=
+            ` - ${timingStatus}`;
+
+    }
+
+
+    return description;
+
+}
+
+
+// ============================================================
+// NORMALIZE MEDICATION STATUS
+//
+// Medication logs use:
+// Given / Missed / Refused
+//
+// Normal activity logs use:
+// SUCCESS / FAILED / WARNING
+//
+// This converts them for the dashboard summary/filter.
+// ============================================================
+
+function normalizeStatus(
+    log
+) {
+
+    if (
+        log.logType ===
+        "medication"
+    ) {
+
+        const value =
+            String(
+                log.status ||
+                ""
+            )
+            .toLowerCase();
+
+
+        if (
+            value === "given"
+        ) {
+
+            return "SUCCESS";
+
+        }
+
+
+        if (
+            value === "missed"
+        ) {
+
+            return "FAILED";
+
+        }
+
+
+        if (
+            value === "refused"
+        ) {
+
+            return "WARNING";
+
+        }
+
+
+        return (
+            log.status ||
+            "UNKNOWN"
+        );
+
+    }
+
+
+    return (
+        log.status ||
+        "UNKNOWN"
+    );
+
+}
+
+
+// ============================================================
+// TIMESTAMP NORMALIZATION
+// ============================================================
+
+function normalizeTimestamp(
+    value
+) {
+
+    if (
+        typeof value ===
+        "number"
+    ) {
+
+        return value;
+
+    }
+
+
+    if (
+        typeof value !==
+        "string"
+    ) {
+
+        return 0;
+
+    }
+
+
+    const parsed =
+        new Date(
+            value
+        )
+        .getTime();
+
+
+    if (
+        !isNaN(parsed)
+    ) {
+
+        return parsed;
+
+    }
+
+
+    return 0;
+
+}
+
+
+// ============================================================
+// GET TIMESTAMP
+// ============================================================
+
+function getTimestamp(
+    log
+) {
+
+    return normalizeTimestamp(
+        log.timestamp
+    );
+
+}
+
+
+// ============================================================
+// FORMAT DATE
+// ============================================================
+
+function formatDateTime(
+    timestamp
+) {
+
+    if (!timestamp) {
+
+        return "-";
+
+    }
+
+
+    const date =
+        new Date(
+            timestamp
+        );
+
+
+    if (
+        isNaN(
+            date.getTime()
+        )
+    ) {
+
+        return String(
+            timestamp
+        );
+
+    }
+
+
+    return date.toLocaleString();
+
+}
+
+
+// ============================================================
+// COMPARE STRINGS
+// ============================================================
+
+function compareStrings(
+    a,
+    b
+) {
+
+    return String(
+        a || ""
+    )
+    .localeCompare(
+        String(
+            b || ""
+        )
+    );
+
+}
+
+
+// ============================================================
+// BUILD TARGET
+// ============================================================
+
+function buildTarget(
+    log
+) {
+
+    return [
+
+        log.targetType,
+
+        log.targetId
+
+    ]
+    .filter(
+        Boolean
+    )
+    .join(" ");
+
+}
+
+
+// ============================================================
+// FORMAT ACTION
+// ============================================================
+
+function formatAction(
+    action
+) {
+
+    if (!action) {
+
+        return "-";
+
+    }
+
+
+    return action
+
+        .replace(
+            /_/g,
+            " "
+        )
+
+        .replace(
+            /\b\w/g,
+            letter =>
+                letter.toUpperCase()
+        );
+
+}
+
+
+// ============================================================
+// BUILD USER NAME
+// ============================================================
+
+function buildUserName(
+    user
+) {
+
+    return [
+
+        user.fname,
+        user.mname,
+        user.lname,
+        user.suffix
+
+    ]
+
+    .filter(
+        value =>
+            value &&
+            String(
+                value
+            ).trim() !== ""
+    )
+
+    .map(
+        value =>
+            String(
+                value
+            ).trim()
+    )
+
+    .join(" ")
+
+    .trim();
+
+}
+
+
+// ============================================================
+// SHOW DETAILS
+// ============================================================
+
+function showDetails(
+    log
+) {
+
+    // ========================================================
+    // Medication Log
+    // ========================================================
+
+    if (
+        log.logType ===
+        "medication"
+    ) {
+
+        const details =
+            log.details || {};
+
+
+        modalBody.innerHTML = `
+
+            <div class="detail-row">
+
+                <strong>
+                    Source
+                </strong>
+
+                <span>
+                    Medication Log
+                </span>
+
+            </div>
+
+
+            <div class="detail-row">
+
+                <strong>
+                    Nurse
+                </strong>
+
+                <span>
+                    ${escapeHTML(
+                        log.userName ||
+                        "Unknown Nurse"
+                    )}
+                </span>
+
+            </div>
+
+
+            <div class="detail-row">
+
+                <strong>
+                    Nurse UID
+                </strong>
+
+                <span>
+                    ${escapeHTML(
+                        details.nurseUid ||
+                        "-"
+                    )}
+                </span>
+
+            </div>
+
+
+            <div class="detail-row">
+
+                <strong>
+                    Patient
+                </strong>
+
+                <span>
+                    ${escapeHTML(
+                        details.patientName ||
+                        "-"
+                    )}
+                </span>
+
+            </div>
+
+
+            <div class="detail-row">
+
+                <strong>
+                    Medication
+                </strong>
+
+                <span>
+                    ${escapeHTML(
+                        details.medicationName ||
+                        "-"
+                    )}
+                </span>
+
+            </div>
+
+
+            <div class="detail-row">
+
+                <strong>
+                    Administration Status
+                </strong>
+
+                <span>
+                    ${escapeHTML(
+                        details.administrationStatus ||
+                        "-"
+                    )}
+                </span>
+
+            </div>
+
+
+            <div class="detail-row">
+
+                <strong>
+                    Timing Status
+                </strong>
+
+                <span>
+                    ${escapeHTML(
+                        details.timingStatus ||
+                        "-"
+                    )}
+                </span>
+
+            </div>
+
+
+            <div class="detail-row">
+
+                <strong>
+                    Administered At
+                </strong>
+
+                <span>
+                    ${escapeHTML(
+                        details.administeredAt ||
+                        "-"
+                    )}
+                </span>
+
+            </div>
+
+
+            <div class="detail-row">
+
+                <strong>
+                    Schedule ID
+                </strong>
+
+                <span>
+                    ${escapeHTML(
+                        details.scheduleId ||
+                        "-"
+                    )}
+                </span>
+
+            </div>
+
+        `;
+
+
+        detailsModal.classList.remove(
+            "hidden"
+        );
+
+
+        return;
+
+    }
+
+
+    // ========================================================
+    // Standard Activity Log
+    // ========================================================
+
+    modalBody.innerHTML = `
+
+        <div class="detail-row">
+
+            <strong>
+                Log ID
+            </strong>
+
+            <span>
+                ${escapeHTML(
+                    log.id ||
+                    "-"
+                )}
+            </span>
+
+        </div>
+
+
+        <div class="detail-row">
+
+            <strong>
+                Source
+            </strong>
+
+            <span>
+                ${escapeHTML(
+                    log.source ||
+                    "-"
+                )}
+            </span>
+
+        </div>
+
+
+        <div class="detail-row">
+
+            <strong>
+                Date / Time
+            </strong>
+
+            <span>
+                ${escapeHTML(
+                    formatDateTime(
+                        log.timestamp
+                    )
+                )}
+            </span>
+
+        </div>
+
+
+        <div class="detail-row">
+
+            <strong>
+                User
+            </strong>
+
+            <span>
+                ${escapeHTML(
+                    log.userName ||
+                    "-"
+                )}
+            </span>
+
+        </div>
+
+
+        <div class="detail-row">
+
+            <strong>
+                User Type
+            </strong>
+
+            <span>
+                ${escapeHTML(
+                    log.userType ||
+                    "-"
+                )}
+            </span>
+
+        </div>
+
+
+        <div class="detail-row">
+
+            <strong>
+                Email
+            </strong>
+
+            <span>
+                ${escapeHTML(
+                    log.email ||
+                    "-"
+                )}
+            </span>
+
+        </div>
+
+
+        <div class="detail-row">
+
+            <strong>
+                Action
+            </strong>
+
+            <span>
+                ${escapeHTML(
+                    log.action ||
+                    "-"
+                )}
+            </span>
+
+        </div>
+
+
+        <div class="detail-row">
+
+            <strong>
+                Description
+            </strong>
+
+            <span>
+                ${escapeHTML(
+                    log.description ||
+                    "-"
+                )}
+            </span>
+
+        </div>
+
+
+        <div class="detail-row">
+
+            <strong>
+                Target Type
+            </strong>
+
+            <span>
+                ${escapeHTML(
+                    log.targetType ||
+                    "-"
+                )}
+            </span>
+
+        </div>
+
+
+        <div class="detail-row">
+
+            <strong>
+                Target ID
+            </strong>
+
+            <span>
+                ${escapeHTML(
+                    log.targetId ||
+                    "-"
+                )}
+            </span>
+
+        </div>
+
+
+        <div class="detail-row">
+
+            <strong>
+                Status
+            </strong>
+
+            <span>
+                ${escapeHTML(
+                    log.status ||
+                    "-"
+                )}
+            </span>
+
+        </div>
+
+
+        <div class="details-section">
+
+            <h4>
+                Details
+            </h4>
+
+            <pre>
+${escapeHTML(
+    JSON.stringify(
+        log.details || {},
+        null,
+        4
+    )
+)}
+            </pre>
+
+        </div>
+
+    `;
+
+
+    detailsModal.classList.remove(
+        "hidden"
+    );
+
+}
+
+
+// ============================================================
+// ESCAPE HTML
+// ============================================================
+
+function escapeHTML(
+    value
+) {
+
+    return String(
+        value
+    )
+
+    .replace(
+        /&/g,
+        "&amp;"
+    )
+
+    .replace(
+        /</g,
+        "&lt;"
+    )
+
+    .replace(
+        />/g,
+        "&gt;"
+    )
+
+    .replace(
+        /"/g,
+        "&quot;"
+    )
+
+    .replace(
+        /'/g,
+        "&#039;"
+    );
+
+}
+
+
+// ============================================================
+// SEARCH / FILTER EVENTS
+// ============================================================
+
+searchInput.addEventListener(
+    "input",
+    renderLogs
+);
+
+
+actionFilter.addEventListener(
+    "change",
+    renderLogs
+);
+
+
+roleFilter.addEventListener(
+    "change",
+    renderLogs
+);
+
+
+statusFilter.addEventListener(
+    "change",
+    renderLogs
+);
+
+
+sortSelect.addEventListener(
+    "change",
+    renderLogs
+);
+
+
+limitSelect.addEventListener(
+    "change",
+    renderLogs
+);
+
+
+// ============================================================
+// REFRESH
+// ============================================================
+
+refreshBtn.addEventListener(
+    "click",
+    async () => {
+
+        refreshBtn.disabled =
+            true;
+
+
+        try {
+
+            await loadUsers();
+
+            loadActivityLogs();
+
+        }
+        finally {
+
+            refreshBtn.disabled =
+                false;
+
+        }
+
+    }
+);
+
+
+// ============================================================
+// CLOSE MODAL
+// ============================================================
+
+closeModal.addEventListener(
+    "click",
+    () => {
+
+        detailsModal.classList.add(
+            "hidden"
+        );
+
+    }
+);
+
+
+detailsModal.addEventListener(
+    "click",
+    event => {
+
+        if (
+            event.target ===
+            detailsModal
+        ) {
+
+            detailsModal.classList.add(
+                "hidden"
+            );
+
+        }
+
+    }
+);
+
+
+// ============================================================
+// INITIALIZE
+// ============================================================
+
+await loadUsers();
+
+loadActivityLogs();
+
+</script>
+
+</body>
+
+</html>

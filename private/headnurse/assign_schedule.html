@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <title>Assign Medication Schedule</title>
+
+<link rel="stylesheet" href="stylesheets/assign_schedule.css">
 </head>
 
 <body>
@@ -556,11 +558,13 @@ document
     .textContent =
     JSON.stringify(result,null,4);
 
-    if(result.success){
+if(result.success){
 
         alert("Medication schedule assigned successfully.");
 
-        location.reload();
+        // Redirect to the newly created schedule
+        window.location.href =
+            `view_schedule.html?id=${encodeURIComponent(result.schedule_id)}`;
 
     }
 

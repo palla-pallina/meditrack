@@ -2,6 +2,8 @@
 <html lang="en">
     <head>
         <title>Patient Admission Record</title>
+
+        <link rel="stylesheet" href="stylesheets/view_patient.css">
     </head>
 
     <body>
@@ -303,6 +305,14 @@
             editBtn.addEventListener("click", () => {
                 window.location.href = "edit_patient.html?id=" + encodeURIComponent(id);
             });
+
+
+            const dischargeBtn = document.getElementById("dischargeBtn");
+
+            dischargeBtn.addEventListener("click", () => {
+                window.location.href = "discharge_patient.html?id=" + encodeURIComponent(id);
+            });
         </script>
+        
     </body>
 </html>

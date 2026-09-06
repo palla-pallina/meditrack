@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>MediTrack | Head Nurse Dashboard</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="stylesheets/dashboard.css">
+</header>
+
+<main>
+
+    <div class="page-title">
+
+        <h1>Welcome, Head Nurse</h1>
+
+        <p>
+
+            Manage prescriptions, assign medication schedules, and oversee nursing operations.
+
+        </p>
+
+    </div>
+
+    <div class="dashboard-grid">
+
+        <div class="card">
+
+            <div class="icon">
+                📅
+            </div>
+
+            <h3>Assign Medication Schedule</h3>
+
+            <p>
+
+                Schedule medication administration and assign nurses to patient medication rounds.
+
+            </p>
+
+            <a href="assign_schedule.html">
+
+                Open Module
+
+            </a>
+
+        </div>
+
+        <div class="card">
+
+            <div class="icon">
+                👩‍⚕️
+            </div>
+
+            <h3>View Assigned Schedules</h3>
+
+            <p>
+
+                Monitor all medication schedules, assignments, and upcoming administration times.
+
+            </p>
+
+            <a href="view_schedules.html">
+
+                Open Module
+
+            </a>
+
+        </div>
+
+                <div class="card">
+
+            <div class="icon">
+                📝
+            </div>
+
+            <h3>Record Digital Prescription</h3>
+
+            <p>
+
+                Record digital prescriptions for admitted patients.
+
+            </p>
+
+            <a href="add_prescription.html">
+
+                Open Module
+
+            </a>
+
+        </div>
+
+        <div class="card">
+
+            <div class="icon">
+                💊
+            </div>
+
+            <h3>Prescription Records</h3>
+
+            <p>
+
+                View, review, and manage all patient prescriptions stored in the MediTrack system.
+
+            </p>
+
+            <a href="view_prescriptions.html">
+
+                Open Module
+
+            </a>
+
+        </div>
+
+    </div>
+
+</main>
+
+<footer>
+
+    MediTrack Smart Medicine Dispensing System
+
+</footer>
+
+<script type="module">
+
+import { requireRole }
+from "../../public/auth_guard.js";
+
+requireRole("Head Nurse");
+
+import {
+    getAuth,
+    signOut
+} from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+
+const auth = getAuth();
+
+document.getElementById("logoutBtn")
+.addEventListener("click", async () => {
+
+    try {
+
+        await signOut(auth);
+
+        window.location.href = "../../public/login.html";
+
+    }
+    catch(error) {
+
+        alert(error.message);
+
+    }
+
+});
+</script>
+
+</body>
+
+</html>

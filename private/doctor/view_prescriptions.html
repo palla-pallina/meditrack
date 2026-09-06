@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <title>Prescription Records</title>
+
+<link rel="stylesheet" href="stylesheets/view_prescriptions.css">
 </head>
 
 <body>
@@ -62,14 +64,12 @@ import { initializeApp }
 from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
 
 import {
-
-getDatabase,
-ref,
-get,
-remove
-
-}
-from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
+    getDatabase,
+    ref,
+    get,
+    set,
+    remove
+} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
 
 const firebaseConfig={
     apiKey: "AIzaSyBRm3dUt3HreTquM_Ba9JfYmZD2CLVV0Gc",

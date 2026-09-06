@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Add Inventory</title>
+
+    <link rel="stylesheet" href="stylesheets/add_inventory.css">
 </head>
 <body>
 
@@ -127,14 +129,37 @@ Clear
 
 <script type="module">
 
-import { initializeApp }
-from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+// ============================================================
+// Activity Logging
+// ============================================================
+
+import {
+    logInventoryAdded
+} from "../js/activity_log.js";
+
+
+// ============================================================
+// Firebase SDK
+// ============================================================
+
+import {
+    initializeApp
+} from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+
+import {
+    getAuth
+} from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
 
 import {
     getDatabase,
     ref,
     get
 } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
+
+
+// ============================================================
+// Firebase Configuration
+// ============================================================
 
 const firebaseConfig = {
     apiKey: "AIzaSyBRm3dUt3HreTquM_Ba9JfYmZD2CLVV0Gc",
@@ -146,220 +171,428 @@ const firebaseConfig = {
     appId: "1:656003988692:web:badfe96b7d830837a4cf41"
 };
 
-const app = initializeApp(firebaseConfig);
-const database = getDatabase(app);
+
+
+// ============================================================
+// Initialize Firebase
+// ============================================================
+
+const app =
+    initializeApp(firebaseConfig);
+
+const auth =
+    getAuth(app);
+
+const database =
+    getDatabase(app);
+
+
+// ============================================================
+// DOM Elements
+// ============================================================
 
 const medicationSelect =
-document.getElementById("medication_id");
+    document.getElementById("medication_id");
 
 const genericName =
-document.getElementById("generic_name");
+    document.getElementById("generic_name");
 
 const brandName =
-document.getElementById("brand_name");
+    document.getElementById("brand_name");
 
 const drugClass =
-document.getElementById("drug_class");
+    document.getElementById("drug_class");
 
 const dosageForm =
-document.getElementById("dosage_form");
+    document.getElementById("dosage_form");
 
 const status =
-document.getElementById("status");
+    document.getElementById("status");
+
+const inventoryForm =
+    document.getElementById("inventoryForm");
+
 
 let medications = {};
 
-//----------------------------------
+
+// ============================================================
 // Load Medications
-//----------------------------------
+// ============================================================
 
-async function loadMedications(){
+async function loadMedications() {
 
-    try{
+    try {
 
         const snapshot =
-        await get(ref(database,"medications"));
+            await get(
+                ref(
+                    database,
+                    "medications"
+                )
+            );
+
 
         medicationSelect.innerHTML =
-        '<option value="">-- Select Medication --</option>';
+            '<option value="">-- Select Medication --</option>';
 
-        if(!snapshot.exists()){
+
+        if (!snapshot.exists()) {
 
             medicationSelect.innerHTML =
-            '<option value="">No medications found</option>';
+                '<option value="">No medications found</option>';
 
             return;
 
         }
 
+
         snapshot.forEach(child => {
 
-            const med = child.val();
+            const med =
+                child.val();
 
-            medications[child.key] = med;
+
+            medications[child.key] =
+                med;
+
 
             const option =
-            document.createElement("option");
+                document.createElement("option");
 
-            option.value = child.key;
+
+            option.value =
+                child.key;
+
 
             option.textContent =
                 `${med.generic_name}` +
-                (med.brand_name
-                    ? ` (${med.brand_name})`
-                    : "") +
+                (
+                    med.brand_name
+                        ? ` (${med.brand_name})`
+                        : ""
+                ) +
                 ` - ${med.form}`;
 
-            medicationSelect.appendChild(option);
+
+            medicationSelect.appendChild(
+                option
+            );
 
         });
 
     }
-    catch(error){
+    catch (error) {
+
+        console.error(
+            "Error loading medications:",
+            error
+        );
+
 
         status.textContent =
-        "Error loading medications: " + error.message;
+            "Error loading medications: " +
+            error.message;
 
     }
 
 }
 
+
 loadMedications();
 
-//----------------------------------
+
+// ============================================================
 // Populate Medication Details
-//----------------------------------
+// ============================================================
 
-medicationSelect.addEventListener("change", () => {
+medicationSelect.addEventListener(
+    "change",
+    () => {
 
-    const med =
-    medications[medicationSelect.value];
+        const med =
+            medications[
+                medicationSelect.value
+            ];
 
-    if(!med){
 
-        genericName.value = "";
-        brandName.value = "";
-        drugClass.value = "";
-        dosageForm.value = "";
-
-        return;
-
-    }
-
-    genericName.value =
-    med.generic_name || "";
-
-    brandName.value =
-    med.brand_name || "";
-
-    drugClass.value =
-    med.drug_class || "";
-
-    dosageForm.value =
-    med.form || "";
-
-});
-
-//----------------------------------
-// Save Inventory
-//----------------------------------
-
-document
-.getElementById("inventoryForm")
-.addEventListener("submit", async function(e){
-
-    e.preventDefault();
-
-    const data = {
-
-        medication_id:
-            medicationSelect.value,
-
-        generic_name:
-            genericName.value,
-
-        brand_name:
-            brandName.value,
-
-        drug_class:
-            drugClass.value,
-
-        dosage_form:
-            dosageForm.value,
-
-        lot_number:
-            document.getElementById("lot_number").value,
-
-        batch_number:
-            document.getElementById("batch_number").value,
-
-        manufacturer:
-            document.getElementById("manufacturer").value,
-
-        expiration_date:
-            document.getElementById("expiration_date").value,
-
-        purchase_date:
-            document.getElementById("purchase_date").value,
-
-        unit_cost:
-            document.getElementById("unit_cost").value,
-
-        selling_price:
-            document.getElementById("selling_price").value,
-
-        quantity_in_stock:
-            document.getElementById("quantity_in_stock").value,
-
-        reorder_level:
-            document.getElementById("reorder_level").value,
-
-        storage_location:
-            document.getElementById("storage_location").value
-
-    };
-
-    try{
-
-        const response =
-        await fetch("add_inventory.php",{
-
-            method:"POST",
-
-            headers:{
-                "Content-Type":"application/json"
-            },
-
-            body:JSON.stringify(data)
-
-        });
-
-        const result =
-        await response.json();
-
-        status.textContent =
-        JSON.stringify(result,null,4);
-
-        if(result.success){
-
-            this.reset();
+        if (!med) {
 
             genericName.value = "";
             brandName.value = "";
             drugClass.value = "";
             dosageForm.value = "";
 
+            return;
+
+        }
+
+
+        genericName.value =
+            med.generic_name || "";
+
+
+        brandName.value =
+            med.brand_name || "";
+
+
+        drugClass.value =
+            med.drug_class || "";
+
+
+        dosageForm.value =
+            med.form || "";
+
+    }
+);
+
+
+// ============================================================
+// Save Inventory
+// ============================================================
+
+inventoryForm.addEventListener(
+    "submit",
+    async function(e) {
+
+        e.preventDefault();
+
+
+        status.textContent =
+            "Saving inventory...";
+
+
+        // ====================================================
+        // Collect Form Data
+        // ====================================================
+
+        const data = {
+
+            medication_id:
+                medicationSelect.value,
+
+            generic_name:
+                genericName.value.trim(),
+
+            brand_name:
+                brandName.value.trim(),
+
+            drug_class:
+                drugClass.value.trim(),
+
+            dosage_form:
+                dosageForm.value.trim(),
+
+            lot_number:
+                document
+                    .getElementById("lot_number")
+                    .value
+                    .trim(),
+
+            batch_number:
+                document
+                    .getElementById("batch_number")
+                    .value
+                    .trim(),
+
+            manufacturer:
+                document
+                    .getElementById("manufacturer")
+                    .value
+                    .trim(),
+
+            expiration_date:
+                document
+                    .getElementById("expiration_date")
+                    .value,
+
+            purchase_date:
+                document
+                    .getElementById("purchase_date")
+                    .value,
+
+            unit_cost:
+                document
+                    .getElementById("unit_cost")
+                    .value,
+
+            selling_price:
+                document
+                    .getElementById("selling_price")
+                    .value,
+
+            quantity_in_stock:
+                document
+                    .getElementById("quantity_in_stock")
+                    .value,
+
+            reorder_level:
+                document
+                    .getElementById("reorder_level")
+                    .value,
+
+            storage_location:
+                document
+                    .getElementById("storage_location")
+                    .value
+                    .trim()
+
+        };
+
+
+        try {
+
+            // =================================================
+            // Send Data to PHP
+            // =================================================
+
+            const response =
+                await fetch(
+                    "add_inventory.php",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body:
+                            JSON.stringify(data)
+                    }
+                );
+
+
+            // =================================================
+            // Read PHP Response
+            // =================================================
+
+            const result =
+                await response.json();
+
+
+            console.log(
+                "PHP response:",
+                result
+            );
+
+
+            // =================================================
+            // Check PHP Result
+            // =================================================
+
+            if (!result.success) {
+
+                throw new Error(
+                    result.message ||
+                    "Failed to save inventory."
+                );
+
+            }
+
+
+            // =================================================
+            // Inventory Successfully Created
+            // =================================================
+
+            const inventoryId =
+                result.inventory_id;
+
+
+            // =================================================
+            // Write Activity Log
+            // =================================================
+
+            try {
+
+                await logInventoryAdded(
+                    database,
+                    auth,
+                    {
+
+                        inventoryId:
+                            inventoryId,
+
+                        medicationId:
+                            data.medication_id,
+
+                        medicineName:
+                            data.generic_name,
+
+                        quantity:
+                            Number(
+                                data.quantity_in_stock
+                            ),
+
+                        batchNumber:
+                            data.batch_number,
+
+                        lotNumber:
+                            data.lot_number
+
+                    }
+                );
+
+
+                console.log(
+                    "Inventory activity logged."
+                );
+
+            }
+            catch (logError) {
+
+                // Logging failure should not make
+                // a successful inventory save fail.
+
+                console.error(
+                    "Activity logging failed:",
+                    logError
+                );
+
+            }
+
+
+            // =================================================
+            // Display Success
+            // =================================================
+
+            status.textContent =
+                JSON.stringify(
+                    result,
+                    null,
+                    4
+                );
+
+
+            // =================================================
+            // Reset Form
+            // =================================================
+
+            inventoryForm.reset();
+
+            genericName.value = "";
+            brandName.value = "";
+            drugClass.value = "";
+            dosageForm.value = "";
+
+
+        }
+        catch (error) {
+
+            console.error(
+                "Inventory save error:",
+                error
+            );
+
+
+            status.textContent =
+                "Failed to save inventory.\n\n" +
+                error.message;
+
         }
 
     }
-    catch(error){
-
-        status.textContent =
-        error.message;
-
-    }
-
-});
+);
 
 </script>
 

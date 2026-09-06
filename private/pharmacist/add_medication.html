@@ -1,65 +1,154 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Add Medication</title>
+
+    <link
+        rel="stylesheet"
+        href="stylesheets/add_medication.css"
+    >
+
 </head>
+
 <body>
 
-<a href="dashboard.html">Back to Dashboard</a>
+<a href="dashboard.html">
+    Back to Dashboard
+</a>
 
 <h2>Add Medication</h2>
+
 
 <form id="medicationForm">
 
     <fieldset>
-        <legend><strong>Medication Information</strong></legend>
 
-        <label for="generic_name">Generic Name <span style="color:red;">*</span></label><br>
+        <legend>
+            <strong>Medication Information</strong>
+        </legend>
+
+
+        <label for="generic_name">
+            Generic Name
+            <span style="color:red;">*</span>
+        </label>
+
+        <br>
+
         <input
             type="text"
             id="generic_name"
             name="generic_name"
             maxlength="150"
-            required>
+            required
+        >
+
         <br><br>
 
-        <label for="brand_name">Brand Name</label><br>
+
+        <label for="brand_name">
+            Brand Name
+        </label>
+
+        <br>
+
         <input
             type="text"
             id="brand_name"
             name="brand_name"
-            maxlength="150">
+            maxlength="150"
+        >
+
         <br><br>
 
-        <label for="drug_class">Drug Class</label><br>
+
+        <label for="drug_class">
+            Drug Class
+        </label>
+
+        <br>
+
         <input
             type="text"
             id="drug_class"
             name="drug_class"
             maxlength="100"
-            placeholder="e.g. Antibiotic, NSAID, Antihypertensive">
+            placeholder="e.g. Antibiotic, NSAID, Antihypertensive"
+        >
+
         <br><br>
 
-        <label for="form">Dosage Form <span style="color:red;">*</span></label><br>
-        <select id="form" name="form" required>
-            <option value="">-- Select Dosage Form --</option>
-            <option value="tablet">Tablet</option>
-            <option value="capsule">Capsule</option>
-            <option value="injection">Injection</option>
-            <option value="syrup">Syrup</option>
-            <option value="cream">Cream</option>
-            <option value="inhaler">Inhaler</option>
+
+        <label for="form">
+            Dosage Form
+            <span style="color:red;">*</span>
+        </label>
+
+        <br>
+
+        <select
+            id="form"
+            name="form"
+            required
+        >
+
+            <option value="">
+                -- Select Dosage Form --
+            </option>
+
+            <option value="tablet">
+                Tablet
+            </option>
+
+            <option value="capsule">
+                Capsule
+            </option>
+
+            <option value="injection">
+                Injection
+            </option>
+
+            <option value="syrup">
+                Syrup
+            </option>
+
+            <option value="cream">
+                Cream
+            </option>
+
+            <option value="inhaler">
+                Inhaler
+            </option>
+
+            <option value="other">
+                Other
+            </option>
+
         </select>
 
     </fieldset>
 
+
     <br>
 
-    <input type="submit" value="Save Medication">
-    <input type="reset" value="Clear">
+
+    <input
+        type="submit"
+        value="Save Medication"
+    >
+
+    <input
+        type="reset"
+        value="Clear"
+    >
+
 </form>
+
 
 <hr>
 
@@ -67,67 +156,270 @@
 
 <pre id="status">Waiting...</pre>
 
-<script>
 
-const form = document.getElementById("medicationForm");
-const status = document.getElementById("status");
+<script type="module">
 
-form.addEventListener("submit", async function(e){
+// ============================================================
+// IMPORT ACTIVITY LOGGER
+// ============================================================
 
-    e.preventDefault();
+import {
+    logMedicineCreated
+} from "../js/activity_log.js";
 
-    status.textContent = "Saving medication...";
 
-    const data = {
+// ============================================================
+// FIREBASE
+// ============================================================
 
-        generic_name:
-            document.getElementById("generic_name").value.trim(),
+import {
+    initializeApp
+} from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
 
-        brand_name:
-            document.getElementById("brand_name").value.trim(),
+import {
+    getAuth
+} from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
 
-        drug_class:
-            document.getElementById("drug_class").value.trim(),
+import {
+    getDatabase
+} from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
 
-        form:
-            document.getElementById("form").value
 
-    };
+// ============================================================
+// FIREBASE CONFIGURATION
+// ============================================================
 
-    try{
+const firebaseConfig = {
+    apiKey: "AIzaSyBRm3dUt3HreTquM_Ba9JfYmZD2CLVV0Gc",
+    authDomain: "meditrack-59cca.firebaseapp.com",
+    databaseURL: "https://meditrack-59cca-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "meditrack-59cca",
+    storageBucket: "meditrack-59cca.firebasestorage.app",
+    messagingSenderId: "656003988692",
+    appId: "1:656003988692:web:badfe96b7d830837a4cf41"
+};
 
-        const response = await fetch("add_medication.php",{
 
-            method:"POST",
+// ============================================================
+// INITIALIZE FIREBASE
+// ============================================================
 
-            headers:{
-                "Content-Type":"application/json"
-            },
+const app = initializeApp(firebaseConfig);
 
-            body:JSON.stringify(data)
+const auth = getAuth(app);
 
-        });
+const database = getDatabase(app);
 
-        const result = await response.json();
+
+// ============================================================
+// DOM ELEMENTS
+// ============================================================
+
+const form =
+    document.getElementById("medicationForm");
+
+const status =
+    document.getElementById("status");
+
+
+// ============================================================
+// FORM SUBMISSION
+// ============================================================
+
+form.addEventListener(
+    "submit",
+    async function (e) {
+
+        e.preventDefault();
+
 
         status.textContent =
-            JSON.stringify(result,null,4);
+            "Saving medication...";
 
-        if(result.success){
+
+        // ====================================================
+        // COLLECT FORM DATA
+        // ====================================================
+
+        const data = {
+
+            generic_name:
+                document
+                    .getElementById("generic_name")
+                    .value
+                    .trim(),
+
+            brand_name:
+                document
+                    .getElementById("brand_name")
+                    .value
+                    .trim(),
+
+            drug_class:
+                document
+                    .getElementById("drug_class")
+                    .value
+                    .trim(),
+
+            form:
+                document
+                    .getElementById("form")
+                    .value
+
+        };
+
+
+        try {
+
+            // =================================================
+            // SEND TO PHP
+            // =================================================
+
+            const response =
+                await fetch(
+                    "add_medication.php",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body:
+                            JSON.stringify(data)
+                    }
+                );
+
+
+            // =================================================
+            // READ PHP RESPONSE FIRST
+            // =================================================
+
+            const result =
+                await response.json();
+
+
+            console.log(
+                "PHP response:",
+                result
+            );
+
+
+            // =================================================
+            // CHECK PHP RESULT
+            // =================================================
+
+            if (!result.success) {
+
+                throw new Error(
+                    result.message ||
+                    "Failed to save medication."
+                );
+
+            }
+
+
+            // =================================================
+            // MEDICATION WAS SAVED
+            // =================================================
+
+            const medicationId =
+                result.medication_id;
+
+
+            console.log(
+                "Medication created:",
+                medicationId
+            );
+
+
+            // =================================================
+            // ACTIVITY LOG
+            // =================================================
+
+            try {
+
+                await logMedicineCreated(
+                    database,
+                    auth,
+                    {
+
+                        medicationId:
+                            medicationId,
+
+                        genericName:
+                            data.generic_name,
+
+                        brandName:
+                            data.brand_name,
+
+                        drugClass:
+                            data.drug_class,
+
+                        dosageForm:
+                            data.form
+
+                    }
+                );
+
+
+                console.log(
+                    "Activity log created."
+                );
+
+            }
+            catch (logError) {
+
+                // Logging failure should NOT
+                // cancel the medication creation.
+
+                console.error(
+                    "Activity logging failed:",
+                    logError
+                );
+
+            }
+
+
+            // =================================================
+            // SUCCESS MESSAGE
+            // =================================================
+
+            status.textContent =
+                "Medication added successfully.\n\n" +
+                JSON.stringify(
+                    result,
+                    null,
+                    4
+                );
+
+
+            // =================================================
+            // RESET FORM
+            // =================================================
 
             form.reset();
 
         }
+        catch (error) {
+
+            console.error(
+                "Medication save error:",
+                error
+            );
+
+
+            status.textContent =
+                "Failed to save medication.\n\n" +
+                error.message;
+
+        }
 
     }
-    catch(error){
-
-        status.textContent = error.message;
-
-    }
-
-});
+);
 
 </script>
+
 </body>
 </html>
