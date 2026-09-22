@@ -12,7 +12,8 @@
 <a href="dashboard.html">Dashboard</a>
 
 <h2>Assign Medication Schedule</h2>
-
+<label>Required fields are marked with an asterisk &#x28;<span style="color:red;">*</span>&#41;</label>
+<br><br>
 <form id="scheduleForm">
 
 <!-- ========================= -->
@@ -20,7 +21,7 @@
 <!-- ========================= -->
 <fieldset>
 
-<legend><strong>Patient</strong></legend>
+<legend><strong>Patient</strong> <span style="color:red;">*</span></legend>
 
 <label>Select Patient</label><br>
 
@@ -53,13 +54,32 @@ readonly>
 <br>
 
 <!-- ========================= -->
+<!-- NURSE -->
+<!-- ========================= -->
+<fieldset>
+
+<legend><strong>Nurse</strong></legend>
+
+<label>Assign Nurse <span style="color:red;">*</span></label><br>
+
+<select id="nurse" required>
+
+<option value="">Loading nurses...</option>
+
+</select>
+
+</fieldset>
+
+<br>
+
+<!-- ========================= -->
 <!-- MEDICATION -->
 <!-- ========================= -->
 <fieldset>
 
 <legend><strong>Medication</strong></legend>
 
-<label>Select Medication</label><br>
+<label>Select Medication <span style="color:red;">*</span></label><br>
 
 <select id="prescriptionItem" required>
 
@@ -105,7 +125,7 @@ readonly>
 
 <legend><strong>Schedule</strong></legend>
 
-<label>Administration Time</label><br>
+<label>Administration Time <span style="color:red;">*</span></label><br>
 
 <select id="scheduledTime" required>
 
@@ -122,25 +142,6 @@ type="text"
 id="status"
 value="Scheduled"
 readonly>
-
-</fieldset>
-
-<br>
-
-<!-- ========================= -->
-<!-- NURSE -->
-<!-- ========================= -->
-<fieldset>
-
-<legend><strong>Nurse</strong></legend>
-
-<label>Assign Nurse</label><br>
-
-<select id="nurse" required>
-
-<option value="">Loading nurses...</option>
-
-</select>
 
 </fieldset>
 
@@ -220,137 +221,304 @@ await loadNurses();
 async function loadEligiblePatients(){
 
     const patientsSnap =
-    await get(ref(db,"patients"));
+        await get(
+            ref(db, "patients")
+        );
+
 
     const prescriptionsSnap =
-    await get(ref(db,"prescriptions"));
+        await get(
+            ref(db, "prescriptions")
+        );
+
 
     const itemsSnap =
-    await get(ref(db,"prescription_items"));
+        await get(
+            ref(db, "prescription_items")
+        );
+
 
     const schedulesSnap =
-    await get(ref(db,"medication_schedule"));
+        await get(
+            ref(db, "medication_schedule")
+        );
+
 
     patientSelect.innerHTML =
-    '<option value="">Select Patient</option>';
+        '<option value="">Select Patient</option>';
+
+
+    // =================================================
+    // CHECK REQUIRED DATA
+    // =================================================
 
     if(
         !patientsSnap.exists() ||
         !prescriptionsSnap.exists() ||
         !itemsSnap.exists()
     ){
+
         return;
+
     }
 
-    // -------------------------------------------------
-    // Build map of scheduled times per prescription item
-    // -------------------------------------------------
+
+    const prescriptions =
+        prescriptionsSnap.val();
+
+
+    // =================================================
+    // BUILD MAP OF SCHEDULED TIMES
+    // =================================================
 
     const scheduledMap = {};
 
-    if(schedulesSnap.exists()){
 
-        schedulesSnap.forEach(s => {
+    if(
+        schedulesSnap.exists()
+    ){
 
-            const data = s.val();
+        schedulesSnap.forEach(
+            scheduleSnap => {
 
-            const itemId =
-            data.prescription_item_id;
+                const data =
+                    scheduleSnap.val();
 
-            const time =
-            data.scheduled_time;
 
-            if(!itemId || !time) return;
+                const itemId =
+                    data.prescription_item_id;
 
-            if(!scheduledMap[itemId]){
 
-                scheduledMap[itemId] = new Set();
+                const time =
+                    data.scheduled_time;
+
+
+                if(
+                    !itemId ||
+                    !time
+                ){
+
+                    return;
+
+                }
+
+
+                if(
+                    !scheduledMap[itemId]
+                ){
+
+                    scheduledMap[itemId] =
+                        new Set();
+
+                }
+
+
+                scheduledMap[itemId].add(
+                    time
+                );
 
             }
-
-            scheduledMap[itemId].add(time);
-
-        });
+        );
 
     }
 
-    // -------------------------------------------------
-    // Build patient => prescription items that still
-    // have at least one administration time unassigned
-    // -------------------------------------------------
+
+    // =================================================
+    // BUILD PATIENT → ACTIVE PRESCRIPTION ITEMS
+    // =================================================
 
     const map = {};
 
-    itemsSnap.forEach(itemSnap => {
 
-        const item = itemSnap.val();
+    itemsSnap.forEach(
+        itemSnap => {
 
-        const itemId = itemSnap.key;
+            const item =
+                itemSnap.val();
 
-        const allTimes =
-        item.administration_times || [];
 
-        const scheduledTimes =
-        scheduledMap[itemId] || new Set();
+            const itemId =
+                itemSnap.key;
 
-        // Keep only times that are NOT yet scheduled
 
-        const remainingTimes =
-        allTimes.filter(
-            t => !scheduledTimes.has(t)
-        );
+            const prescriptionId =
+                item.prescription_id;
 
-        // If no remaining times, this medication is fully scheduled
 
-        if(remainingTimes.length === 0){
+            const patientId =
+                item.patient_id;
 
-            return;
+
+            // -----------------------------------------
+            // Validate required references
+            // -----------------------------------------
+
+            if(
+                !prescriptionId ||
+                !patientId
+            ){
+
+                return;
+
+            }
+
+
+            // -----------------------------------------
+            // Find parent prescription
+            // -----------------------------------------
+
+            const prescription =
+                prescriptions[prescriptionId];
+
+
+            if(!prescription){
+
+                return;
+
+            }
+
+
+            // -----------------------------------------
+            // ONLY ACTIVE PRESCRIPTIONS
+            // -----------------------------------------
+
+            const prescriptionStatus =
+                String(
+                    prescription.status ||
+                    ""
+                )
+                .trim()
+                .toLowerCase();
+
+
+            if(
+                prescriptionStatus !== "active"
+            ){
+
+                return;
+
+            }
+
+
+            // -----------------------------------------
+            // Get administration times
+            // -----------------------------------------
+
+            const allTimes =
+                Array.isArray(
+                    item.administration_times
+                )
+                ? item.administration_times
+                : [];
+
+
+            const scheduledTimes =
+                scheduledMap[itemId] ||
+                new Set();
+
+
+            // -----------------------------------------
+            // Keep only unscheduled times
+            // -----------------------------------------
+
+            const remainingTimes =
+                allTimes.filter(
+                    time =>
+                        !scheduledTimes.has(time)
+                );
+
+
+            // If every administration time
+            // has already been scheduled,
+            // don't include this item.
+
+            if(
+                remainingTimes.length === 0
+            ){
+
+                return;
+
+            }
+
+
+            // -----------------------------------------
+            // Create patient entry
+            // -----------------------------------------
+
+            if(
+                !map[patientId]
+            ){
+
+                map[patientId] = [];
+
+            }
+
+
+            map[patientId].push({
+
+                id: itemId,
+
+                ...item,
+
+                administration_times:
+                    remainingTimes
+
+            });
 
         }
+    );
 
-        // Save item with remaining times only
 
-        if(!map[item.patient_id]){
+    // =================================================
+    // POPULATE PATIENT DROPDOWN
+    // =================================================
 
-            map[item.patient_id] = [];
+    Object.keys(map).forEach(
+        patientId => {
+
+            const patient =
+                patientsSnap
+                    .child(patientId)
+                    .val();
+
+
+            if(!patient){
+
+                return;
+
+            }
+
+
+            patients[patientId] =
+                patient;
+
+
+            patientPrescriptionItems[patientId] =
+                map[patientId];
+
+
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+
+            option.value =
+                patientId;
+
+
+            option.textContent =
+                patient.fullName ||
+                patient.name ||
+                patientId;
+
+
+            patientSelect.appendChild(
+                option
+            );
 
         }
-
-        map[item.patient_id].push({
-
-            id: itemId,
-
-            ...item,
-
-            administration_times: remainingTimes
-
-        });
-
-    });
-
-    // -------------------------------------------------
-    // Populate patient dropdown
-    // -------------------------------------------------
-
-    Object.keys(map).forEach(patientId => {
-
-        const patient =
-        patientsSnap.child(patientId).val();
-
-        if(!patient) return;
-
-        patients[patientId] = patient;
-
-        patientPrescriptionItems[patientId] =
-        map[patientId];
-
-        patientSelect.innerHTML += `
-            <option value="${patientId}">
-                ${patient.fullName}
-            </option>
-        `;
-
-    });
+    );
 
 }
 

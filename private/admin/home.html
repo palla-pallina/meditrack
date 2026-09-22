@@ -9,131 +9,1041 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="stylesheets/home.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="stylesheets/home.css"
+    >
 </head>
+
+
 <body>
+
     <header class="topbar">
+
         <div class="topbar__inner">
-            <div class="brand" aria-label="MediTrack administrator dashboard">
-                <span class="brand__icon" aria-hidden="true">
+
+            <div
+                class="brand"
+                aria-label="MediTrack administrator dashboard"
+            >
+
+                <span
+                    class="brand__icon"
+                    aria-hidden="true"
+                >
+
                     <svg viewBox="0 0 24 24">
                         <path d="M9.2 3.5h5.6v5.7h5.7v5.6h-5.7v5.7H9.2v-5.7H3.5V9.2h5.7V3.5Z"/>
                     </svg>
+
                 </span>
+
+
                 <span class="brand__text">
+
                     <strong>MediTrack</strong>
-                    <span>Administrator Dashboard</span>
+
+                    <span>
+                        Administrator Dashboard
+                    </span>
+
                 </span>
+
             </div>
 
-            <button id="logoutBtn" class="logout-btn" type="button">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
+
+            <button
+                id="logoutBtn"
+                class="logout-btn"
+                type="button"
+            >
+
+                <svg
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                >
+
                     <path d="M10 5H6.8A1.8 1.8 0 0 0 5 6.8v10.4A1.8 1.8 0 0 0 6.8 19H10m5-4 3-3-3-3m3 3H9"/>
+
                 </svg>
+
                 Log out
+
             </button>
+
         </div>
+
     </header>
 
+
     <main class="dashboard">
-        <section class="page-heading" aria-labelledby="page-title">
+
+        <!-- ==================================================
+             PAGE HEADING
+        =================================================== -->
+
+        <section
+            class="page-heading"
+            aria-labelledby="page-title"
+        >
+
             <div>
-                <p class="page-heading__eyebrow">Administration</p>
-                <h1 id="page-title">Welcome, Administrator</h1>
-                <p>Manage users, operate the medicine dispenser, and review system functions.</p>
+
+                <p class="page-heading__eyebrow">
+                    Administration
+                </p>
+
+                <h1 id="page-title">
+                    Welcome, Administrator
+                </h1>
+
+                <p>
+                    Manage users, operate the medicine dispenser,
+                    and review system functions.
+                </p>
+
             </div>
-            <!--
-            <span class="system-status">System ready</span>
-            -->
+
         </section>
 
-        <section class="module-grid" aria-label="Administration modules">
+
+        <!-- ==================================================
+             ADMIN MODULES
+        =================================================== -->
+
+        <section
+            class="module-grid"
+            aria-label="Administration modules"
+        >
+
+            <!-- USER MANAGEMENT -->
+
             <article class="module-card">
+
                 <div class="module-card__top">
-                    <span class="module-card__icon" aria-hidden="true">
+
+                    <span
+                        class="module-card__icon"
+                        aria-hidden="true"
+                    >
+
                         <svg viewBox="0 0 24 24">
+
                             <path d="M16 20v-1.5A3.5 3.5 0 0 0 12.5 15h-5A3.5 3.5 0 0 0 4 18.5V20m11.5-8.5a3 3 0 1 0 0-6m4.5 14v-1.5a3.5 3.5 0 0 0-2.6-3.38M10 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/>
+
                         </svg>
+
                     </span>
-                    <span class="module-card__status">Available</span>
+
                 </div>
-                <h2>User Management</h2>
-                <p>Create staff accounts, manage roles, and update employee information.</p>
-                <a class="module-card__link" href="user_dashboard.html">
+
+
+                <h2>
+                    User Management
+                </h2>
+
+
+                <p>
+                    Create staff accounts, manage roles,
+                    and update employee information.
+                </p>
+
+
+                <a
+                    class="module-card__link"
+                    href="user_dashboard.html"
+                >
+
                     Open module
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
+
+                    <svg
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+
                         <path d="m9 18 6-6-6-6"/>
+
                     </svg>
+
                 </a>
+
             </article>
 
+
+            <!-- DISPENSER -->
+
             <article class="module-card">
+
                 <div class="module-card__top">
-                    <span class="module-card__icon" aria-hidden="true">
+
+                    <span
+                        class="module-card__icon"
+                        aria-hidden="true"
+                    >
+
                         <svg viewBox="0 0 24 24">
+
                             <path d="M9.2 4.5a4 4 0 0 1 5.6 0l4.7 4.7a4 4 0 0 1-5.6 5.6L9.2 10a4 4 0 0 1 0-5.5ZM7.5 16.5l9-9M5 19l3-3m-5 5 2-2"/>
+
                         </svg>
+
                     </span>
-                    <span class="module-card__status">Available</span>
+
                 </div>
-                <h2>MediTrack Dispenser</h2>
-                <p>Access the dispensing unit and manage medicine controls.</p>
-                <a class="module-card__link" href="dispenser_dashboard.html">
+
+
+                <h2>
+                    MediTrack Dispenser
+                </h2>
+
+
+                <p>
+                    Access the dispensing unit and manage
+                    medicine controls.
+                </p>
+
+
+                <a
+                    class="module-card__link"
+                    href="dispenser_dashboard.html"
+                >
+
                     Open module
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
+
+                    <svg
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+
                         <path d="m9 18 6-6-6-6"/>
+
                     </svg>
+
                 </a>
+
             </article>
 
+
+            <!-- ACTIVITY LOGS -->
+
             <article class="module-card">
+
                 <div class="module-card__top">
-                    <span class="module-card__icon" aria-hidden="true">
+
+                    <span
+                        class="module-card__icon"
+                        aria-hidden="true"
+                    >
+
                         <svg viewBox="0 0 24 24">
+
                             <path d="M4 19V9m6 10V5m6 14v-7m4 7H2"/>
+
                         </svg>
+
                     </span>
-                    <span class="module-card__status">Available</span>
+
                 </div>
-                <h2>Activity Logs</h2>
-                <p>View activity logs.</p>
-                <a class="module-card__link" href="activity_logs.html">
+
+
+                <h2>
+                    Activity Logs
+                </h2>
+
+
+                <p>
+                    View and search system activity and
+                    medication administration records.
+                </p>
+
+
+                <a
+                    class="module-card__link"
+                    href="activity_logs.html"
+                >
+
                     Open module
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
+
+                    <svg
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+
                         <path d="m9 18 6-6-6-6"/>
+
                     </svg>
+
                 </a>
+
             </article>
 
         </section>
+
+
+        <!-- ==================================================
+             RECENT SYSTEM ACTIVITY
+        =================================================== -->
+
+        <section
+            class="activity-preview"
+            aria-labelledby="activity-preview-title"
+        >
+
+            <div class="activity-preview__header">
+
+                <div>
+
+                    <p class="activity-preview__eyebrow">
+                        Monitoring
+                    </p>
+
+                    <h2 id="activity-preview-title">
+                        Recent System Activity
+                    </h2>
+
+                </div>
+
+
+                <a
+                    class="activity-preview__view"
+                    href="activity_logs.html"
+                >
+                    View all logs
+                </a>
+
+            </div>
+
+
+            <div
+                id="activityPreviewLoading"
+                class="activity-preview__message"
+            >
+                Loading recent activity...
+            </div>
+
+
+            <div
+                id="activityPreviewEmpty"
+                class="activity-preview__message is-hidden"
+            >
+                No recent system activity.
+            </div>
+
+
+            <div
+                id="activityPreviewList"
+                class="activity-preview__list"
+            >
+            </div>
+
+        </section>
+
+
+        <!-- ==================================================
+             FOOTER
+        =================================================== -->
 
         <footer class="footer">
-            <span>MediTrack Smart Medicine Dispensing System</span>
-            <span>Administrator Console</span>
+
+            <span>
+                MediTrack Smart Medicine Dispensing System
+            </span>
+
+            <span>
+                Administrator Console
+            </span>
+
         </footer>
+
     </main>
 
-    <script type="module">
-        import { requireRole } from "../../public/auth_guard.js";
-        import {
-            getAuth,
-            signOut
-        } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
 
-        requireRole("Admin");
+    <!-- ======================================================
+         JAVASCRIPT
+    ======================================================= -->
+<script type="module">
 
-        const auth = getAuth();
-        const logoutButton = document.getElementById("logoutBtn");
+// ============================================================
+// FIREBASE
+// ============================================================
 
-        logoutButton.addEventListener("click", async () => {
-            try {
-                await signOut(auth);
-                window.location.href = "../../public/login.html";
-            } catch (error) {
-                alert(error.message);
+import {
+    initializeApp
+} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+
+import {
+    getDatabase,
+    ref,
+    get
+} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
+
+import {
+    getAuth,
+    signOut
+} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+
+import {
+    requireRole
+} from "../../public/auth_guard.js";
+
+
+// ============================================================
+// ADMIN ACCESS
+// ============================================================
+
+requireRole("Admin");
+
+
+// ============================================================
+// FIREBASE CONFIGURATION
+// ============================================================
+
+const firebaseConfig = {
+    apiKey: "AIzaSyBRm3dUt3HreTquM_Ba9JfYmZD2CLVV0Gc",
+    authDomain: "meditrack-59cca.firebaseapp.com",
+    databaseURL: "https://meditrack-59cca-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "meditrack-59cca",
+    storageBucket: "meditrack-59cca.firebasestorage.app",
+    messagingSenderId: "656003988692",
+    appId: "1:656003988692:web:badfe96b7d830837a4cf41"
+};
+
+
+
+// ============================================================
+// INITIALIZE FIREBASE
+// ============================================================
+
+const app =
+    initializeApp(firebaseConfig);
+
+const auth =
+    getAuth(app);
+
+const database =
+    getDatabase(app);
+
+
+// ============================================================
+// DOM ELEMENTS
+// ============================================================
+
+const logoutButton =
+    document.getElementById("logoutBtn");
+
+const activityPreviewList =
+    document.getElementById(
+        "activityPreviewList"
+    );
+
+const activityPreviewLoading =
+    document.getElementById(
+        "activityPreviewLoading"
+    );
+
+const activityPreviewEmpty =
+    document.getElementById(
+        "activityPreviewEmpty"
+    );
+
+
+// ============================================================
+// LOGOUT
+// ============================================================
+
+logoutButton.addEventListener(
+    "click",
+    async () => {
+
+        try {
+
+            await signOut(auth);
+
+            window.location.href =
+                "../../public/login.html";
+
+        }
+        catch (error) {
+
+            console.error(
+                "Logout error:",
+                error
+            );
+
+            alert(
+                error.message
+            );
+
+        }
+
+    }
+);
+
+
+// ============================================================
+// LOAD RECENT ACTIVITY
+// ============================================================
+
+async function loadRecentActivity() {
+
+    // Show loading
+    activityPreviewLoading.style.display =
+        "block";
+
+    activityPreviewEmpty.style.display =
+        "none";
+
+    activityPreviewList.innerHTML =
+        "";
+
+
+    try {
+
+        // ====================================================
+        // Read activity logs
+        // ====================================================
+
+        const snapshot =
+            await get(
+                ref(
+                    database,
+                    "activity_logs"
+                )
+            );
+
+
+        const logs = [];
+
+
+        // ====================================================
+        // Convert Firebase records to array
+        // ====================================================
+
+        if (
+            snapshot.exists()
+        ) {
+
+            snapshot.forEach(
+                child => {
+
+                    const log =
+                        child.val();
+
+
+                    logs.push({
+
+                        id:
+                            child.key,
+
+                        ...log
+
+                    });
+
+                }
+            );
+
+        }
+
+
+        // ====================================================
+        // Hide loading
+        // ====================================================
+
+        activityPreviewLoading.style.display =
+            "none";
+
+
+        // ====================================================
+        // No logs
+        // ====================================================
+
+        if (
+            logs.length === 0
+        ) {
+
+            activityPreviewEmpty.textContent =
+                "No recent system activity.";
+
+            activityPreviewEmpty.style.display =
+                "block";
+
+            return;
+
+        }
+
+
+        // ====================================================
+        // Sort newest first
+        // ====================================================
+
+        logs.sort(
+            (a, b) => {
+
+                return (
+                    getTimestamp(b.timestamp) -
+                    getTimestamp(a.timestamp)
+                );
+
             }
-        });
-    </script>
+        );
+
+
+        // ====================================================
+        // Take latest 5
+        // ====================================================
+
+        const recentLogs =
+            logs.slice(
+                0,
+                5
+            );
+
+
+        // ====================================================
+        // Render logs
+        // ====================================================
+
+        recentLogs.forEach(
+            log => {
+
+                renderActivity(
+                    log
+                );
+
+            }
+        );
+
+    }
+    catch (error) {
+
+        console.error(
+            "Failed to load recent activity:",
+            error
+        );
+
+
+        // ====================================================
+        // Hide loading
+        // ====================================================
+
+        activityPreviewLoading.style.display =
+            "none";
+
+
+        // ====================================================
+        // Display error
+        // ====================================================
+
+        activityPreviewEmpty.textContent =
+            "Unable to load recent activity.";
+
+        activityPreviewEmpty.style.display =
+            "block";
+
+    }
+
+}
+
+
+// ============================================================
+// RENDER ACTIVITY
+// ============================================================
+
+function renderActivity(
+    log
+) {
+
+    const item =
+        document.createElement(
+            "article"
+        );
+
+
+    item.className =
+        "activity-preview__item";
+
+
+    // ========================================================
+    // ICON
+    // ========================================================
+
+    const icon =
+        document.createElement(
+            "div"
+        );
+
+
+    icon.className =
+        "activity-preview__icon";
+
+
+    icon.textContent =
+        getActivityIcon(
+            log.action
+        );
+
+
+    // ========================================================
+    // CONTENT
+    // ========================================================
+
+    const content =
+        document.createElement(
+            "div"
+        );
+
+
+    content.className =
+        "activity-preview__content";
+
+
+    // --------------------------------------------------------
+    // Action
+    // --------------------------------------------------------
+
+    const action =
+        document.createElement(
+            "div"
+        );
+
+
+    action.className =
+        "activity-preview__action";
+
+
+    action.textContent =
+        formatAction(
+            log.action
+        );
+
+
+    // --------------------------------------------------------
+    // Description
+    // --------------------------------------------------------
+
+    const description =
+        document.createElement(
+            "div"
+        );
+
+
+    description.className =
+        "activity-preview__description";
+
+
+    description.textContent =
+        log.description ||
+        "-";
+
+
+    // --------------------------------------------------------
+    // User / Date
+    // --------------------------------------------------------
+
+    const meta =
+        document.createElement(
+            "div"
+        );
+
+
+    meta.className =
+        "activity-preview__meta";
+
+
+    const userName =
+        log.userName ||
+        "Unknown User";
+
+
+    const userType =
+        log.userType ||
+        "";
+
+
+    const date =
+        formatDateTime(
+            log.timestamp
+        );
+
+
+    if (userType) {
+
+        meta.textContent =
+            `${userName} · ${userType} · ${date}`;
+
+    }
+    else {
+
+        meta.textContent =
+            `${userName} · ${date}`;
+
+    }
+
+
+    // ========================================================
+    // STATUS
+    // ========================================================
+
+    const status =
+        document.createElement(
+            "span"
+        );
+
+
+    status.className =
+        "activity-preview__status";
+
+
+    status.classList.add(
+        getStatusClass(
+            log.status
+        )
+    );
+
+
+    status.textContent =
+        log.status ||
+        "UNKNOWN";
+
+
+    // ========================================================
+    // BUILD ITEM
+    // ========================================================
+
+    content.appendChild(
+        action
+    );
+
+    content.appendChild(
+        description
+    );
+
+    content.appendChild(
+        meta
+    );
+
+
+    item.appendChild(
+        icon
+    );
+
+    item.appendChild(
+        content
+    );
+
+    item.appendChild(
+        status
+    );
+
+
+    activityPreviewList.appendChild(
+        item
+    );
+
+}
+
+
+// ============================================================
+// FORMAT ACTION
+// ============================================================
+
+function formatAction(
+    action
+) {
+
+    if (!action) {
+
+        return "System Activity";
+
+    }
+
+
+    return action
+
+        .replace(
+            /_/g,
+            " "
+        )
+
+        .replace(
+            /\b\w/g,
+            letter =>
+                letter.toUpperCase()
+        );
+
+}
+
+
+// ============================================================
+// ACTIVITY ICON
+// ============================================================
+
+function getActivityIcon(
+    action
+) {
+
+    switch (action) {
+
+        case "LOGIN":
+            return "↪";
+
+        case "MEDICINE_CREATED":
+            return "✚";
+
+        case "INVENTORY_ADDED":
+            return "+";
+
+        case "INVENTORY_DEDUCTED":
+            return "−";
+
+        case "INVENTORY_ADJUSTED":
+            return "↕";
+
+        case "PRESCRIPTION_CREATED":
+            return "Rx";
+
+        case "DISPENSER_ASSIGNED":
+            return "◉";
+
+        case "DISPENSER_REFILLED":
+            return "↻";
+
+        default:
+            return "•";
+
+    }
+
+}
+
+
+// ============================================================
+// STATUS CLASS
+// ============================================================
+
+function getStatusClass(
+    status
+) {
+
+    const value =
+        String(
+            status || ""
+        )
+        .toLowerCase();
+
+
+    if (
+        value === "success"
+    ) {
+
+        return "is-success";
+
+    }
+
+
+    if (
+        value === "failed"
+    ) {
+
+        return "is-failed";
+
+    }
+
+
+    if (
+        value === "warning"
+    ) {
+
+        return "is-warning";
+
+    }
+
+
+    return "is-neutral";
+
+}
+
+
+// ============================================================
+// TIMESTAMP
+// ============================================================
+
+function getTimestamp(
+    timestamp
+) {
+
+    if (
+        typeof timestamp ===
+        "number"
+    ) {
+
+        return timestamp;
+
+    }
+
+
+    if (
+        !timestamp
+    ) {
+
+        return 0;
+
+    }
+
+
+    const parsed =
+        new Date(
+            timestamp
+        )
+        .getTime();
+
+
+    return isNaN(parsed)
+        ? 0
+        : parsed;
+
+}
+
+
+// ============================================================
+// DATE/TIME
+// ============================================================
+
+function formatDateTime(
+    timestamp
+) {
+
+    const time =
+        getTimestamp(
+            timestamp
+        );
+
+
+    if (!time) {
+
+        return "-";
+
+    }
+
+
+    return new Date(
+        time
+    ).toLocaleString();
+
+}
+
+
+// ============================================================
+// INITIALIZE
+// ============================================================
+
+loadRecentActivity();
+
+</script>
+
 </body>
 </html>

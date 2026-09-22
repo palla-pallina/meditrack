@@ -1,318 +1,1537 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <title>Patient Admission Record</title>
+<head>
 
-        <link rel="stylesheet" href="stylesheets/view_patient.css">
-    </head>
+    <meta charset="UTF-8">
 
-    <body>
-        <a href="view_records.html">Dashboard</a>
+    <title>MediTrack | Patient Admission Record</title>
 
-        <h2>Patient Admission Record</h2>
+    <link rel="stylesheet" href="stylesheets/view_patient.css">
 
-        <button id="dischargeBtn"> Discharge Patient </button>
-        <button id="deleteBtn">Delete Patient Record</button>
-        <button id="editBtn">Edit Patient Record</button>
+    <style>
 
-        <hr>
+        .record-entry {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin: 15px 0;
+            background: #f8f9fa;
+        }
 
-        <h3>Admission Information</h3>
+        .record-entry h4 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #333;
+        }
 
-        <p><strong>Admission Number:</strong> <span id="admissionNumber"></span></p>
-        <p><strong>Admission Date:</strong> <span id="admissionDate"></span></p>
-        <p><strong>Admission Time:</strong> <span id="admissionTime"></span></p>
+        .record-entry p {
+            margin: 8px 0;
+        }
 
-        <p><strong>Assigned Ward:</strong> <span id="assignedArea"></span></p>
-        <p><strong>Room:</strong> <span id="room"></span></p>
+        .empty-message {
+            color: #777;
+            font-style: italic;
+        }
 
-        <p><strong>Assigned Doctor:</strong> <span id="assignedDoctor"></span></p>
+        .severity-value {
+            font-weight: bold;
+        }
 
-        <p><strong>Admission Status:</strong> <span id="admissionStatus"></span></p>
+    </style>
 
-        <hr>
+</head>
 
-        <div id="dischargeSection" style="display:none;">
+<body>
 
-            <h3>Discharge Information</h3>
+    <a href="view_records.html">Dashboard</a>
 
-            <p>
-                <span id="dischargeStatus"></span>
-            </p>
+    <h2>Patient Admission Record</h2>
 
-            <p>
-                <strong>Discharge Date:</strong>
-                <span id="dischargeDate"></span>
-            </p>
+    <button id="dischargeBtn">Discharge Patient</button>
+    <button id="deleteBtn">Delete Patient Record</button>
+    <button id="editBtn">Edit Patient Record</button>
 
-            <p>
-                <strong>Discharge Time:</strong>
-                <span id="dischargeTime"></span>
-            </p>
+    <hr>
 
-            <p>
-                <strong>Discharge Type:</strong>
-                <span id="dischargeType"></span>
-            </p>
 
-            <p><strong>Discharge Summary:</strong></p>
-            <p id="dischargeSummary"></p>
+    <!-- ===================================================== -->
+    <!-- ADMISSION INFORMATION -->
+    <!-- ===================================================== -->
 
-            <hr>
+    <h3>Admission Information</h3>
 
-        </div>
-        
-        <h3>Patient Information</h3>
+    <p>
+        <strong>Admission Number:</strong>
+        <span id="admissionNumber"></span>
+    </p>
 
-        <p><strong>Name:</strong> <span id="firstName"></span></p>
-        <p><strong>Middle Name:</strong> <span id="middleName"></span></p>
-        <p><strong>Last Name:</strong> <span id="lastName"></span></p>
-        <p><strong>Suffix:</strong> <span id="suffix"></span></p>
-        <p><strong>Date of Birth:</strong> <span id="dob"></span></p>
-        <p><strong>Age:</strong> <span id="age"></span></p>
-        <p><strong>Sex:</strong> <span id="sex"></span></p>
-        <p><strong>Contact Number:</strong> <span id="contactNumber"></span></p>
-        <p><strong>Occupation:</strong> <span id="occupation"></span></p>
-        <p><strong>Marital Status:</strong> <span id="maritalStatus"></span></p>
-        <p><strong>Occupying Individual:</strong> <span id="occupyingIndividual"></span></p>
+    <p>
+        <strong>Admission Date:</strong>
+        <span id="admissionDate"></span>
+    </p>
 
-        <hr>
+    <p>
+        <strong>Admission Time:</strong>
+        <span id="admissionTime"></span>
+    </p>
 
-        <h3>Address</h3>
+    <p>
+        <strong>Assigned Ward:</strong>
+        <span id="assignedArea"></span>
+    </p>
 
-        <p><strong>Street:</strong> <span id="streetNo"></span></p>
-        <p><strong>Barangay:</strong> <span id="barangay"></span></p>
-        <p><strong>City:</strong> <span id="city"></span></p>
-        <p><strong>Province:</strong> <span id="province"></span></p>
+    <p>
+        <strong>Room:</strong>
+        <span id="room"></span>
+    </p>
 
-        <hr>
+    <p>
+        <strong>Assigned Doctor:</strong>
+        <span id="assignedDoctor"></span>
+    </p>
 
-        <h3>Chief Complaint</h3>
+    <p>
+        <strong>Admission Status:</strong>
+        <span id="admissionStatus"></span>
+    </p>
 
-        <p><strong>Complaint:</strong></p>
-        <p id="chiefComplaint"></p>
+    <hr>
 
-        <p><strong>Symptoms:</strong></p>
-        <p id="symptoms"></p>
 
-        <p><strong>Medication Used:</strong></p>
-        <p id="medicationUsed"></p>
+    <!-- ===================================================== -->
+    <!-- DISCHARGE INFORMATION -->
+    <!-- ===================================================== -->
 
-        <hr>
+    <div id="dischargeSection" style="display:none;">
 
-        <h3>Family History</h3>
+        <h3>Discharge Information</h3>
 
-        <p><strong>Condition Type:</strong> <span id="familyConditionType"></span></p>
+        <p>
+            <span id="dischargeStatus"></span>
+        </p>
 
-        <p><strong>Notes:</strong></p>
-        <p id="familyHistoryNote"></p>
+        <p>
+            <strong>Discharge Date:</strong>
+            <span id="dischargeDate"></span>
+        </p>
 
-        <hr>
+        <p>
+            <strong>Discharge Time:</strong>
+            <span id="dischargeTime"></span>
+        </p>
 
-        <h3>History of Present Illness</h3>
+        <p>
+            <strong>Discharge Type:</strong>
+            <span id="dischargeType"></span>
+        </p>
 
-        <p><strong>Onset:</strong></p>
-        <p id="onset"></p>
+        <p>
+            <strong>Discharge Summary:</strong>
+        </p>
 
-        <p><strong>Provocation:</strong></p>
-        <p id="provocation"></p>
-
-        <p><strong>Quality:</strong></p>
-        <p id="quality"></p>
-
-        <p><strong>Radiation:</strong></p>
-        <p id="radiation"></p>
-
-        <p><strong>Severity:</strong> <span id="severity"></span></p>
-
-        <hr>
-
-        <h3>Past Illness</h3>
-
-        <p><strong>Condition Name:</strong> <span id="conditionName"></span></p>
-
-        <p><strong>Condition Type:</strong> <span id="conditionType"></span></p>
-
-        <p><strong>Notes:</strong></p>
-        <p id="pmhNote"></p>
+        <p id="dischargeSummary"></p>
 
         <hr>
 
-        <h3>Medication History</h3>
+    </div>
 
-        <p><strong>Medication Name:</strong> <span id="medicationName"></span></p>
-        <p><strong>Dose:</strong> <span id="dose"></span></p>
-        <p><strong>Frequency:</strong> <span id="frequency"></span></p>
-        <p><strong>Route:</strong> <span id="route"></span></p>
-        <p><strong>Status:</strong> <span id="status"></span></p>
-        <p><strong>Reason:</strong></p>
-        <p id="prescriptionReason"></p>
 
-        <hr>
+    <!-- ===================================================== -->
+    <!-- PATIENT INFORMATION -->
+    <!-- ===================================================== -->
 
-        <button onclick="history.back()">Back</button>
+    <h3>Patient Information</h3>
 
-        <script type="module">
-            import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+    <p>
+        <strong>Name:</strong>
+        <span id="firstName"></span>
+    </p>
 
-            import {
-                getDatabase,
-                ref,
-                get,
-                remove
-            } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
+    <p>
+        <strong>Middle Name:</strong>
+        <span id="middleName"></span>
+    </p>
 
-            const firebaseConfig = {
-                apiKey: "AIzaSyBRm3dUt3HreTquM_Ba9JfYmZD2CLVV0Gc",
-                authDomain: "meditrack-59cca.firebaseapp.com",
-                databaseURL: "https://meditrack-59cca-default-rtdb.asia-southeast1.firebasedatabase.app",
-                projectId: "meditrack-59cca",
-                storageBucket: "meditrack-59cca.firebasestorage.app",
-                messagingSenderId: "656003988692",
-                appId: "1:656003988692:web:badfe96b7d830837a4cf41"
-            };
+    <p>
+        <strong>Last Name:</strong>
+        <span id="lastName"></span>
+    </p>
 
-            const app = initializeApp(firebaseConfig);
-            const db = getDatabase(app);
+    <p>
+        <strong>Suffix:</strong>
+        <span id="suffix"></span>
+    </p>
 
-            const params = new URLSearchParams(window.location.search);
-            const id = params.get("id");
-            
-            const dischargeSection = document.getElementById("dischargeSection");
+    <p>
+        <strong>Date of Birth:</strong>
+        <span id="dob"></span>
+    </p>
 
-            if (id) {
-                get(ref(db, "patients/" + id))
-                    .then((snapshot) => {
-                        if (snapshot.exists()) {
-                            const p = snapshot.val();
+    <p>
+        <strong>Age:</strong>
+        <span id="age"></span>
+    </p>
 
-                            document.getElementById("admissionNumber").textContent =
-                                p.admissionNumber || "";
-                            document.getElementById("admissionDate").textContent =
-                                p.admissionDate || "";
-                            document.getElementById("admissionTime").textContent =
-                                p.admissionTime || "";
-                            document.getElementById("assignedArea").textContent =
-                                p.assignedArea || "";
-                            document.getElementById("room").textContent =
-                                p.room || "";
-                            document.getElementById("assignedDoctor").textContent =
-                                p.assignedDoctor || "";
-                            document.getElementById("admissionStatus").textContent =
-                                p.admissionStatus || "";
+    <p>
+        <strong>Sex:</strong>
+        <span id="sex"></span>
+    </p>
 
-                            if (p.admissionStatus === "Discharged") {
+    <p>
+        <strong>Contact Number:</strong>
+        <span id="contactNumber"></span>
+    </p>
 
-                                dischargeSection.style.display = "block";
+    <p>
+        <strong>Occupation:</strong>
+        <span id="occupation"></span>
+    </p>
 
-                                document.getElementById("dischargeBtn").style.display = "none";
-                                document.getElementById("editBtn").style.display = "none";
-                                document.getElementById("deleteBtn").style.display = "none";
+    <p>
+        <strong>Marital Status:</strong>
+        <span id="maritalStatus"></span>
+    </p>
 
-                                document.getElementById("dischargeDate").textContent =
-                                    p.dischargeDate || "";
+    <p>
+        <strong>Occupying Individual:</strong>
+        <span id="occupyingIndividual"></span>
+    </p>
 
-                                document.getElementById("dischargeTime").textContent =
-                                    p.dischargeTime || "";
+    <hr>
 
-                                document.getElementById("dischargeType").textContent =
-                                    p.dischargeType || "";
 
-                                document.getElementById("dischargeSummary").textContent =
-                                    p.dischargeSummary || "";
+    <!-- ===================================================== -->
+    <!-- FAMILY / GUARDIAN INFORMATION -->
+    <!-- ===================================================== -->
 
-                            } else {
+    <h3>Family / Guardian Information</h3>
 
-                                dischargeSection.style.display = "none";
+    <div id="familyGuardianContainer"></div>
 
-                            }
-                                
-                            document.getElementById("firstName").textContent = p.firstName || "";
-                            document.getElementById("middleName").textContent = p.middleName || "";
-                            document.getElementById("lastName").textContent = p.lastName || "";
-                            document.getElementById("suffix").textContent = p.suffix || "";
-                            document.getElementById("dob").textContent = p.dateOfBirth || "";
-                            document.getElementById("age").textContent = p.age || "";
-                            document.getElementById("sex").textContent = p.sex || "";
-                            document.getElementById("contactNumber").textContent = p.contactNumber || "";
-                            document.getElementById("occupation").textContent = p.occupation || "";
-                            document.getElementById("maritalStatus").textContent = p.maritalStatus || "";
-                            document.getElementById("occupyingIndividual").textContent = p.occupyingIndividual || "";
+    <hr>
 
-                            document.getElementById("streetNo").textContent = p.streetNo || "";
-                            document.getElementById("barangay").textContent = p.barangay || "";
-                            document.getElementById("city").textContent = p.city || "";
-                            document.getElementById("province").textContent = p.province || "";
 
-                            document.getElementById("chiefComplaint").textContent = p.chiefComplaint || "";
-                            document.getElementById("symptoms").textContent = p.symptoms || "";
-                            document.getElementById("medicationUsed").textContent = p.medicationUsed || "";
+    <!-- ===================================================== -->
+    <!-- ADDRESS -->
+    <!-- ===================================================== -->
 
-                            document.getElementById("familyConditionType").textContent = p.familyConditionType || "";
-                            document.getElementById("familyHistoryNote").textContent = p.familyHistoryNote || "";
+    <h3>Address</h3>
 
-                            document.getElementById("onset").textContent = p.onset || "";
-                            document.getElementById("provocation").textContent = p.provocation || "";
-                            document.getElementById("quality").textContent = p.quality || "";
-                            document.getElementById("radiation").textContent = p.radiation || "";
-                            document.getElementById("severity").textContent = p.severityScore || "";
+    <p>
+        <strong>Street:</strong>
+        <span id="streetNo"></span>
+    </p>
 
-                            document.getElementById("conditionName").textContent = p.conditionName || "";
-                            document.getElementById("conditionType").textContent = p.conditionType || "";
-                            document.getElementById("pmhNote").textContent = p.pmhNote || "";
+    <p>
+        <strong>Barangay:</strong>
+        <span id="barangay"></span>
+    </p>
 
-                            document.getElementById("medicationName").textContent = p.medicationName || "";
-                            document.getElementById("dose").textContent = p.dose || "";
-                            document.getElementById("frequency").textContent = p.frequency || "";
-                            document.getElementById("route").textContent = p.route || "";
-                            document.getElementById("status").textContent = p.status || "";
-                            document.getElementById("prescriptionReason").textContent = p.prescriptionReason || "";
+    <p>
+        <strong>City:</strong>
+        <span id="city"></span>
+    </p>
 
-                        } else {
-                            alert("Patient record not found.");
-                        }
-                    });
+    <p>
+        <strong>Province:</strong>
+        <span id="province"></span>
+    </p>
+
+    <hr>
+
+
+    <!-- ===================================================== -->
+    <!-- CHIEF COMPLAINT -->
+    <!-- ===================================================== -->
+
+    <h3>Chief Complaint</h3>
+
+    <p>
+        <strong>Complaint:</strong>
+    </p>
+
+    <p id="chiefComplaint"></p>
+
+    <p>
+        <strong>Symptoms:</strong>
+    </p>
+
+    <p id="symptoms"></p>
+
+    <p>
+        <strong>Medication Used:</strong>
+    </p>
+
+    <p id="medicationUsed"></p>
+
+    <hr>
+
+
+    <!-- ===================================================== -->
+    <!-- FAMILY HISTORY -->
+    <!-- ===================================================== -->
+
+    <h3>Family History</h3>
+
+    <p>
+        <strong>Condition Type:</strong>
+        <span id="familyConditionType"></span>
+    </p>
+
+    <p>
+        <strong>Notes:</strong>
+    </p>
+
+    <p id="familyHistoryNote"></p>
+
+    <hr>
+
+
+    <!-- ===================================================== -->
+    <!-- HISTORY OF PRESENT ILLNESS -->
+    <!-- ===================================================== -->
+
+    <h3>History of Present Illness</h3>
+
+    <div id="hpiContainer"></div>
+
+    <hr>
+
+
+    <!-- ===================================================== -->
+    <!-- PAST ILLNESSES -->
+    <!-- ===================================================== -->
+
+    <h3>Past Illnesses</h3>
+
+    <div id="pastIllnessContainer"></div>
+
+    <hr>
+
+
+    <!-- ===================================================== -->
+    <!-- MEDICATION HISTORY -->
+    <!-- ===================================================== -->
+
+    <h3>Medication History</h3>
+
+    <div id="pastMedicationContainer"></div>
+
+    <hr>
+
+
+    <button onclick="history.back()">Back</button>
+
+
+    <!-- ===================================================== -->
+    <!-- FIREBASE -->
+    <!-- ===================================================== -->
+
+    <script type="module">
+
+        import {
+            initializeApp
+        } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+
+        import {
+            getDatabase,
+            ref,
+            get,
+            remove
+        } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
+
+
+        // =====================================================
+        // FIREBASE CONFIG
+        // =====================================================
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBRm3dUt3HreTquM_Ba9JfYmZD2CLVV0Gc",
+            authDomain: "meditrack-59cca.firebaseapp.com",
+            databaseURL: "https://meditrack-59cca-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "meditrack-59cca",
+            storageBucket: "meditrack-59cca.firebasestorage.app",
+            messagingSenderId: "656003988692",
+            appId: "1:656003988692:web:badfe96b7d830837a4cf41"
+        };
+
+
+        const app = initializeApp(firebaseConfig);
+
+        const db = getDatabase(app);
+
+
+        // =====================================================
+        // GET PATIENT ID
+        // =====================================================
+
+        const params = new URLSearchParams(
+            window.location.search
+        );
+
+        const id = params.get("id");
+
+
+        // =====================================================
+        // ELEMENTS
+        // =====================================================
+
+        const dischargeSection =
+            document.getElementById("dischargeSection");
+
+        const familyGuardianContainer =
+            document.getElementById("familyGuardianContainer");
+
+        const hpiContainer =
+            document.getElementById("hpiContainer");
+
+        const pastIllnessContainer =
+            document.getElementById("pastIllnessContainer");
+
+        const pastMedicationContainer =
+            document.getElementById("pastMedicationContainer");
+
+
+        // =====================================================
+        // HELPER
+        // Convert Firebase object/array into array
+        // =====================================================
+
+        function normalizeEntries(value) {
+
+            if (!value) {
+                return [];
             }
 
-            const deleteBtn = document.getElementById("deleteBtn");
+            if (Array.isArray(value)) {
+                return value;
+            }
 
-            deleteBtn.addEventListener("click", () => {
-                if (!id) {
-                    alert("Invalid patient ID.");
-                    return;
-                }
+            if (typeof value === "object") {
+                return Object.values(value);
+            }
 
-                const confirmDelete = confirm(
-                    "Are you sure you want to permanently delete this patient record?"
+            return [];
+        }
+
+
+        // =====================================================
+        // HELPER
+        // Display blank message
+        // =====================================================
+
+        function showEmptyMessage(container, message) {
+
+            container.innerHTML = "";
+
+            const p = document.createElement("p");
+
+            p.className = "empty-message";
+
+            p.textContent = message;
+
+            container.appendChild(p);
+        }
+
+
+        // =====================================================
+        // FAMILY / GUARDIAN INFORMATION
+        // =====================================================
+
+        function displayFamilyGuardianInfo(entries) {
+
+            familyGuardianContainer.innerHTML = "";
+
+            const normalized = normalizeEntries(entries);
+
+            if (normalized.length === 0) {
+
+                showEmptyMessage(
+                    familyGuardianContainer,
+                    "No family or guardian information recorded."
                 );
 
-                if (!confirmDelete) {
+                return;
+            }
+
+
+            normalized.forEach((entry, index) => {
+
+                const card =
+                    document.createElement("div");
+
+                card.className = "record-entry";
+
+
+                const title =
+                    document.createElement("h4");
+
+                title.textContent =
+                    "Family / Guardian " + (index + 1);
+
+                card.appendChild(title);
+
+
+                const name =
+                    document.createElement("p");
+
+                name.innerHTML =
+                    "<strong>Name:</strong> ";
+
+                const nameValue =
+                    document.createElement("span");
+
+                nameValue.textContent =
+                    entry.fullName ||
+                    entry.name ||
+                    "";
+
+                name.appendChild(nameValue);
+
+                card.appendChild(name);
+
+
+                const relationship =
+                    document.createElement("p");
+
+                relationship.innerHTML =
+                    "<strong>Relationship:</strong> ";
+
+                const relationshipValue =
+                    document.createElement("span");
+
+                relationshipValue.textContent =
+                    entry.relationship ||
+                    "";
+
+                relationship.appendChild(
+                    relationshipValue
+                );
+
+                card.appendChild(relationship);
+
+
+                const contact =
+                    document.createElement("p");
+
+                contact.innerHTML =
+                    "<strong>Contact Number:</strong> ";
+
+                const contactValue =
+                    document.createElement("span");
+
+                contactValue.textContent =
+                    entry.contactNumber ||
+                    "";
+
+                contact.appendChild(
+                    contactValue
+                );
+
+                card.appendChild(contact);
+
+
+                const address =
+                    document.createElement("p");
+
+                address.innerHTML =
+                    "<strong>Address:</strong> ";
+
+                const addressValue =
+                    document.createElement("span");
+
+                addressValue.textContent =
+                    entry.address ||
+                    "";
+
+                address.appendChild(
+                    addressValue
+                );
+
+                card.appendChild(address);
+
+
+                familyGuardianContainer.appendChild(card);
+
+            });
+
+        }
+
+
+        // =====================================================
+        // HISTORY OF PRESENT ILLNESS
+        // =====================================================
+
+        function displayHPI(entries, patient) {
+
+            hpiContainer.innerHTML = "";
+
+
+            let normalized =
+                normalizeEntries(entries);
+
+
+            // -------------------------------------------------
+            // BACKWARD COMPATIBILITY
+            // -------------------------------------------------
+
+            if (
+                normalized.length === 0 &&
+                (
+                    patient.onset ||
+                    patient.provocation ||
+                    patient.quality ||
+                    patient.radiation ||
+                    patient.severityScore !== undefined
+                )
+            ) {
+
+                normalized = [
+
+                    {
+                        onset:
+                            patient.onset || "",
+
+                        provocation:
+                            patient.provocation || "",
+
+                        quality:
+                            patient.quality || "",
+
+                        radiation:
+                            patient.radiation || "",
+
+                        severityScore:
+                            patient.severityScore ?? ""
+                    }
+
+                ];
+
+            }
+
+
+            if (normalized.length === 0) {
+
+                showEmptyMessage(
+                    hpiContainer,
+                    "No history of present illness recorded."
+                );
+
+                return;
+            }
+
+
+            normalized.forEach((entry, index) => {
+
+                const card =
+                    document.createElement("div");
+
+                card.className = "record-entry";
+
+
+                const title =
+                    document.createElement("h4");
+
+                title.textContent =
+                    "HPI Entry " + (index + 1);
+
+                card.appendChild(title);
+
+
+                const onset =
+                    document.createElement("p");
+
+                onset.innerHTML =
+                    "<strong>Onset:</strong> ";
+
+                const onsetValue =
+                    document.createElement("span");
+
+                onsetValue.textContent =
+                    entry.onset ||
+                    entry.onsetDesc ||
+                    "";
+
+                onset.appendChild(onsetValue);
+
+                card.appendChild(onset);
+
+
+                const provocation =
+                    document.createElement("p");
+
+                provocation.innerHTML =
+                    "<strong>Provocation:</strong> ";
+
+                const provocationValue =
+                    document.createElement("span");
+
+                provocationValue.textContent =
+                    entry.provocation ||
+                    entry.provocationDesc ||
+                    "";
+
+                provocation.appendChild(
+                    provocationValue
+                );
+
+                card.appendChild(provocation);
+
+
+                const quality =
+                    document.createElement("p");
+
+                quality.innerHTML =
+                    "<strong>Quality:</strong> ";
+
+                const qualityValue =
+                    document.createElement("span");
+
+                qualityValue.textContent =
+                    entry.quality ||
+                    entry.qualityDescn ||
+                    "";
+
+                quality.appendChild(
+                    qualityValue
+                );
+
+                card.appendChild(quality);
+
+
+                const radiation =
+                    document.createElement("p");
+
+                radiation.innerHTML =
+                    "<strong>Radiation:</strong> ";
+
+                const radiationValue =
+                    document.createElement("span");
+
+                radiationValue.textContent =
+                    entry.radiation ||
+                    entry.radiationDesc ||
+                    "";
+
+                radiation.appendChild(
+                    radiationValue
+                );
+
+                card.appendChild(radiation);
+
+
+                const severity =
+                    document.createElement("p");
+
+                severity.innerHTML =
+                    "<strong>Severity:</strong> ";
+
+                const severityValue =
+                    document.createElement("span");
+
+                severityValue.className =
+                    "severity-value";
+
+                severityValue.textContent =
+                    entry.severityScore ??
+                    "";
+
+                severity.appendChild(
+                    severityValue
+                );
+
+                card.appendChild(severity);
+
+
+                hpiContainer.appendChild(card);
+
+            });
+
+        }
+
+
+        // =====================================================
+        // PAST ILLNESSES
+        // =====================================================
+
+        function displayPastIllnesses(entries, patient) {
+
+            pastIllnessContainer.innerHTML = "";
+
+
+            let normalized =
+                normalizeEntries(entries);
+
+
+            // -------------------------------------------------
+            // BACKWARD COMPATIBILITY
+            // -------------------------------------------------
+
+            if (
+                normalized.length === 0 &&
+                (
+                    patient.conditionName ||
+                    patient.conditionType ||
+                    patient.pmhNote
+                )
+            ) {
+
+                normalized = [
+
+                    {
+                        conditionName:
+                            patient.conditionName || "",
+
+                        conditionType:
+                            patient.conditionType || "",
+
+                        notes:
+                            patient.pmhNote || ""
+                    }
+
+                ];
+
+            }
+
+
+            if (normalized.length === 0) {
+
+                showEmptyMessage(
+                    pastIllnessContainer,
+                    "No past illnesses recorded."
+                );
+
+                return;
+            }
+
+
+            normalized.forEach((entry, index) => {
+
+                const card =
+                    document.createElement("div");
+
+                card.className = "record-entry";
+
+
+                const title =
+                    document.createElement("h4");
+
+                title.textContent =
+                    "Past Illness " + (index + 1);
+
+                card.appendChild(title);
+
+
+                const conditionName =
+                    document.createElement("p");
+
+                conditionName.innerHTML =
+                    "<strong>Condition Name:</strong> ";
+
+                const conditionNameValue =
+                    document.createElement("span");
+
+                conditionNameValue.textContent =
+                    entry.conditionName ||
+                    "";
+
+                conditionName.appendChild(
+                    conditionNameValue
+                );
+
+                card.appendChild(conditionName);
+
+
+                const conditionType =
+                    document.createElement("p");
+
+                conditionType.innerHTML =
+                    "<strong>Condition Type:</strong> ";
+
+                const conditionTypeValue =
+                    document.createElement("span");
+
+                conditionTypeValue.textContent =
+                    entry.conditionType ||
+                    "";
+
+                conditionType.appendChild(
+                    conditionTypeValue
+                );
+
+                card.appendChild(conditionType);
+
+
+                const notesLabel =
+                    document.createElement("p");
+
+                notesLabel.innerHTML =
+                    "<strong>Notes:</strong>";
+
+                card.appendChild(notesLabel);
+
+
+                const notes =
+                    document.createElement("p");
+
+                notes.textContent =
+                    entry.notes ||
+                    entry.pmhNote ||
+                    "";
+
+                card.appendChild(notes);
+
+
+                pastIllnessContainer.appendChild(card);
+
+            });
+
+        }
+
+
+        // =====================================================
+        // PAST MEDICATIONS
+        // =====================================================
+
+        function displayPastMedications(entries, patient) {
+
+            pastMedicationContainer.innerHTML = "";
+
+
+            let normalized =
+                normalizeEntries(entries);
+
+
+            // -------------------------------------------------
+            // BACKWARD COMPATIBILITY
+            // -------------------------------------------------
+
+            if (
+                normalized.length === 0 &&
+                (
+                    patient.medicationName ||
+                    patient.dose ||
+                    patient.frequency ||
+                    patient.route ||
+                    patient.status ||
+                    patient.prescriptionReason
+                )
+            ) {
+
+                normalized = [
+
+                    {
+                        medicationName:
+                            patient.medicationName || "",
+
+                        dose:
+                            patient.dose || "",
+
+                        frequency:
+                            patient.frequency || "",
+
+                        route:
+                            patient.route || "",
+
+                        status:
+                            patient.status || "",
+
+                        prescriptionReason:
+                            patient.prescriptionReason || ""
+                    }
+
+                ];
+
+            }
+
+
+            if (normalized.length === 0) {
+
+                showEmptyMessage(
+                    pastMedicationContainer,
+                    "No medication history recorded."
+                );
+
+                return;
+            }
+
+
+            normalized.forEach((entry, index) => {
+
+                const card =
+                    document.createElement("div");
+
+                card.className = "record-entry";
+
+
+                const title =
+                    document.createElement("h4");
+
+                title.textContent =
+                    "Medication " + (index + 1);
+
+                card.appendChild(title);
+
+
+                const medicationName =
+                    document.createElement("p");
+
+                medicationName.innerHTML =
+                    "<strong>Medication Name:</strong> ";
+
+                const medicationNameValue =
+                    document.createElement("span");
+
+                medicationNameValue.textContent =
+                    entry.medicationName ||
+                    "";
+
+                medicationName.appendChild(
+                    medicationNameValue
+                );
+
+                card.appendChild(medicationName);
+
+
+                const dose =
+                    document.createElement("p");
+
+                dose.innerHTML =
+                    "<strong>Dose:</strong> ";
+
+                const doseValue =
+                    document.createElement("span");
+
+                doseValue.textContent =
+                    entry.dose ||
+                    "";
+
+                dose.appendChild(doseValue);
+
+                card.appendChild(dose);
+
+
+                const frequency =
+                    document.createElement("p");
+
+                frequency.innerHTML =
+                    "<strong>Frequency:</strong> ";
+
+                const frequencyValue =
+                    document.createElement("span");
+
+                frequencyValue.textContent =
+                    entry.frequency ||
+                    "";
+
+                frequency.appendChild(
+                    frequencyValue
+                );
+
+                card.appendChild(frequency);
+
+
+                const route =
+                    document.createElement("p");
+
+                route.innerHTML =
+                    "<strong>Route:</strong> ";
+
+                const routeValue =
+                    document.createElement("span");
+
+                routeValue.textContent =
+                    entry.route ||
+                    "";
+
+                route.appendChild(routeValue);
+
+                card.appendChild(route);
+
+
+                const status =
+                    document.createElement("p");
+
+                status.innerHTML =
+                    "<strong>Status:</strong> ";
+
+                const statusValue =
+                    document.createElement("span");
+
+                statusValue.textContent =
+                    entry.status ||
+                    "";
+
+                status.appendChild(statusValue);
+
+                card.appendChild(status);
+
+
+                const reasonLabel =
+                    document.createElement("p");
+
+                reasonLabel.innerHTML =
+                    "<strong>Reason:</strong>";
+
+                card.appendChild(reasonLabel);
+
+
+                const reason =
+                    document.createElement("p");
+
+                reason.textContent =
+                    entry.prescriptionReason ||
+                    entry.reason ||
+                    "";
+
+                card.appendChild(reason);
+
+
+                pastMedicationContainer.appendChild(card);
+
+            });
+
+        }
+
+
+        // =====================================================
+        // LOAD PATIENT
+        // =====================================================
+
+        if (id) {
+
+            get(ref(db, "patients/" + id))
+
+                .then((snapshot) => {
+
+                    if (!snapshot.exists()) {
+
+                        alert(
+                            "Patient record not found."
+                        );
+
+                        return;
+                    }
+
+
+                    const p =
+                        snapshot.val();
+
+
+                    // =================================================
+                    // ADMISSION INFORMATION
+                    // =================================================
+
+                    document.getElementById(
+                        "admissionNumber"
+                    ).textContent =
+                        p.admissionNumber || "";
+
+                    document.getElementById(
+                        "admissionDate"
+                    ).textContent =
+                        p.admissionDate || "";
+
+                    document.getElementById(
+                        "admissionTime"
+                    ).textContent =
+                        p.admissionTime || "";
+
+                    document.getElementById(
+                        "assignedArea"
+                    ).textContent =
+                        p.assignedArea || "";
+
+                    document.getElementById(
+                        "room"
+                    ).textContent =
+                        p.room || "";
+
+                    document.getElementById(
+                        "assignedDoctor"
+                    ).textContent =
+                        p.assignedDoctor || "";
+
+                    document.getElementById(
+                        "admissionStatus"
+                    ).textContent =
+                        p.admissionStatus || "";
+
+
+                    // =================================================
+                    // DISCHARGE INFORMATION
+                    // =================================================
+
+                    if (
+                        p.admissionStatus ===
+                        "Discharged"
+                    ) {
+
+                        dischargeSection.style.display =
+                            "block";
+
+
+                        document.getElementById(
+                            "dischargeBtn"
+                        ).style.display =
+                            "none";
+
+
+                        document.getElementById(
+                            "editBtn"
+                        ).style.display =
+                            "none";
+
+
+                        document.getElementById(
+                            "deleteBtn"
+                        ).style.display =
+                            "none";
+
+
+                        document.getElementById(
+                            "dischargeStatus"
+                        ).textContent =
+                            "Patient Discharged";
+
+
+                        document.getElementById(
+                            "dischargeDate"
+                        ).textContent =
+                            p.dischargeDate || "";
+
+
+                        document.getElementById(
+                            "dischargeTime"
+                        ).textContent =
+                            p.dischargeTime || "";
+
+
+                        document.getElementById(
+                            "dischargeType"
+                        ).textContent =
+                            p.dischargeType || "";
+
+
+                        document.getElementById(
+                            "dischargeSummary"
+                        ).textContent =
+                            p.dischargeSummary || "";
+
+                    } else {
+
+                        dischargeSection.style.display =
+                            "none";
+
+                    }
+
+
+                    // =================================================
+                    // PATIENT INFORMATION
+                    // =================================================
+
+                    document.getElementById(
+                        "firstName"
+                    ).textContent =
+                        p.firstName || "";
+
+                    document.getElementById(
+                        "middleName"
+                    ).textContent =
+                        p.middleName || "";
+
+                    document.getElementById(
+                        "lastName"
+                    ).textContent =
+                        p.lastName || "";
+
+                    document.getElementById(
+                        "suffix"
+                    ).textContent =
+                        p.suffix || "";
+
+                    document.getElementById(
+                        "dob"
+                    ).textContent =
+                        p.dateOfBirth || "";
+
+                    document.getElementById(
+                        "age"
+                    ).textContent =
+                        p.age || "";
+
+                    document.getElementById(
+                        "sex"
+                    ).textContent =
+                        p.sex || "";
+
+                    document.getElementById(
+                        "contactNumber"
+                    ).textContent =
+                        p.contactNumber || "";
+
+                    document.getElementById(
+                        "occupation"
+                    ).textContent =
+                        p.occupation || "";
+
+                    document.getElementById(
+                        "maritalStatus"
+                    ).textContent =
+                        p.maritalStatus || "";
+
+                    document.getElementById(
+                        "occupyingIndividual"
+                    ).textContent =
+                        p.occupyingIndividual || "";
+
+
+                    // =================================================
+                    // ADDRESS
+                    // =================================================
+
+                    document.getElementById(
+                        "streetNo"
+                    ).textContent =
+                        p.streetNo || "";
+
+                    document.getElementById(
+                        "barangay"
+                    ).textContent =
+                        p.barangay || "";
+
+                    document.getElementById(
+                        "city"
+                    ).textContent =
+                        p.city || "";
+
+                    document.getElementById(
+                        "province"
+                    ).textContent =
+                        p.province || "";
+
+
+                    // =================================================
+                    // CHIEF COMPLAINT
+                    // =================================================
+
+                    document.getElementById(
+                        "chiefComplaint"
+                    ).textContent =
+                        p.chiefComplaint || "";
+
+                    document.getElementById(
+                        "symptoms"
+                    ).textContent =
+                        p.symptoms || "";
+
+                    document.getElementById(
+                        "medicationUsed"
+                    ).textContent =
+                        p.medicationUsed || "";
+
+
+                    // =================================================
+                    // FAMILY HISTORY
+                    // =================================================
+
+                    document.getElementById(
+                        "familyConditionType"
+                    ).textContent =
+                        p.familyConditionType || "";
+
+                    document.getElementById(
+                        "familyHistoryNote"
+                    ).textContent =
+                        p.familyHistoryNote || "";
+
+
+                    // =================================================
+                    // FAMILY / GUARDIAN INFORMATION
+                    // =================================================
+
+                    displayFamilyGuardianInfo(
+                        p.familyGuardianInfo
+                    );
+
+
+                    // =================================================
+                    // HISTORY OF PRESENT ILLNESS
+                    // =================================================
+
+                    displayHPI(
+                        p.historyOfPresentIllness,
+                        p
+                    );
+
+
+                    // =================================================
+                    // PAST ILLNESSES
+                    // =================================================
+
+                    displayPastIllnesses(
+                        p.pastIllnesses,
+                        p
+                    );
+
+
+                    // =================================================
+                    // MEDICATION HISTORY
+                    // =================================================
+
+                    displayPastMedications(
+                        p.pastMedications,
+                        p
+                    );
+
+                })
+
+                .catch((error) => {
+
+                    console.error(
+                        "Error loading patient:",
+                        error
+                    );
+
+                    alert(
+                        "Error loading patient record: " +
+                        error.message
+                    );
+
+                });
+
+        } else {
+
+            alert("Invalid patient ID.");
+
+        }
+
+
+        // =====================================================
+        // DELETE PATIENT
+        // =====================================================
+
+        const deleteBtn =
+            document.getElementById("deleteBtn");
+
+
+        deleteBtn.addEventListener(
+            "click",
+            () => {
+
+                if (!id) {
+
+                    alert(
+                        "Invalid patient ID."
+                    );
+
                     return;
                 }
 
-                remove(ref(db, "patients/" + id))
-                    .then(() => {
-                        alert("Patient record deleted successfully.");
-                        window.location.href = "view_records.html";
-                    })
-                    .catch((error) => {
-                        alert("Error deleting record: " + error.message);
-                    });
-            });
 
-            const editBtn = document.getElementById("editBtn");
-
-            editBtn.addEventListener("click", () => {
-                window.location.href = "edit_patient.html?id=" + encodeURIComponent(id);
-            });
+                const confirmDelete =
+                    confirm(
+                        "Are you sure you want to permanently delete this patient record?"
+                    );
 
 
-            const dischargeBtn = document.getElementById("dischargeBtn");
+                if (!confirmDelete) {
 
-            dischargeBtn.addEventListener("click", () => {
-                window.location.href = "discharge_patient.html?id=" + encodeURIComponent(id);
-            });
-        </script>
-        
-    </body>
+                    return;
+                }
+
+
+                remove(
+                    ref(
+                        db,
+                        "patients/" + id
+                    )
+                )
+
+                .then(() => {
+
+                    alert(
+                        "Patient record deleted successfully."
+                    );
+
+                    window.location.href =
+                        "view_records.html";
+
+                })
+
+                .catch((error) => {
+
+                    alert(
+                        "Error deleting record: " +
+                        error.message
+                    );
+
+                });
+
+            }
+        );
+
+
+        // =====================================================
+        // EDIT PATIENT
+        // =====================================================
+
+        const editBtn =
+            document.getElementById("editBtn");
+
+
+        editBtn.addEventListener(
+            "click",
+            () => {
+
+                if (!id) {
+
+                    alert(
+                        "Invalid patient ID."
+                    );
+
+                    return;
+                }
+
+
+                window.location.href =
+                    "edit_patient.html?id=" +
+                    encodeURIComponent(id);
+
+            }
+        );
+
+
+        // =====================================================
+        // DISCHARGE PATIENT
+        // =====================================================
+
+        const dischargeBtn =
+            document.getElementById("dischargeBtn");
+
+
+        dischargeBtn.addEventListener(
+            "click",
+            () => {
+
+                if (!id) {
+
+                    alert(
+                        "Invalid patient ID."
+                    );
+
+                    return;
+                }
+
+
+                window.location.href =
+                    "discharge_patient.html?id=" +
+                    encodeURIComponent(id);
+
+            }
+        );
+
+    </script>
+
+</body>
 </html>

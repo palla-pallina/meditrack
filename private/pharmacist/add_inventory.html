@@ -11,14 +11,15 @@
 <a href="dashboard.html">Back to Dashboard</a>
 
 <h2>Medication Inventory</h2>
-
+<label>Required fields are marked with an asterisk &#x28;<span style="color:red;">*</span>&#41;</label>
+<br><br>
 <form id="inventoryForm">
 
 <fieldset>
 
     <legend><strong>Medication Information</strong></legend>
 
-    <label>Select Medication</label><br>
+    <label>Select Medication <span style="color:red;">*</span></label><br>
     <select id="medication_id" required>
         <option value="">Loading medications...</option>
     </select>
@@ -51,47 +52,47 @@
 
 <legend><strong>Inventory Details</strong></legend>
 
-<label>Lot Number</label><br>
+<label>Lot Number <span style="color:red;">*</span></label><br>
 <input type="text" id="lot_number" required>
 
 <br><br>
 
-<label>Batch Number</label><br>
+<label>Batch Number <span style="color:red;">*</span></label><br>
 <input type="text" id="batch_number">
 
 <br><br>
 
-<label>Manufacturer</label><br>
+<label>Manufacturer <span style="color:red;">*</span></label><br>
 <input type="text" id="manufacturer">
 
 <br><br>
 
-<label>Expiration Date</label><br>
+<label>Expiration Date <span style="color:red;">*</span></label><br>
 <input type="date" id="expiration_date" required>
 
 <br><br>
 
-<label>Purchase Date</label><br>
+<label>Purchase Date <span style="color:red;">*</span></label><br>
 <input type="date" id="purchase_date">
 
 <br><br>
 
-<label>Unit Cost</label><br>
+<label>Unit Cost <span style="color:red;">*</span></label><br>
 <input type="number" id="unit_cost" step="0.01" min="0">
 
 <br><br>
 
-<label>Selling Price</label><br>
+<label>Selling Price <span style="color:red;">*</span></label><br>
 <input type="number" id="selling_price" step="0.01" min="0">
 
 <br><br>
 
-<label>Quantity in Stock</label><br>
+<label>Quantity in Stock <span style="color:red;">*</span></label><br>
 <input type="number" id="quantity_in_stock" min="0" required>
 
 <br><br>
 
-<label>Reorder Level</label><br>
+<label>Reorder Level <span style="color:red;">*</span></label><br>
 <input
 type="number"
 id="reorder_level"
@@ -100,10 +101,17 @@ min="0">
 
 <br><br>
 
-<label>Storage Location</label><br>
-<input
-type="text"
-id="storage_location">
+<label>Storage Location <span style="color:red;">*</span></label><br>
+
+<select id="storage_location" required>
+    <option value="">-- Select Storage Location --</option>
+    <option value="Cabinet 1">Cabinet 1</option>
+    <option value="Cabinet 2">Cabinet 2</option>
+    <option value="Cabinet 3">Cabinet 3</option>
+    <option value="Cabinet 4">Cabinet 4</option>
+    <option value="Freezer">Freezer</option>
+    <option value="Refridgerator">Refridgerator</option>
+</select>
 
 </fieldset>
 
@@ -482,7 +490,7 @@ inventoryForm.addEventListener(
             // =================================================
 
             if (!result.success) {
-
+                
                 throw new Error(
                     result.message ||
                     "Failed to save inventory."
@@ -495,9 +503,26 @@ inventoryForm.addEventListener(
             // Inventory Successfully Created
             // =================================================
 
-            const inventoryId =
-                result.inventory_id;
+            // =================================================
+            // Display Success
+            // =================================================
 
+            status.textContent =
+                "Inventory successfully added.\n\n" +
+                JSON.stringify(
+                    result,
+                    null,
+                    4
+                );
+
+
+            // =================================================
+            // Redirect to Inventory List
+            // =================================================
+
+            setTimeout(() => {
+                window.location.href = "view_inventory.html";
+            }, 500);
 
             // =================================================
             // Write Activity Log

@@ -25,6 +25,60 @@ placeholder="Search patient or physician">
 Search
 </button>
 
+<div class="prescription-controls">
+
+    <label for="statusFilter">
+        Sort by Status:
+    </label>
+
+    <select id="statusFilter">
+
+        <option value="Active" selected>
+            Active
+        </option>
+
+        <option value="Done">
+            Done
+        </option>
+
+        <option value="On Hold">
+            On Hold
+        </option>
+
+    </select>
+
+
+    <label for="dateSort">
+        Date:
+    </label>
+
+    <select id="dateSort">
+
+        <option value="recent" selected>
+            Recent
+        </option>
+
+        <option value="oldest">
+            Oldest
+        </option>
+
+    </select>
+
+
+    <label for="physicianFilter">
+        Prescribing Physician:
+    </label>
+
+    <select id="physicianFilter">
+
+        <option value="All" selected>
+            All
+        </option>
+
+    </select>
+
+</div>
+
 <hr>
 
 <table border="1" cellpadding="8">
@@ -34,6 +88,7 @@ Search
 <tr>
 
 <th>Patient</th>
+<th>Prescribing Physician</th>
 <th>Status</th>
 <th>Medications</th>
 <th>Actions</th>
@@ -46,7 +101,7 @@ Search
 
 <tr>
 
-<td colspan="6">
+<td colspan="5">
 
 Loading...
 
@@ -60,8 +115,11 @@ Loading...
 
 <script type="module">
 
-import { initializeApp }
+import {
+    initializeApp
+}
 from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+
 
 import {
     getDatabase,
@@ -69,9 +127,11 @@ import {
     get,
     set,
     remove
-} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
+}
+from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
 
-const firebaseConfig={
+
+const firebaseConfig = {
     apiKey: "AIzaSyBRm3dUt3HreTquM_Ba9JfYmZD2CLVV0Gc",
     authDomain: "meditrack-59cca.firebaseapp.com",
     databaseURL: "https://meditrack-59cca-default-rtdb.asia-southeast1.firebasedatabase.app",
@@ -81,232 +141,691 @@ const firebaseConfig={
     appId: "1:656003988692:web:badfe96b7d830837a4cf41"
 };
 
-const app=initializeApp(firebaseConfig);
 
-const database=getDatabase(app);
+const app =
+    initializeApp(
+        firebaseConfig
+    );
 
-const table=document.getElementById("table");
 
-let prescriptions=[];
+const database =
+    getDatabase(app);
+
+
+const table =
+    document.getElementById(
+        "table"
+    );
+
+
+let prescriptions = [];
+
+
+// =====================================================
+// INITIAL LOAD
+// =====================================================
+
+document
+    .getElementById("statusFilter")
+    .addEventListener(
+        "change",
+        applyPrescriptionFilters
+    );
+
+
+document
+    .getElementById("dateSort")
+    .addEventListener(
+        "change",
+        applyPrescriptionFilters
+    );
+
+
+document
+    .getElementById("physicianFilter")
+    .addEventListener(
+        "change",
+        applyPrescriptionFilters
+    );
+
+
+document
+    .getElementById("searchBtn")
+    .addEventListener(
+        "click",
+        search
+    );
+
+
+document
+    .getElementById("search")
+    .addEventListener(
+        "keyup",
+        event => {
+
+            if (
+                event.key === "Enter"
+            ) {
+
+                search();
+
+            }
+
+        }
+    );
+
 
 loadPrescriptions();
 
-async function loadPrescriptions(){
+// =====================================================
+// LOAD PRESCRIPTIONS
+// =====================================================
 
-    const prescriptionSnap =
-    await get(ref(database, "prescriptions"));
 
-    const itemSnap =
-    await get(ref(database, "prescription_items"));
+function getTodayLocalDate() {
+    const now = new Date();
 
-    prescriptions = [];
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
 
-    if(!prescriptionSnap.exists()){
+    return `${year}-${month}-${day}`;
+}
 
-        renderTable([]);
+
+async function loadPrescriptions() {
+
+    const prescriptionsSnapshot = await get(
+        ref(database, "prescriptions")
+    );
+
+    const itemsSnapshot = await get(
+        ref(database, "prescription_items")
+    );
+
+    const prescriptionData =
+        prescriptionsSnapshot.exists()
+            ? prescriptionsSnapshot.val()
+            : {};
+
+    const prescriptionItems = itemsSnapshot.exists()
+        ? itemsSnapshot.val()
+        : {};
+
+    const groupedItems = {};
+
+    // Group prescription items by prescription_id
+    Object.entries(prescriptionItems).forEach(
+        ([itemId, item]) => {
+
+            const prescriptionId = item.prescription_id;
+
+            if (!prescriptionId) return;
+
+            if (!groupedItems[prescriptionId]) {
+                groupedItems[prescriptionId] = [];
+            }
+
+            groupedItems[prescriptionId].push({
+                ...item,
+                itemId
+            });
+        }
+    );
+
+    const today = getTodayLocalDate();
+
+    // Check expired prescriptions
+    for (
+        const [prescriptionId, prescription]
+        of Object.entries(prescriptionData)
+    ) {
+
+        const items = groupedItems[prescriptionId] || [];
+
+        if (items.length === 0) {
+            continue;
+        }
+
+        /*
+         * A prescription is considered Done only when
+         * ALL medication items have an end date and
+         * every end date is before today.
+         */
+        const isDone = items.every(item => {
+
+            if (!item.end_date) {
+                return false;
+            }
+
+            const endDate = String(item.end_date).substring(0, 10);
+
+            return endDate < today;
+        });
+
+        if (isDone && prescription.status !== "Done") {
+
+            await set(
+                ref(database, `prescriptions/${prescriptionId}/status`),
+                "Done"
+            );
+
+            prescription.status = "Done";
+        }
+    }
+
+    /*
+     * Build the final prescription list.
+     */
+    prescriptions = Object.entries(prescriptionData).map(
+        ([prescriptionId, prescription]) => {
+
+            const items =
+                groupedItems[prescriptionId] || [];
+
+            return {
+                id: prescriptionId,
+                ...prescription,
+                items
+            };
+
+        }
+    );
+
+    window.allPrescriptions = prescriptions;
+
+    populatePhysicianFilter();
+
+    applyPrescriptionFilters();
+}
+
+// =====================================================
+// POPULATE PHYSICIAN FILTER
+// =====================================================
+
+function populatePhysicianFilter() {
+
+    const select =
+        document.getElementById(
+            "physicianFilter"
+        );
+
+
+    // Keep "All"
+    select.innerHTML = `
+
+        <option value="All" selected>
+            All
+        </option>
+
+    `;
+
+
+    const physicians =
+        new Set();
+
+
+    prescriptions.forEach(
+        prescription => {
+
+            const physician =
+                String(
+                    prescription.physician_name ||
+                    ""
+                ).trim();
+
+
+            if (
+                physician
+            ) {
+
+                physicians.add(
+                    physician
+                );
+
+            }
+
+        }
+    );
+
+
+    const sortedPhysicians =
+        [...physicians].sort(
+            (a, b) =>
+                a.localeCompare(
+                    b
+                )
+        );
+
+
+    sortedPhysicians.forEach(
+        physician => {
+
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+
+            option.value =
+                physician;
+
+
+            option.textContent =
+                physician;
+
+
+            select.appendChild(
+                option
+            );
+
+        }
+    );
+
+}
+
+// =====================================================
+// FILTER AND SORT PRESCRIPTIONS
+// =====================================================
+
+function applyPrescriptionFilters() {
+
+    const statusFilter =
+        document.getElementById(
+            "statusFilter"
+        ).value;
+
+
+    const dateSort =
+        document.getElementById(
+            "dateSort"
+        ).value;
+
+
+    const physicianFilter =
+        document.getElementById(
+            "physicianFilter"
+        ).value;
+
+
+    const keyword =
+        document
+            .getElementById(
+                "search"
+            )
+            .value
+            .toLowerCase()
+            .trim();
+
+
+    let filtered =
+        [
+            ...prescriptions
+        ];
+
+
+    // =================================================
+    // SEARCH
+    // =================================================
+
+    if (
+        keyword
+    ) {
+
+        filtered =
+            filtered.filter(
+                prescription => {
+
+                    const patient =
+                        String(
+                            prescription.patient_name ||
+                            ""
+                        )
+                        .toLowerCase();
+
+
+                    const physician =
+                        String(
+                            prescription.physician_name ||
+                            ""
+                        )
+                        .toLowerCase();
+
+
+                    return (
+
+                        patient.includes(
+                            keyword
+                        )
+
+                        ||
+
+                        physician.includes(
+                            keyword
+                        )
+
+                    );
+
+                }
+            );
+
+    }
+
+
+    // =================================================
+    // STATUS FILTER
+    // =================================================
+
+    if (
+        statusFilter !== "All"
+    ) {
+
+        filtered =
+            filtered.filter(
+                prescription => {
+
+                    const status =
+                        String(
+                            prescription.status ||
+                            "Active"
+                        )
+                        .trim()
+                        .toLowerCase();
+
+
+                    return (
+                        status ===
+                        statusFilter
+                            .toLowerCase()
+                    );
+
+                }
+            );
+
+    }
+
+
+    // =================================================
+    // PHYSICIAN FILTER
+    // =================================================
+
+    if (
+        physicianFilter !== "All"
+    ) {
+
+        filtered =
+            filtered.filter(
+                prescription => {
+
+                    const physician =
+                        String(
+                            prescription.physician_name ||
+                            ""
+                        ).trim();
+
+
+                    return (
+                        physician ===
+                        physicianFilter
+                    );
+
+                }
+            );
+
+    }
+
+
+    // =================================================
+    // DATE SORT
+    // =================================================
+
+    filtered.sort(
+        (a, b) => {
+
+            const dateA =
+                new Date(
+                    a.created_at || 0
+                ).getTime();
+
+
+            const dateB =
+                new Date(
+                    b.created_at || 0
+                ).getTime();
+
+
+            if (
+                dateSort === "oldest"
+            ) {
+
+                return dateA - dateB;
+
+            }
+
+
+            // Default: Recent
+            return dateB - dateA;
+
+        }
+    );
+
+
+    renderTable(
+        filtered
+    );
+
+}
+
+// =====================================================
+// RENDER TABLE
+// =====================================================
+
+
+function renderTable(data) {
+
+    table.innerHTML = "";
+
+
+    if (data.length === 0) {
+
+        table.innerHTML = `
+
+            <tr>
+
+                <td colspan="5">
+
+                    No prescriptions found.
+
+                </td>
+
+            </tr>
+
+        `;
 
         return;
 
     }
 
-    const today =
-    new Date().toISOString().split("T")[0];
 
-    // Build map of prescription items
-    const itemsByPrescription = {};
+    data.forEach(
+        prescription => {
 
-    if(itemSnap.exists()){
+            const tr =
+                document.createElement(
+                    "tr"
+                );
 
-        itemSnap.forEach(child => {
 
-            const item = child.val();
+            /*
+             * Use the already-loaded items.
+             */
 
-            if(!itemsByPrescription[item.prescription_id]){
+            const count =
+                prescription.items
+                ? prescription.items.length
+                : 0;
 
-                itemsByPrescription[item.prescription_id] = [];
 
-            }
+            tr.innerHTML = `
 
-            itemsByPrescription[item.prescription_id].push({
-                id: child.key,
-                ...item
-            });
+                <td>
 
-        });
+                    ${
+                        prescription.patient_name ||
+                        "-"
+                    }
 
-    }
+                </td>
 
-    // Validate prescription status
-    for(const child of Object.entries(prescriptionSnap.val())){
 
-        const id = child[0];
-        const prescription = child[1];
+                <td>
 
-        const items =
-        itemsByPrescription[id] || [];
+                    ${
+                        prescription.physician_name ||
+                        "-"
+                    }
 
-        // Prescription is Done only if ALL items have end_date and end_date <= today
-        const isDone =
-            items.length > 0 &&
-            items.every(item =>
-                item.end_date &&
-                item.end_date <= today
+                </td>
+
+
+                <td>
+
+                    ${
+                        prescription.status ||
+                        "-"
+                    }
+
+                </td>
+
+
+                <td>
+
+                    ${count}
+
+                </td>
+
+
+                <td>
+
+                    <button
+                        class="viewBtn">
+
+                        View Details
+
+                    </button>
+
+
+                    <button
+                        class="editBtn">
+
+                        Edit
+
+                    </button>
+
+
+                    <button
+                        class="deleteBtn">
+
+                        Delete
+
+                    </button>
+
+                </td>
+
+            `;
+
+
+            /*
+             * EDIT
+             */
+
+            tr.querySelector(
+                ".editBtn"
+            )
+            .addEventListener(
+                "click",
+                () => {
+
+                    location.href =
+                        "edit_prescription.html?id=" +
+                        encodeURIComponent(
+                            prescription.id
+                        );
+
+                }
             );
 
-        // Update Firebase if status changed
-        if(isDone && prescription.status !== "Done"){
 
-            await set(
-                ref(database, "prescriptions/" + id + "/status"),
-                "Done"
+            /*
+             * VIEW DETAILS
+             */
+
+            tr.querySelector(
+                ".viewBtn"
+            )
+            .addEventListener(
+                "click",
+                () => {
+
+                    toggleDetails(
+                        tr,
+                        prescription
+                    );
+
+                }
             );
 
-            prescription.status = "Done";
+
+            /*
+             * DELETE
+             */
+
+            tr.querySelector(
+                ".deleteBtn"
+            )
+            .addEventListener(
+                "click",
+                () => {
+
+                    deletePrescription(
+                        prescription.id
+                    );
+
+                }
+            );
+
+
+            table.appendChild(
+                tr
+            );
 
         }
-
-        prescriptions.push({
-            id,
-            ...prescription
-        });
-
-    }
-
-    renderTable(prescriptions);
+    );
 
 }
 
-async function renderTable(data){
+// =====================================================
+// VIEW PRESCRIPTION DETAILS
+// =====================================================
 
-table.innerHTML="";
-
-if(data.length===0){
-
-table.innerHTML=
-
-"<tr><td colspan='6'>No prescriptions found.</td></tr>";
-
-return;
-
-}
-
-for(const prescription of data){
-
-const itemSnapshot=
-
-await get(
-
-ref(
-
-database,
-
-"prescription_items"
-
-)
-
-);
-
-let count=0;
-
-if(itemSnapshot.exists()){
-
-itemSnapshot.forEach(item=>{
-
-if(
-
-item.val().prescription_id===prescription.id
-
+function toggleDetails(
+    row,
+    prescription
 ){
 
-count++;
+    const next =
+        row.nextElementSibling;
 
-}
 
-});
-
-}
-
-const tr=document.createElement("tr");
-
-tr.innerHTML=`
-
-<td>${prescription.patient_name}</td>
-
-<td>${prescription.status}</td>
-
-<td>${count}</td>
-
-<td>
-
-<button class="viewBtn">
-
-View Details
-
-</button>
-
-<button class="editBtn">
-
-Edit
-
-</button>
-
-<button class="deleteBtn">
-
-Delete
-
-</button>
-
-</td>
-
-`;
-
-tr.querySelector(".editBtn")
-
-.addEventListener("click",()=>{
-
-location.href=
-
-"edit_prescription.html?id="+
-
-encodeURIComponent(
-
-prescription.id
-
-);
-
-});
-
-tr.querySelector(".viewBtn").addEventListener("click", () => {
-
-    toggleDetails(tr, prescription.id);
-
-});
-
-tr.querySelector(".deleteBtn")
-
-.addEventListener("click",()=>{
-
-deletePrescription(
-
-prescription.id
-
-);
-
-});
-
-table.appendChild(tr);
-
-}
-
-}
-
-async function toggleDetails(row, prescriptionId){
-
-    const next=row.nextElementSibling;
+    /*
+     * Close details if already open.
+     */
 
     if(
         next &&
-        next.classList.contains("detailsRow")
+        next.classList.contains(
+            "detailsRow"
+        )
     ){
 
         next.remove();
@@ -315,119 +834,188 @@ async function toggleDetails(row, prescriptionId){
 
     }
 
-    const snapshot=await get(
 
-        ref(database,"prescription_items")
+    let html = `
 
-    );
+        <table
+            border="1"
+            width="100%"
+        >
 
-    let html=`
+            <tr>
 
-    <table border="1" width="100%">
+                <th>
+                    Medication
+                </th>
 
-    <tr>
+                <th>
+                    Dosage
+                </th>
 
-        <th>Medication</th>
+                <th>
+                    Route
+                </th>
 
-        <th>Dosage</th>
+                <th>
+                    Frequency
+                </th>
 
-        <th>Route</th>
+                <th>
+                    Administration Times
+                </th>
 
-        <th>Frequency</th>
+                <th>
+                    Start
+                </th>
 
-        <th>Administration Times</th>
+                <th>
+                    End
+                </th>
 
-        <th>Start</th>
+                <th>
+                    Status
+                </th>
 
-        <th>End</th>
-
-        <th>Status</th>
-
-    </tr>
+            </tr>
 
     `;
 
-    if(snapshot.exists()){
 
-        snapshot.forEach(child=>{
+    /*
+     * Render the prescription items
+     * already loaded by loadPrescriptions().
+     */
 
-            const item=child.val();
+    if(
+        prescription.items &&
+        prescription.items.length > 0
+    ){
 
-            if(item.prescription_id===prescriptionId){
+        prescription.items.forEach(
+            item => {
 
-                html+=`
+                html += `
 
-                <tr>
+                    <tr>
 
-                    <td>${item.medication_name}</td>
+                        <td>
 
-                    <td>${item.dosage}</td>
+                            ${item.medication_name || "-"}
 
-                    <td>${item.route}</td>
+                        </td>
 
-                    <td>${item.frequency}</td>
 
-                    <td>
+                        <td>
 
-                    ${
+                            ${item.dosage || "-"}
 
-                        item.administration_times
+                        </td>
 
-                        ?
 
-                        item.administration_times.join("<br>")
+                        <td>
 
-                        :
+                            ${item.route || "-"}
 
-                        ""
+                        </td>
 
-                    }
 
-                    </td>
+                        <td>
 
-                    <td>
+                            ${item.frequency || "-"}
 
-                    ${item.start_date}
+                        </td>
 
-                    </td>
 
-                    <td>
+                        <td>
 
-                    ${item.end_date || "-"}
+                            ${
+                                item.administration_times
+                                ?
 
-                    </td>
+                                item.administration_times.join(
+                                    "<br>"
+                                )
 
-                    <td>
+                                :
 
-                    ${item.status}
+                                "-"
+                            }
 
-                    </td>
+                        </td>
 
-                </tr>
+
+                        <td>
+
+                            ${item.start_date || "-"}
+
+                        </td>
+
+
+                        <td>
+
+                            ${item.end_date || "-"}
+
+                        </td>
+
+
+                        <td>
+
+                            ${item.status || "-"}
+
+                        </td>
+
+                    </tr>
 
                 `;
 
             }
+        );
 
-        });
+    }
+    else{
+
+        html += `
+
+            <tr>
+
+                <td colspan="5">
+
+                    No prescription items found.
+
+                </td>
+
+            </tr>
+
+        `;
 
     }
 
-    html+="</table>";
 
-    const detailRow=document.createElement("tr");
+    html += `
+        </table>
+    `;
 
-    detailRow.className="detailsRow";
 
-    detailRow.innerHTML=`
+    const detailRow =
+        document.createElement(
+            "tr"
+        );
 
-    <td colspan="6">
 
-    ${html}
+    detailRow.className =
+        "detailsRow";
 
-    </td>
+
+    detailRow.innerHTML = `
+
+        <td colspan="5">
+
+            ${html}
+
+        </td>
 
     `;
+
 
     row.parentNode.insertBefore(
 
@@ -439,129 +1027,146 @@ async function toggleDetails(row, prescriptionId){
 
 }
 
-async function deletePrescription(id){
 
-if(
+// =====================================================
+// DELETE PRESCRIPTION
+// =====================================================
 
-!confirm(
-
-"Delete this prescription?"
-
-)
-
+async function deletePrescription(
+    id
 ){
 
-return;
+    if(
+        !confirm(
+            "Delete this prescription?"
+        )
+    ){
+
+        return;
+
+    }
+
+
+    try{
+
+        /*
+         * Find all items belonging
+         * to this prescription.
+         */
+
+        const itemSnapshot =
+            await get(
+                ref(
+                    database,
+                    "prescription_items"
+                )
+            );
+
+
+        if(
+            itemSnapshot.exists()
+        ){
+
+            const promises = [];
+
+
+            itemSnapshot.forEach(
+                item => {
+
+                    const data =
+                        item.val();
+
+
+                    if(
+                        data.prescription_id === id
+                    ){
+
+                        promises.push(
+
+                            remove(
+
+                                ref(
+
+                                    database,
+
+                                    "prescription_items/" +
+                                    item.key
+
+                                )
+
+                            )
+
+                        );
+
+                    }
+
+                }
+            );
+
+
+            await Promise.all(
+                promises
+            );
+
+        }
+
+
+        /*
+         * Delete the parent prescription.
+         */
+
+        await remove(
+
+            ref(
+
+                database,
+
+                "prescriptions/" +
+                id
+
+            )
+
+        );
+
+
+        alert(
+            "Prescription deleted."
+        );
+
+
+        loadPrescriptions();
+
+    }
+    catch(error){
+
+        console.error(
+            "Failed to delete prescription:",
+            error
+        );
+
+
+        alert(
+
+            "Failed to delete prescription:\n\n" +
+
+            error.message
+
+        );
+
+    }
 
 }
 
-const itemSnapshot=
+// =====================================================
+// SEARCH
+// =====================================================
 
-await get(
+function search() {
 
-ref(database,
-
-"prescription_items")
-
-);
-
-if(itemSnapshot.exists()){
-
-const promises=[];
-
-itemSnapshot.forEach(item=>{
-
-if(
-
-item.val().prescription_id===id
-
-){
-
-promises.push(
-
-remove(
-
-ref(
-
-database,
-
-"prescription_items/"+
-
-item.key
-
-)
-
-)
-
-);
+    applyPrescriptionFilters();
 
 }
 
-});
-
-await Promise.all(promises);
-
-}
-
-await remove(
-
-ref(
-
-database,
-
-"prescriptions/"+id
-
-)
-
-);
-
-alert("Prescription deleted.");
-
-loadPrescriptions();
-
-}
-
-document
-
-.getElementById("searchBtn")
-
-.addEventListener("click",search);
-
-document
-
-.getElementById("search")
-
-.addEventListener("keyup",search);
-
-function search(){
-
-const keyword=
-
-document
-
-.getElementById("search")
-
-.value
-
-.toLowerCase()
-
-.trim();
-
-const filtered=
-
-prescriptions.filter(p=>
-
-p.patient_name
-
-.toLowerCase()
-
-.includes(keyword)
-
-);
-
-renderTable(filtered);
-
-}
 
 </script>
 

@@ -1,11 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8">
+
 <title>Inventory Management</title>
 
-<link rel="stylesheet" href="stylesheets/view_inventory.css">
+<link
+    rel="stylesheet"
+    href="stylesheets/view_inventory.css"
+>
+
 </head>
+
 <body>
 
 <h2>Inventory Management</h2>
@@ -16,14 +24,13 @@
 <hr>
 
 <input
-type="text"
-id="search"
-placeholder="Search inventory">
+    type="text"
+    id="search"
+    placeholder="Search inventory"
+>
 
 <button id="searchBtn">
-
-Search
-
+    Search
 </button>
 
 <hr>
@@ -35,17 +42,11 @@ Search
 <tr>
 
 <th>Medication</th>
-
 <th>Lot No.</th>
-
 <th>Batch No.</th>
-
 <th>Expiration</th>
-
 <th>Quantity</th>
-
 <th>Location</th>
-
 <th>Actions</th>
 
 </tr>
@@ -57,9 +58,7 @@ Search
 <tr>
 
 <td colspan="7">
-
-Loading...
-
+    Loading...
 </td>
 
 </tr>
@@ -72,22 +71,26 @@ Loading...
 
 <pre id="status"></pre>
 
+
 <script type="module">
 
-import { initializeApp }
+import {
+    initializeApp
+}
 from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
 
+
 import {
-
-getDatabase,
-ref,
-get,
-remove
-
+    getDatabase,
+    ref,
+    get,
+    set,
+    remove
 }
 from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
 
-const firebaseConfig={
+
+const firebaseConfig = {
     apiKey: "AIzaSyBRm3dUt3HreTquM_Ba9JfYmZD2CLVV0Gc",
     authDomain: "meditrack-59cca.firebaseapp.com",
     databaseURL: "https://meditrack-59cca-default-rtdb.asia-southeast1.firebasedatabase.app",
@@ -97,245 +100,567 @@ const firebaseConfig={
     appId: "1:656003988692:web:badfe96b7d830837a4cf41"
 };
 
-const app=initializeApp(firebaseConfig);
 
-const database=getDatabase(app);
+const app = initializeApp(firebaseConfig);
 
-const table=document.getElementById("inventoryTable");
+const database = getDatabase(app);
 
-const status=document.getElementById("status");
+const table = document.getElementById("inventoryTable");
 
-const search=document.getElementById("search");
+const status = document.getElementById("status");
 
-let inventory=[];
+const search = document.getElementById("search");
+
+let inventory = [];
+
+
+// =====================================================
+// LOAD INVENTORY
+// =====================================================
 
 loadInventory();
 
-async function loadInventory(){
 
-try{
+async function loadInventory() {
 
-const snapshot=
+    try {
 
-await get(ref(database,"inventory"));
+        status.textContent = "Checking inventory...";
 
-inventory=[];
 
-if(snapshot.exists()){
+        const snapshot =
+            await get(
+                ref(database, "inventory")
+            );
 
-snapshot.forEach(child=>{
 
-inventory.push({
+        inventory = [];
 
-id:child.key,
 
-...child.val()
+        if (!snapshot.exists()) {
 
-});
+            renderTable([]);
 
-});
+            status.textContent =
+                "No inventory found.";
 
-}
+            return;
 
-renderTable(inventory);
+        }
 
-}
-catch(error){
 
-status.textContent=
+        /*
+         * First check for expired medicines.
+         */
+        await moveExpiredInventory(snapshot);
 
-error.message;
 
-}
+        /*
+         * Reload inventory after expired
+         * medicines have been moved.
+         */
+        const updatedSnapshot =
+            await get(
+                ref(database, "inventory")
+            );
 
-}
 
-function renderTable(data){
+        inventory = [];
 
-table.innerHTML="";
 
-if(data.length===0){
+        if (updatedSnapshot.exists()) {
 
-table.innerHTML=
+            updatedSnapshot.forEach(child => {
 
-"<tr><td colspan='7'>No inventory found.</td></tr>";
+                inventory.push({
 
-return;
+                    id: child.key,
 
-}
+                    ...child.val()
 
-data.forEach(item=>{
+                });
 
-const tr=document.createElement("tr");
+            });
 
-tr.innerHTML=`
+        }
 
-<td>
 
-${item.generic_name}
+        renderTable(inventory);
 
-${item.brand_name ? `(${item.brand_name})` : ""}
 
-<br>
+        status.textContent =
+            "Inventory loaded successfully.";
 
-<small>${item.form}</small>
 
-</td>
+    }
+    catch (error) {
 
-<td>${item.lot_number}</td>
+        console.error(
+            "Error loading inventory:",
+            error
+        );
 
-<td>${item.batch_number || "-"}</td>
+        status.textContent =
+            error.message;
 
-<td>${item.expiration_date}</td>
-
-<td>${item.quantity_in_stock}</td>
-
-<td>${item.storage_location || "-"}</td>
-
-<td>
-
-<button
-class="editBtn"
-data-id="${item.id}">
-
-Edit
-
-</button>
-
-<button
-class="deleteBtn"
-data-id="${item.id}">
-
-Delete
-
-</button>
-
-</td>
-
-`;
-
-table.appendChild(tr);
-
-tr.querySelector(".editBtn")
-.addEventListener("click",function(){
-
-window.location.href=
-
-`edit_inventory.html?id=${this.dataset.id}`;
-
-});
-
-tr.querySelector(".deleteBtn")
-.addEventListener("click",function(){
-
-deleteInventory(this.dataset.id);
-
-});
-
-});
+    }
 
 }
 
-async function deleteInventory(id){
 
-if(!confirm(
+// =====================================================
+// MOVE EXPIRED INVENTORY
+// =====================================================
 
-"Delete this inventory?"
+async function moveExpiredInventory(snapshot) {
 
-)){
+    /*
+     * Get today's date in YYYY-MM-DD format.
+     *
+     * This is intentionally based on the local
+     * browser date because expiration_date is
+     * normally stored as a date without a time.
+     */
 
-return;
+    const today =
+        new Date();
+
+
+    const todayString =
+        today.getFullYear()
+        + "-"
+        + String(
+            today.getMonth() + 1
+        ).padStart(2, "0")
+        + "-"
+        + String(
+            today.getDate()
+        ).padStart(2, "0");
+
+
+    let expiredCount = 0;
+
+
+    for (
+        const child of snapshot.ref ?
+        snapshotToArray(snapshot) :
+        []
+    ) {
+
+        const id = child.key;
+
+        const item = child.val();
+
+
+        /*
+         * Skip records that do not have
+         * an expiration date.
+         */
+
+        if (
+            !item ||
+            !item.expiration_date
+        ) {
+
+            continue;
+
+        }
+
+
+        /*
+         * Normalize the expiration date.
+         *
+         * Handles values such as:
+         * 2026-09-10
+         */
+
+        const expirationDate =
+            String(
+                item.expiration_date
+            ).substring(0, 10);
+
+
+        /*
+         * If expiration date is before today,
+         * move the inventory record.
+         *
+         * Medicine expiring TODAY is still considered
+         * active for today.
+         */
+
+        if (
+            expirationDate < todayString
+        ) {
+
+            try {
+
+                const expiredRecord = {
+
+                    ...item,
+
+                    original_inventory_id: id,
+
+                    expired_at:
+                        new Date().toISOString(),
+
+                    expiration_status:
+                        "Expired"
+
+                };
+
+
+                /*
+                 * Save the expired medicine
+                 * under expired_inventory.
+                 *
+                 * Same ID is used to prevent
+                 * duplicate records.
+                 */
+
+                await set(
+                    ref(
+                        database,
+                        "expired_inventory/" + id
+                    ),
+                    expiredRecord
+                );
+
+
+                /*
+                 * Remove it from active inventory.
+                 */
+
+                await remove(
+                    ref(
+                        database,
+                        "inventory/" + id
+                    )
+                );
+
+
+                expiredCount++;
+
+
+            }
+            catch (error) {
+
+                console.error(
+                    "Failed to move expired inventory:",
+                    id,
+                    error
+                );
+
+            }
+
+        }
+
+    }
+
+
+    if (expiredCount > 0) {
+
+        status.textContent =
+            expiredCount
+            + " expired medicine"
+            + (
+                expiredCount > 1
+                    ? "s"
+                    : ""
+            )
+            + " moved to expired inventory.";
+
+    }
 
 }
 
-try{
 
-await remove(
+// =====================================================
+// CONVERT FIREBASE SNAPSHOT TO ARRAY
+// =====================================================
 
-ref(database,"inventory/"+id)
+function snapshotToArray(snapshot) {
 
+    const records = [];
+
+
+    snapshot.forEach(child => {
+
+        records.push(child);
+
+    });
+
+
+    return records;
+
+}
+
+
+// =====================================================
+// RENDER INVENTORY TABLE
+// =====================================================
+
+function renderTable(data) {
+
+    table.innerHTML = "";
+
+
+    if (data.length === 0) {
+
+        table.innerHTML =
+            "<tr>" +
+            "<td colspan='7'>" +
+            "No inventory found." +
+            "</td>" +
+            "</tr>";
+
+        return;
+
+    }
+
+
+    data.forEach(item => {
+
+        const tr =
+            document.createElement("tr");
+
+
+        tr.innerHTML = `
+
+            <td>
+
+                ${item.generic_name || "-"}
+
+                ${
+                    item.brand_name
+                        ? `(${item.brand_name})`
+                        : ""
+                }
+
+                <br>
+
+                <small>
+                    ${item.form || "-"}
+                </small>
+
+            </td>
+
+
+            <td>
+                ${item.lot_number || "-"}
+            </td>
+
+
+            <td>
+                ${item.batch_number || "-"}
+            </td>
+
+
+            <td>
+                ${item.expiration_date || "-"}
+            </td>
+
+
+            <td>
+                ${item.quantity_in_stock ?? 0}
+            </td>
+
+
+            <td>
+                ${item.storage_location || "-"}
+            </td>
+
+
+            <td>
+
+                <button
+                    class="editBtn"
+                    data-id="${item.id}"
+                >
+                    Edit
+                </button>
+
+
+                <button
+                    class="deleteBtn"
+                    data-id="${item.id}"
+                >
+                    Delete
+                </button>
+
+            </td>
+
+        `;
+
+
+        table.appendChild(tr);
+
+
+        /*
+         * EDIT
+         */
+
+        tr.querySelector(".editBtn")
+            .addEventListener(
+                "click",
+                function () {
+
+                    window.location.href =
+                        `edit_inventory.html?id=${this.dataset.id}`;
+
+                }
+            );
+
+
+        /*
+         * DELETE
+         */
+
+        tr.querySelector(".deleteBtn")
+            .addEventListener(
+                "click",
+                function () {
+
+                    deleteInventory(
+                        this.dataset.id
+                    );
+
+                }
+            );
+
+    });
+
+}
+
+
+// =====================================================
+// DELETE INVENTORY
+// =====================================================
+
+async function deleteInventory(id) {
+
+    if (
+        !confirm(
+            "Delete this inventory?"
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    try {
+
+        await remove(
+            ref(
+                database,
+                "inventory/" + id
+            )
+        );
+
+
+        status.textContent =
+            "Inventory deleted.";
+
+
+        loadInventory();
+
+    }
+    catch (error) {
+
+        console.error(
+            "Delete error:",
+            error
+        );
+
+        status.textContent =
+            error.message;
+
+    }
+
+}
+
+
+// =====================================================
+// SEARCH
+// =====================================================
+
+search.addEventListener(
+    "input",
+    function () {
+
+        const keyword =
+            this.value
+                .toLowerCase()
+                .trim();
+
+
+        const filtered =
+            inventory.filter(
+                item =>
+
+                    (item.generic_name || "")
+                        .toLowerCase()
+                        .includes(keyword)
+
+                    ||
+
+                    (item.brand_name || "")
+                        .toLowerCase()
+                        .includes(keyword)
+
+                    ||
+
+                    (item.lot_number || "")
+                        .toLowerCase()
+                        .includes(keyword)
+
+                    ||
+
+                    (item.batch_number || "")
+                        .toLowerCase()
+                        .includes(keyword)
+
+                    ||
+
+                    (item.storage_location || "")
+                        .toLowerCase()
+                        .includes(keyword)
+
+                    ||
+
+                    (item.form || "")
+                        .toLowerCase()
+                        .includes(keyword)
+
+            );
+
+
+        renderTable(filtered);
+
+    }
 );
 
-status.textContent=
 
-"Inventory deleted.";
-
-loadInventory();
-
-}
-catch(error){
-
-status.textContent=
-
-error.message;
-
-}
-
-}
-
-search.addEventListener("input",function(){
-
-const keyword=this.value
-.toLowerCase()
-.trim();
-
-const filtered=
-
-inventory.filter(item=>
-
-(item.generic_name || "")
-.toLowerCase()
-.includes(keyword)
-
-||
-
-(item.brand_name || "")
-.toLowerCase()
-.includes(keyword)
-
-||
-
-(item.lot_number || "")
-.toLowerCase()
-.includes(keyword)
-
-||
-
-(item.batch_number || "")
-.toLowerCase()
-.includes(keyword)
-
-||
-
-(item.storage_location || "")
-.toLowerCase()
-.includes(keyword)
-
-||
-
-(item.form || "")
-.toLowerCase()
-.includes(keyword)
-
-);
-
-renderTable(filtered);
-
-});
+// =====================================================
+// SEARCH BUTTON
+// =====================================================
 
 document
-.getElementById("searchBtn")
-.addEventListener("click",()=>{
+    .getElementById("searchBtn")
+    .addEventListener(
+        "click",
+        () => {
 
-search.dispatchEvent(
+            search.dispatchEvent(
+                new Event("input")
+            );
 
-new Event("input")
-
-);
-
-});
+        }
+    );
 
 </script>
 
 </body>
+
 </html>

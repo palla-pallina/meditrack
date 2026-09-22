@@ -518,6 +518,7 @@ import {
     getDatabase,
     ref,
     get,
+    set,
     remove
 }
 from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
@@ -676,6 +677,209 @@ function escapeHtml(
 }
 
 
+/* =====================================================
+   CHECK AND MOVE EXPIRED INVENTORY
+===================================================== */
+
+async function moveExpiredInventory() {
+
+    try {
+
+        const snapshot =
+            await get(
+                ref(
+                    db,
+                    "inventory"
+                )
+            );
+
+
+        if(
+            !snapshot.exists()
+        ){
+
+            return 0;
+
+        }
+
+
+        /*
+         * Get today's date as YYYY-MM-DD.
+         */
+
+        const today =
+            new Date();
+
+
+        const todayString =
+            today.getFullYear()
+            + "-"
+            + String(
+                today.getMonth() + 1
+            ).padStart(2, "0")
+            + "-"
+            + String(
+                today.getDate()
+            ).padStart(2, "0");
+
+
+        let expiredCount = 0;
+
+
+        /*
+         * Firebase operations are collected first
+         * and executed together.
+         */
+
+        const operations = [];
+
+
+        snapshot.forEach(
+            child => {
+
+                const inventoryId =
+                    child.key;
+
+
+                const item =
+                    child.val();
+
+
+                /*
+                 * Ignore invalid records.
+                 */
+
+                if(
+                    !item ||
+                    !item.expiration_date
+                ){
+
+                    return;
+
+                }
+
+
+                /*
+                 * Normalize the expiration date.
+                 *
+                 * Example:
+                 * 2026-09-10
+                 */
+
+                const expirationDate =
+                    String(
+                        item.expiration_date
+                    ).substring(
+                        0,
+                        10
+                    );
+
+
+                /*
+                 * Only medicines that expired
+                 * BEFORE today are moved.
+                 *
+                 * Medicine expiring today remains
+                 * in active inventory for today.
+                 */
+
+                if(
+                    expirationDate < todayString
+                ){
+
+                    const expiredRecord = {
+
+                        ...item,
+
+                        original_inventory_id:
+                            inventoryId,
+
+                        expiration_status:
+                            "Expired",
+
+                        expired_at:
+                            new Date().toISOString()
+
+                    };
+
+
+                    /*
+                     * Move to expired_inventory.
+                     */
+
+                    operations.push(
+
+                        set(
+                            ref(
+                                db,
+                                "expired_inventory/" +
+                                inventoryId
+                            ),
+                            expiredRecord
+                        )
+
+                        .then(
+                            () =>
+
+                                remove(
+                                    ref(
+                                        db,
+                                        "inventory/" +
+                                        inventoryId
+                                    )
+                                )
+
+                        )
+
+                        .then(
+                            () => {
+
+                                expiredCount++;
+
+                            }
+                        )
+
+                    );
+
+                }
+
+            }
+        );
+
+
+        /*
+         * Wait for all expired records
+         * to be moved.
+         */
+
+        await Promise.all(
+            operations
+        );
+
+
+        return expiredCount;
+
+
+    }
+    catch(error){
+
+        console.error(
+            "Expired inventory check failed:",
+            error
+        );
+
+
+        /*
+         * Do not stop the dispenser dashboard
+         * from loading if the expiration check
+         * encounters an error.
+         */
+
+        return 0;
+
+    }
+
+}
 
 /* =====================================================
    STATUS
@@ -1293,12 +1497,24 @@ async function loadCompartments(){
     table.innerHTML =
         "";
 
-
     carouselData =
         [];
 
 
     try{
+
+        /*
+         * Check inventory for expired medicines
+         * BEFORE loading the dispenser data.
+         */
+
+        const expiredCount =
+            await moveExpiredInventory();
+
+
+        /*
+         * Continue loading the dispenser dashboard.
+         */
 
         const snapshot =
             await get(
@@ -1311,8 +1527,8 @@ async function loadCompartments(){
 
 
         /*
-           Always display Carousel 1-3.
-        */
+         * Always display Carousel 1-3.
+         */
 
         for(
             let i = 1;
@@ -1398,12 +1614,39 @@ async function loadCompartments(){
         );
 
 
-        message.className =
-            "message success";
+        /*
+         * Show the appropriate dashboard message.
+         */
+
+        if(
+            expiredCount > 0
+        ){
+
+            message.className =
+                "message warning";
 
 
-        message.textContent =
-            "Dispenser information loaded successfully.";
+            message.textContent =
+                expiredCount +
+                " expired medicine" +
+                (
+                    expiredCount > 1
+                        ? "s"
+                        : ""
+                ) +
+                " moved to expired inventory.";
+
+        }
+        else{
+
+            message.className =
+                "message success";
+
+
+            message.textContent =
+                "Dispenser information loaded successfully.";
+
+        }
 
     }
     catch(error){
@@ -1424,8 +1667,6 @@ async function loadCompartments(){
     }
 
 }
-
-
 
 /* =====================================================
    SUMMARY

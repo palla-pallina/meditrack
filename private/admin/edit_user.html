@@ -11,11 +11,12 @@
 <button onclick="history.back()">Back</button>
 
 <h2>Edit User Account</h2>
+<label>Required fields are marked with an asterisk &#x28;<span style="color:red;">*</span>&#41;</label>
 
 <form id="editUserForm">
 
     <p>
-        <label>First Name</label><br>
+        <label>First Name <span style="color:red;">*</span></label><br> 
         <input type="text" id="firstName" required>
     </p>
 
@@ -25,7 +26,7 @@
     </p>
 
     <p>
-        <label>Last Name</label><br>
+        <label>Last Name <span style="color:red;">*</span></label><br> 
         <input type="text" id="lastName" required>
     </p>
 
@@ -35,12 +36,12 @@
     </p>
 
     <p>
-        <label>Email Address</label><br>
+        <label>Email Address <span style="color:red;">*</span></label><br> 
         <input type="email" id="email" disabled>
     </p>
 
     <p>
-        <label>User Type</label><br>
+        <label>User Type <span style="color:red;">*</span></label><br>
 
         <select id="userType">
 

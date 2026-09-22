@@ -99,207 +99,78 @@
         </table>
 
     </section>
-        <script type="module">
+    
+    <script type="module">
 
-        import { requireRole }
-        from "../../public/auth_guard.js";
+    import { requireRole }
+    from "../../public/auth_guard.js";
 
-        requireRole("Clerk");
+    requireRole("Clerk");
+
+    import {
+        getAuth,
+        signOut
+    } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+
+    const auth = getAuth();
+
+    document.getElementById("logoutBtn")
+    .addEventListener("click", async () => {
+
+        try {
+
+            await signOut(auth);
+
+            window.location.href = "../../public/login.html";
+
+        }
+        catch(error) {
+
+            alert(error.message);
+
+        }
+
+    });
+    </script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
 
         import {
-            getAuth,
-            signOut
-        } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+            getDatabase,
+            ref,
+            get,
+            remove
+        } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
 
-        const auth = getAuth();
+        const firebaseConfig = {
+            apiKey: "AIzaSyBRm3dUt3HreTquM_Ba9JfYmZD2CLVV0Gc",
+            authDomain: "meditrack-59cca.firebaseapp.com",
+            databaseURL: "https://meditrack-59cca-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "meditrack-59cca",
+            storageBucket: "meditrack-59cca.firebasestorage.app",
+            messagingSenderId: "656003988692",
+            appId: "1:656003988692:web:badfe96b7d830837a4cf41"
+        };
 
-        document.getElementById("logoutBtn")
-        .addEventListener("click", async () => {
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
 
-            try {
+        const table = document.querySelector("#patientTable");
+        let patients = [];
+        const refreshBtn = document.querySelector("#refreshBtn");
 
-                await signOut(auth);
+        function loadPatients() {
 
-                window.location.href = "../../public/login.html";
+            table.innerHTML = "";
 
-            }
-            catch(error) {
+            get(ref(db, "patients"))
 
-                alert(error.message);
+            .then((snapshot) => {
 
-            }
+                patients = [];
 
-        });
-        </script>
-
-        <script type="module">
-            import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
-
-            import {
-                getDatabase,
-                ref,
-                get,
-                remove
-            } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
-
-            const firebaseConfig = {
-                apiKey: "AIzaSyBRm3dUt3HreTquM_Ba9JfYmZD2CLVV0Gc",
-                authDomain: "meditrack-59cca.firebaseapp.com",
-                databaseURL: "https://meditrack-59cca-default-rtdb.asia-southeast1.firebasedatabase.app",
-                projectId: "meditrack-59cca",
-                storageBucket: "meditrack-59cca.firebasestorage.app",
-                messagingSenderId: "656003988692",
-                appId: "1:656003988692:web:badfe96b7d830837a4cf41"
-            };
-
-            const app = initializeApp(firebaseConfig);
-            const db = getDatabase(app);
-
-            const table = document.querySelector("#patientTable");
-            let patients = [];
-            const refreshBtn = document.querySelector("#refreshBtn");
-
-            function loadPatients() {
-
-                table.innerHTML = "";
-
-                get(ref(db, "patients"))
-
-                .then((snapshot) => {
-
-                    patients = [];
-
-                    if (!snapshot.exists()) {
-
-                        table.innerHTML = `
-                            <tr>
-                                <td colspan="7">
-                                    No patient records found.
-                                </td>
-                            </tr>
-                        `;
-
-                        return;
-                    }
-
-                    snapshot.forEach((child) => {
-
-                        patients.push({
-
-                            id: child.key,
-
-                            ...child.val()
-
-                        });
-
-                    });
-
-                    renderPatients();
-
-                })
-
-                .catch((error)=>{
-
-                    alert(error.message);
-
-                });
-
-            }
-
-            function renderPatients() {
-
-                table.innerHTML = "";
-
-                const status =
-                    document.getElementById("statusFilter").value;
-
-                const sort =
-                    document.getElementById("sortOrder").value;
-
-                const search =
-                    document
-                    .getElementById("searchInput")
-                    .value
-                    .trim()
-                    .toLowerCase();
-
-                let filtered = [...patients];
-
-                // Filter
-
-                if(status !== "All"){
-
-                    filtered = filtered.filter(patient =>
-                        patient.admissionStatus === status
-                    );
-
-                }
-
-                if(search){
-
-                    filtered = filtered.filter(patient => {
-
-                        const fullName = [
-                            patient.firstName,
-                            patient.middleName,
-                            patient.lastName,
-                            patient.suffix
-                        ]
-                        .filter(Boolean)
-                        .join(" ")
-                        .toLowerCase();
-
-                        return (
-
-                            fullName.includes(search) ||
-
-                            (patient.admissionNumber || "")
-                                .toLowerCase()
-                                .includes(search) ||
-
-                            (patient.contactNumber || "")
-                                .toLowerCase()
-                                .includes(search) ||
-
-                            (patient.city || "")
-                                .toLowerCase()
-                                .includes(search) ||
-
-                            (patient.chiefComplaint || "")
-                                .toLowerCase()
-                                .includes(search)
-
-                        );
-
-                    });
-
-                }
-
-                // Sort
-
-                filtered.sort((a,b)=>{
-
-                    const dateA =
-                        new Date(
-                            (a.createdAt || "") + ""
-                        );
-
-                    const dateB =
-                        new Date(
-                            (b.createdAt || "") + ""
-                        );
-
-                    if(sort === "recent"){
-
-                        return dateB - dateA;
-
-                    }
-
-                    return dateA - dateB;
-
-                });
-
-                if(filtered.length === 0){
+                if (!snapshot.exists()) {
 
                     table.innerHTML = `
                         <tr>
@@ -310,97 +181,227 @@
                     `;
 
                     return;
+                }
+
+                snapshot.forEach((child) => {
+
+                    patients.push({
+
+                        id: child.key,
+
+                        ...child.val()
+
+                    });
+
+                });
+
+                renderPatients();
+
+            })
+
+            .catch((error)=>{
+
+                alert(error.message);
+
+            });
+
+        }
+
+        function renderPatients() {
+
+            table.innerHTML = "";
+
+            const status =
+                document.getElementById("statusFilter").value;
+
+            const sort =
+                document.getElementById("sortOrder").value;
+
+            const search =
+                document
+                .getElementById("searchInput")
+                .value
+                .trim()
+                .toLowerCase();
+
+            let filtered = [...patients];
+
+            // Filter
+
+            if(status !== "All"){
+
+                filtered = filtered.filter(patient =>
+                    patient.admissionStatus === status
+                );
+
+            }
+
+            if(search){
+
+                filtered = filtered.filter(patient => {
+
+                    const fullName = [
+                        patient.firstName,
+                        patient.middleName,
+                        patient.lastName,
+                        patient.suffix
+                    ]
+                    .filter(Boolean)
+                    .join(" ")
+                    .toLowerCase();
+
+                    return (
+
+                        fullName.includes(search) ||
+
+                        (patient.admissionNumber || "")
+                            .toLowerCase()
+                            .includes(search) ||
+
+                        (patient.contactNumber || "")
+                            .toLowerCase()
+                            .includes(search) ||
+
+                        (patient.city || "")
+                            .toLowerCase()
+                            .includes(search) ||
+
+                        (patient.chiefComplaint || "")
+                            .toLowerCase()
+                            .includes(search)
+
+                    );
+
+                });
+
+            }
+
+            // Sort
+
+            filtered.sort((a,b)=>{
+
+                const dateA =
+                    new Date(
+                        (a.createdAt || "") + ""
+                    );
+
+                const dateB =
+                    new Date(
+                        (b.createdAt || "") + ""
+                    );
+
+                if(sort === "recent"){
+
+                    return dateB - dateA;
 
                 }
 
-                filtered.forEach(patient=>{
+                return dateA - dateB;
 
-                    table.innerHTML += `
+            });
 
+            if(filtered.length === 0){
+
+                table.innerHTML = `
                     <tr>
-
-                        <td>${patient.firstName ?? ""} ${patient.middleName ?? ""} ${patient.lastName ?? ""}</td>
-
-                        <td>${patient.age ?? ""}</td>
-
-                        <td>${patient.sex ?? ""}</td>
-
-                        <td>${patient.contactNumber ?? ""}</td>
-
-                        <td>${patient.city ?? ""}</td>
-
-                        <td>${patient.chiefComplaint ?? ""}</td>
-
-                        <td>
-
-                            <a href="view_patient.html?id=${patient.id}">
-                                <button class="action-btn view">
-                                    View
-                                </button>
-                            </a>
-
-                            <a href="edit_patient.html?id=${patient.id}">
-                                <button class="action-btn edit">
-                                    Edit
-                                </button>
-                            </a>
-
-                            <button
-                                class="action-btn delete deleteBtn"
-                                data-id="${patient.id}">
-                                Delete
-                            </button>
-
+                        <td colspan="7">
+                            No patient records found.
                         </td>
-
                     </tr>
+                `;
 
-                    `;
-
-                });
-
-                addDeleteListeners();
+                return;
 
             }
 
-            function addDeleteListeners() {
-                const deleteButtons = document.querySelectorAll(".deleteBtn");
+            filtered.forEach(patient=>{
 
-                deleteButtons.forEach((button) => {
-                    button.addEventListener("click", () => {
-                        const id = button.dataset.id;
+                table.innerHTML += `
 
-                        if (!confirm("Delete this patient record?")) {
-                            return;
-                        }
+                <tr>
 
-                        remove(ref(db, "patients/" + id))
-                            .then(() => {
-                                alert("Patient record deleted successfully.");
-                                loadPatients(); // Refresh the table
-                            })
-                            .catch((error) => {
-                                alert(error.message);
-                            });
-                    });
+                    <td>${patient.firstName ?? ""} ${patient.middleName ?? ""} ${patient.lastName ?? ""}</td>
+
+                    <td>${patient.age ?? ""}</td>
+
+                    <td>${patient.sex ?? ""}</td>
+
+                    <td>${patient.contactNumber ?? ""}</td>
+
+                    <td>${patient.city ?? ""}</td>
+
+                    <td>${patient.chiefComplaint ?? ""}</td>
+
+                    <td>
+
+                        <a href="view_patient.html?id=${patient.id}">
+                            <button class="action-btn view">
+                                View
+                            </button>
+                        </a>
+
+                        <a href="edit_patient.html?id=${patient.id}">
+                            <button class="action-btn edit">
+                                Edit
+                            </button>
+                        </a>
+
+                        <button
+                            class="action-btn delete deleteBtn"
+                            data-id="${patient.id}">
+                            Delete
+                        </button>
+
+                    </td>
+
+                </tr>
+
+                `;
+
+            });
+
+            addDeleteListeners();
+
+        }
+
+        function addDeleteListeners() {
+            const deleteButtons = document.querySelectorAll(".deleteBtn");
+
+            deleteButtons.forEach((button) => {
+                button.addEventListener("click", () => {
+                    const id = button.dataset.id;
+
+                    if (!confirm("Delete this patient record?")) {
+                        return;
+                    }
+
+                    remove(ref(db, "patients/" + id))
+                        .then(() => {
+                            alert("Patient record deleted successfully.");
+                            loadPatients(); // Refresh the table
+                        })
+                        .catch((error) => {
+                            alert(error.message);
+                        });
                 });
-            }
+            });
+        }
 
-            refreshBtn.addEventListener("click", loadPatients);
-            loadPatients();
+        refreshBtn.addEventListener("click", loadPatients);
+        loadPatients();
 
-            document
-            .getElementById("searchInput")
-            .addEventListener("input", renderPatients);
+        document
+        .getElementById("searchInput")
+        .addEventListener("input", renderPatients);
 
-            document
-            .getElementById("statusFilter")
-            .addEventListener("change", renderPatients);
+        document
+        .getElementById("statusFilter")
+        .addEventListener("change", renderPatients);
 
-            document
-            .getElementById("sortOrder")
-            .addEventListener("change", renderPatients);
-        </script>
+        document
+        .getElementById("sortOrder")
+        .addEventListener("change", renderPatients);
+    </script>
 
 </main>
 

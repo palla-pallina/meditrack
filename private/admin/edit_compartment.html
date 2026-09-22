@@ -10,6 +10,7 @@
 <a href="dispenser_dashboard.html">Dashboard</a><br><br>
 
 <h2>Edit Dispenser Compartment</h2>
+<label>Required fields are marked with an asterisk &#x28;<span style="color:red;">*</span>&#41;</label>
 
 <form id="editForm">
 
@@ -20,13 +21,13 @@
 <label>Compartment ID</label><br>
 <input type="text" id="compartmentId" readonly><br><br>
 
-<label>Compartment Name *</label><br>
+<label>Compartment Name <span style="color:red;">*</span></label><br>
 <input
 type="text"
 id="compartmentName"
 required><br><br>
 
-<label>Medication *</label><br>
+<label>Medication <span style="color:red;">*</span></label><br>
 <select id="medicationSelect" required>
 <option value="">Loading...</option>
 </select><br><br>
@@ -49,7 +50,7 @@ type="text"
 id="form"
 readonly><br><br>
 
-<label>Inventory Amount *</label><br>
+<label>Inventory Amount <span style="color:red;">*</span></label><br>
 <input
 type="number"
 id="inventoryAmount"

@@ -11,7 +11,8 @@
 <a href="dashboard.html">Back to Dashboard</a>
 
 <h2>Edit Prescription</h2>
-
+<label>Required fields are marked with an asterisk &#x28;<span style="color:red;">*</span>&#41;</label>
+<br><br>
 <form id="editForm">
 
 <fieldset>
@@ -35,17 +36,17 @@
 <fieldset>
 <legend><strong>Add Medication</strong></legend>
 
-<label>Medication</label><br>
+<label>Medication <span style="color:red;">*</span></label><br>
 <select id="newMedication" style="width:100%"></select>
 
 <br><br>
 
-<label>Dosage</label><br>
+<label>Dosage <span style="color:red;">*</span></label><br>
 <input type="text" id="newDosage" style="width:100%">
 
 <br><br>
 
-<label>Route</label><br>
+<label>Route <span style="color:red;">*</span></label><br>
 <select id="newRoute" style="width:100%">
 <option value="oral">Oral</option>
 <option value="iv">IV</option>
@@ -57,7 +58,7 @@
 
 <br><br>
 
-<label>Frequency</label><br>
+<label>Frequency <span style="color:red;">*</span></label><br>
 <select id="newFrequency" style="width:100%">
 <option value="OD">OD (once daily)</option>
 <option value="OD HS">OD HS (once daily at bedtime)</option>
@@ -70,12 +71,12 @@
 
 <br><br>
 
-<label>Start Date</label><br>
+<label>Start Date <span style="color:red;">*</span></label><br>
 <input type="date" id="newStartDate" style="width:100%">
 
 <br><br>
 
-<label>End Date</label><br>
+<label>End Date <span style="color:red;">*</span></label><br>
 <input type="date" id="newEndDate" style="width:100%">
 
 <br><br>

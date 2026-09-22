@@ -1,669 +1,2154 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <title>MediTrack | Patient Admission Form</title>
 
-        <link rel="stylesheet" href="stylesheets/add_patient.css">
-    </head>
+<head>
+    <meta charset="UTF-8">
+    <title>MediTrack | Patient Admission Form</title>
 
-    <body>
+    <link rel="stylesheet" href="stylesheets/add_patient.css">
 
-    <a href="view_records.html">Dashboard</a><br>
-    
-    <h2>Patient Admission Form</h2>
-
-    <form action="save_patient.php" method="POST" enctype="multipart/form-data">
-
-        <fieldset>
-            <!-- ========================= -->
-            <!-- ADMISSION INFORMATION -->
-            <!-- ========================= -->
-            <label>Admission Number</label><br>
-
-            <input type="text" id="admissionNumber" readonly><br><br>
-
-            <label>Date of Admission <span style="color:red;">*</span></label><br>
-            <input type="date" id="admissionDate" readonly required><br><br>
-
-            <label>Time of Admission <span style="color:red;">*</span></label><br>
-            <input type="time" id="admissionTime" required><br><br>
-
-<label>Ward <span style="color:red;">*</span></label><br> <select id="assignedArea" required> <option value="">Select Ward</option> <option value="OB-GYN and Surgery Ward (4th floor)"> OB-GYN and Surgery Ward (4th floor) </option> <option value="Medical Ward (5th floor)"> Medical Ward (5th floor) </option> <option value="Critical Care Ward (5th floor)"> Critical Care Ward (5th floor) </option> <option value="General Ward (6th floor)"> General Ward (6th floor) </option> </select><br><br> <label>Room <span style="color:red;">*</span></label><br> <select id="room" required disabled> <option value="">Select ward first</option> </select><br><br> <small id="roomStatus" style="color:#555;"></small><br><br>
-
-            <label>Assigned Doctor <span style="color:red;">*</span></label><br>
-            <select id="assignedDoctor" required>
-                <option value="">Select Doctor</option>
-            </select>
-            <br><br>
-
-        </fieldset><br>
-
-        <!-- ========================= -->
-        <!-- PATIENT INFORMATION -->
-        <!-- ========================= -->
-        <fieldset>
-            <legend><strong>Patient Information</strong></legend>
-
-            <label>First Name <span style="color:red;">*</span></label><br>
-            <input type="text" id="fName" required><br><br>
-
-            <label>Middle Name</label><br>
-            <input type="text" id="mName"><br><br>
-
-            <label>Last Name <span style="color:red;">*</span></label><br>
-            <input type="text" id="lName" required><br><br>
-
-            <label>Suffix</label><br>
-            <input type="text" id="suffix"><br><br>
-
-            <label>Date of Birth <span style="color:red;">*</span></label><br>
-            <input type="date" id="dob" required><br><br>
-
-            <label>Age</label><br>
-            <input type="number" id="age" readonly><br><br>
-
-            <label>Sex <span style="color:red;">*</span></label><br>
-            <select id="sex" required>
-                <option value="">Select</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Intersex">Intersex</option>
-                <option value="Other">Other</option>
-            </select><br><br>
-
-            <label>Contact Number <span style="color:red;">*</span></label><br>
-            <input type="tel" id="contactNumber" placeholder="(+63) 09xx xxx xxxx" pattern="09[0-9]{9}" required><br><br>
-
-            <label>Occupation<br>
-            <input type="text" id="occupation"><br><br>
-
-            <label>Marital Status<br>
-            <select id="marital_status">
-                <option value="">Select</option>
-                <option value="Single">Single</option>
-                <option value="Married">Married</option>
-                <option value="Widowed">Widowed</option>
-                <option value="Separated">Separated</option>
-                <option value="Divorced">Divorced</option>
-            </select><br><br>
-
-            <label>Patient ID Picture <span style="color:red;">*</span></label><br>
-            <input type="file" id="id_pic" accept="image/*"><br><br>
-
-            <label>Occupying Individual <span style="color:red;">*</span></label><br>
-            <input type="text" id="occupyingIndiv" required><br><br>
-        </fieldset>
-
-        <br>
-
-        <!-- ========================= -->
-        <!-- ADDRESS -->
-        <!-- ========================= -->
-        <fieldset>
-            <legend><strong>Address</strong></legend>
-
-            <label>Street / House No. <span style="color:red;">*</span></label><br>
-            <input type="text" id="streetNo" required><br><br>
-
-            <label>Barangay <span style="color:red;">*</span></label><br>
-            <input type="text" id="barangay" required><br><br>
-
-            <label>City / Municipality <span style="color:red;">*</span></label><br>
-            <input type="text" id="city" required><br><br>
-
-            <label>Province <span style="color:red;">*</span></label><br>
-            <input type="text" id="province" required><br><br>
-
-        </fieldset>
-
-        <br>
-
-        <!-- ========================= -->
-        <!-- CHIEF COMPLAINT -->
-        <!-- ========================= -->
-        <fieldset>
-            <legend><strong>Chief Complaint</strong></legend>
-
-            <label>Chief Complaint <span style="color:red;">*</span></label><br>
-            <textarea id="chiefComplaint" rows="4" cols="60" required></textarea><br><br>
-
-            <label>Symptoms <span style="color:red;">*</span></label><br>
-            <textarea id="symptoms" rows="4" cols="60" required></textarea><br><br>
-
-            <label>Medication Used Before Admission <span style="color:red;">*</span></label><br>
-            <textarea id="medicationUsed" rows="4" cols="60" required></textarea>
-        </fieldset>
-
-        <br>
-
-        <!-- ========================= -->
-        <!-- FAMILY HISTORY -->
-        <!-- ========================= -->
-        <fieldset>
-            <legend><strong>Family History of Illness</strong></legend>
-
-            <label>Condition Type</label><br>
-            <select id="family_condition_type">
-                <option value="">Select</option>
-                <option value="Chronic Disease">Chronic Disease</option>
-                <option value="Infectious Disease">Infectious Disease</option>
-                <option value="Mental Health">Mental Health</option>
-                <option value="Metabolic">Metabolic</option>
-                <option value="Cardiovascular">Cardiovascular</option>
-                <option value="Respiratory">Respiratory</option>
-                <option value="Neurologic">Neurologic</option>
-                <option value="Oncologic">Oncologic</option>
-                <option value="Other">Other</option>
-            </select><br><br>
-
-            <label>Notes</label><br>
-            <textarea id="family_history_note" rows="5" cols="60"></textarea>
-        </fieldset>
-
-        <br>
-
-        <!-- ========================= -->
-        <!-- HISTORY OF PRESENT ILLNESS -->
-        <!-- ========================= -->
-        <fieldset>
-            <legend><strong>History of Present Illness</strong></legend>
-
-            <label>Onset</label><br>
-            <textarea id="onsetDesc" rows="3" cols="60"></textarea><br><br>
-
-            <label>Provocation</label><br>
-            <textarea id="provocationDesc" rows="3" cols="60"></textarea><br><br>
-
-            <label>Quality</label><br>
-            <textarea id="qualityDescn" rows="3" cols="60"></textarea><br><br>
-
-            <label>Radiation</label><br>
-            <textarea id="radiationDesc" rows="3" cols="60"></textarea><br><br>
-
-            <label>Severity (0-10)</label><br>
-            <input type="number" id="severityScore" min="0" max="10" default="0"><br><br>
-
-        </fieldset>
-
-        <br>
-
-        <!-- ========================= -->
-        <!-- PAST ILLNESS -->
-        <!-- ========================= -->
-        <fieldset>
-            <legend><strong>Past Illness</strong></legend>
-
-            <label>Condition Name</label><br>
-            <input type="text" id="conditionName"><br><br>
-
-            <label>Condition Type</label><br>
-            <select id="conditionType">
-                <option value="">Select</option>
-                <option value="Chronic Disease">Chronic Disease</option>
-                <option value="Infectious Disease">Infectious Disease</option>
-                <option value="Mental Health">Mental Health</option>
-                <option value="Metabolic">Metabolic</option>
-                <option value="Cardiovascular">Cardiovascular</option>
-                <option value="Respiratory">Respiratory</option>
-                <option value="Neurologic">Neurologic</option>
-                <option value="Oncologic">Oncologic</option>
-                <option value="Other">Other</option>
-            </select><br><br>
-
-            <label>Notes</label><br>
-            <textarea id="pmhNote" rows="5" cols="60"></textarea>
-
-        </fieldset>
-
-        <br>
-
-        <!-- ========================= -->
-        <!-- MEDICATION HISTORY -->
-        <!-- ========================= -->
-        <fieldset>
-            <legend><strong>Past Medications</strong></legend>
-
-            <label>Medication Name</label><br>
-            <input type="text" id="medicationName"><br><br>
-
-            <label>Dosage</label><br>
-            <input type="text" id="dose"><br><br>
-
-            <label>Frequency</label><br>
-            <input type="text" id="frequency"><br><br>
-
-            <label>Route</label><br>
-            <select id="route">
-                <option value="">Select</option>
-                <option value="Oral">Oral</option>
-                <option value="IV">IV</option>
-                <option value="IM">IM</option>
-                <option value="Subcutaneous">Subcutaneous</option>
-                <option value="Topical">Topical</option>
-                <option value="Inhalation">Inhalation</option>
-            </select><br><br>
-
-            <label>Status</label><br>
-            <select id="status">
-                <option value="">Select</option>
-                <option value="Active">Active</option>
-                <option value="Stopped">Stopped</option>
-                <option value="Paused">Paused</option>
-                <option value="Completed">Completed</option>
-            </select><br><br>
-
-            <label>Reason for Medication</label><br>
-            <textarea id="prescriptionReason" rows="4" cols="60"></textarea>
-
-        </fieldset>
-        
-        <br>
-
-        <button type="submit" id="insert">Submit</button>
-        <button type="reset"id="clear">Clear</button>
-        <button onclick="history.back()">Back</button>
-        </form>
-
-        <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyBRm3dUt3HreTquM_Ba9JfYmZD2CLVV0Gc",
-            authDomain: "meditrack-59cca.firebaseapp.com",
-            databaseURL: "https://meditrack-59cca-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "meditrack-59cca",
-            storageBucket: "meditrack-59cca.firebasestorage.app",
-            messagingSenderId: "656003988692",
-            appId: "1:656003988692:web:badfe96b7d830837a4cf41"
-        };
-
-        import {getDatabase, ref, push, set, get}
-        from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js" 
-
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase();
-
-        var insertBtn = document.querySelector("#insert");
-        var clearBtn = document.querySelector("#clear");
-
-        // Admission Status
-        var admissionNumber = document.querySelector("#admissionNumber");
-        var admissionDate = document.querySelector("#admissionDate");
-        var admissionTime = document.querySelector("#admissionTime");
-        const assignedDoctor = document.getElementById("assignedDoctor");
-        const admissionStatus = document.getElementById("admissionStatus");
-        const expectedDischargeDate = document.getElementById("expectedDischargeDate");
-        const dischargeStatus = document.getElementById("dischargeStatus");
-        const dischargeDate = document.getElementById("dischargeDate");
-        const dischargeTime = document.getElementById("dischargeTime");
-        const dischargeType = document.getElementById("dischargeType");
-        const dischargeSummary = document.getElementById("dischargeSummary");
-        const dischargedBy = document.getElementById("dischargedBy");
-        const wardRooms = { 
-            "OB-GYN and Surgery Ward (4th floor)": ["401", "402", "403", "404", "405", "406", "407"], 
-            
-            "Medical Ward (5th floor)": [ "501", "502", "503", "504", "505", "506", "507", "508", "509", "510", "511", "512", "513", "514", "515" ], 
-            
-            "Critical Care Ward (5th floor)": [ "516", "517", "518", "519", "520" ], 
-            
-            "General Ward (6th floor)": [ "601", "602", "603", "604", "605", "606", "607", "608", "609", "610", "611", "612", "613", "614", "615" ] };
-
-        // Patient Information
-
-        var assignedArea = document.querySelector("#assignedArea");
-        var room = document.querySelector("#room");
-        var firstName = document.querySelector("#fName");
-        var middleName = document.querySelector("#mName");
-        var lastName = document.querySelector("#lName");
-        var suffix = document.querySelector("#suffix");
-        var dob = document.querySelector("#dob");
-        var age = document.querySelector("#age");
-        var sex = document.querySelector("#sex");
-        var contactNumber = document.querySelector("#contactNumber");
-        var occupation = document.querySelector("#occupation");
-        var maritalStatus = document.querySelector("#marital_status");
-        var idPic = document.querySelector("#id_pic");
-        var occupyingIndiv = document.querySelector("#occupyingIndiv");
-
-        // Address
-        var streetNo = document.querySelector("#streetNo");
-        var barangay = document.querySelector("#barangay");
-        var city = document.querySelector("#city");
-        var province = document.querySelector("#province");
-
-        // Chief Complaint
-        var chiefComplaint = document.querySelector("#chiefComplaint");
-        var symptoms = document.querySelector("#symptoms");
-        var medicationUsed = document.querySelector("#medicationUsed");
-
-        // Family History
-        var familyConditionType = document.querySelector("#family_condition_type");
-        var familyHistoryNote = document.querySelector("#family_history_note");
-
-        // History of Present Illness
-        var onsetDesc = document.querySelector("#onsetDesc");
-        var provocationDesc = document.querySelector("#provocationDesc");
-        var qualityDescn = document.querySelector("#qualityDescn");
-        var radiationDesc = document.querySelector("#radiationDesc");
-        var severityScore = document.querySelector("#severityScore");
-
-        // Past Illness
-        var conditionName = document.querySelector("#conditionName");
-        var conditionType = document.querySelector("#conditionType");
-        var pmhNote = document.querySelector("#pmhNote");
-
-        // Medication History
-        var medicationName = document.querySelector("#medicationName");
-        var dose = document.querySelector("#dose");
-        var frequency = document.querySelector("#frequency");
-        var route = document.querySelector("#route");
-        var status = document.querySelector("#status");
-        var prescriptionReason = document.querySelector("#prescriptionReason");
-
-        async function loadDoctors() {
-
-            const snapshot = await get(ref(db, "users"));
-
-            assignedDoctor.innerHTML =
-                '<option value="">Select Doctor</option>';
-
-            if (!snapshot.exists()) return;
-
-            snapshot.forEach(child => {
-
-                const user = child.val();
-
-                if (user.userType !== "Doctor") return;
-
-                const option = document.createElement("option");
-
-                option.value = child.key;
-
-                option.dataset.name =
-                    "Dr. " +
-                    user.firstName +
-                    " " +
-                    user.lastName;
-
-                option.textContent = option.dataset.name;
-
-                assignedDoctor.appendChild(option);
-
-            });
-
+    <style>
+        .repeatable-section {
+            margin-bottom: 20px;
         }
 
-        loadDoctors();
-
-        async function getOccupiedRooms(ward) {
-
-            const snapshot = await get(ref(db, "patients"));
-            const occupied = [];
-
-            if (snapshot.exists()) {
-
-                snapshot.forEach(child => {
-
-                    const patient = child.val();
-
-                    // Only block rooms of currently admitted patients
-                    if (
-                        patient.assignedArea === ward &&
-                        patient.room &&
-                        patient.admissionStatus === "Admitted"
-                    ) {
-                        occupied.push(patient.room);
-                    }
-
-                });
-
-            }
-
-            return occupied;
-
+        .repeat-entry {
+            background: #f8fafc;
+            border: 1px solid #d9e2ec;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            position: relative;
         }
 
-        async function populateRooms() {
-
-            const ward = assignedArea.value;
-
-            room.innerHTML = "";
-
-            if (!ward) {
-
-                room.disabled = true;
-
-                room.innerHTML = '<option value="">Select ward first</option>';
-
-                return;
-
-            }
-
-            const allRooms = wardRooms[ward] || [];
-
-            const occupiedRooms = await getOccupiedRooms(ward);
-
-            const availableRooms = allRooms.filter(
-                r => !occupiedRooms.includes(r)
-            );
-
-            room.disabled = false;
-
-            if (availableRooms.length === 0) {
-
-                room.innerHTML = '<option value="">No available rooms</option>';
-
-                document.getElementById("roomStatus").textContent =
-                    "All rooms in this ward are currently occupied.";
-
-                return;
-
-            }
-
-            room.innerHTML = '<option value="">Select Room</option>';
-
-            availableRooms.forEach(r => {
-
-                const option = document.createElement("option");
-
-                option.value = r;
-
-                option.textContent = `Room ${r}`;
-
-                room.appendChild(option);
-
-            });
-
-            document.getElementById("roomStatus").textContent =
-                `${availableRooms.length} room(s) available`;
-
+        .repeat-entry h4 {
+            margin-top: 0;
+            margin-bottom: 15px;
         }
 
-        assignedArea.addEventListener("change", populateRooms);
+        .entry-number {
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
 
-        function computeAge() {
-        if (!dob.value) {
-            age.value = "";
+        .remove-entry {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 7px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .remove-entry:hover {
+            background: #b02a37;
+        }
+
+        .add-entry-btn {
+            background: #1976d2;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+
+        .add-entry-btn:hover {
+            background: #125ca1;
+        }
+
+        .entry-limit {
+            color: #666;
+            font-size: 13px;
+            margin-left: 8px;
+        }
+
+        .empty-message {
+            color: #777;
+            font-style: italic;
+        }
+    </style>
+</head>
+
+<body>
+
+<a href="view_records.html">Dashboard</a><br>
+
+<h2>Patient Admission Form</h2>
+<label>Required fields are marked with an asterisk &#x28;<span style="color:red;">*</span>&#41;</label>
+
+<form id="patientForm" style="padding-top:20px;">
+
+    <!-- ========================= -->
+    <!-- ADMISSION INFORMATION -->
+    <!-- ========================= -->
+
+    <fieldset>
+
+        <legend>
+            <strong>Admission Information</strong>
+        </legend>
+
+        <label>Admission Number</label><br>
+        <input type="text" id="admissionNumber" readonly>
+        <br><br>
+
+        <label>Date of Admission <span style="color:red;">*</span></label><br>
+        <input type="date" id="admissionDate" readonly required>
+        <br><br>
+
+        <label>Time of Admission <span style="color:red;">*</span></label><br>
+        <input type="time" id="admissionTime" required>
+        <br><br>
+
+        <label>Ward <span style="color:red;">*</span></label><br>
+
+        <select id="assignedArea" required>
+            <option value="">Select Ward</option>
+            <option value="OB-GYN and Surgery Ward (4th floor)">
+                OB-GYN and Surgery Ward (4th floor)
+            </option>
+            <option value="Medical Ward (5th floor)">
+                Medical Ward (5th floor)
+            </option>
+            <option value="Critical Care Ward (5th floor)">
+                Critical Care Ward (5th floor)
+            </option>
+            <option value="General Ward (6th floor)">
+                General Ward (6th floor)
+            </option>
+        </select>
+
+        <br><br>
+
+        <label>Room <span style="color:red;">*</span></label><br>
+
+        <select id="room" required disabled>
+            <option value="">Select ward first</option>
+        </select>
+
+        <br><br>
+
+        <small id="roomStatus" style="color:#555;"></small>
+
+        <br><br>
+
+        <label>Assigned Doctor <span style="color:red;">*</span></label><br>
+
+        <select id="assignedDoctor" required>
+            <option value="">Select Doctor</option>
+        </select>
+
+        <br><br>
+
+    </fieldset>
+
+    <br>
+
+
+    <!-- ========================= -->
+    <!-- PATIENT INFORMATION -->
+    <!-- ========================= -->
+
+    <fieldset>
+
+        <legend>
+            <strong>Patient Information</strong>
+        </legend>
+
+        <label>First Name <span style="color:red;">*</span></label><br>
+        <input type="text" id="fName" required>
+        <br><br>
+
+        <label>Middle Name</label><br>
+        <input type="text" id="mName">
+        <br><br>
+
+        <label>Last Name <span style="color:red;">*</span></label><br>
+        <input type="text" id="lName" required>
+        <br><br>
+
+        <label>Suffix</label><br>
+        <input type="text" id="suffix">
+        <br><br>
+
+        <label>Date of Birth <span style="color:red;">*</span></label><br>
+        <input type="date" id="dob" required>
+        <br><br>
+
+        <label>Age</label><br>
+        <input type="number" id="age" readonly>
+        <br><br>
+
+        <label>Sex <span style="color:red;">*</span></label><br>
+
+        <select id="sex" required>
+            <option value="">Select</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Intersex">Intersex</option>
+            <option value="Other">Other</option>
+        </select>
+
+        <br><br>
+
+        <label>Contact Number <span style="color:red;">*</span></label><br>
+
+        <input
+            type="tel"
+            id="contactNumber"
+            placeholder="09xxxxxxxxx"
+            pattern="09[0-9]{9}"
+            required
+        >
+
+        <br><br>
+
+        <label>Occupation</label><br>
+        <input type="text" id="occupation">
+        <br><br>
+
+        <label>Marital Status</label><br>
+
+        <select id="marital_status">
+            <option value="">Select</option>
+            <option value="Single">Single</option>
+            <option value="Married">Married</option>
+            <option value="Widowed">Widowed</option>
+            <option value="Separated">Separated</option>
+            <option value="Divorced">Divorced</option>
+        </select>
+
+        <br><br>
+
+        <label>Patient ID Picture <span style="color:red;">*</span></label><br>
+        <input type="file" id="id_pic" accept="image/*">
+        <br><br>
+
+        <label>Occupying Individual <span style="color:red;">*</span></label><br>
+        <input type="text" id="occupyingIndiv" required>
+        <br><br>
+
+    </fieldset>
+
+    <br>
+
+
+    <!-- ========================= -->
+    <!-- ADDRESS -->
+    <!-- ========================= -->
+
+    <fieldset>
+
+        <legend>
+            <strong>Address</strong>
+        </legend>
+
+        <label>Street / House No. <span style="color:red;">*</span></label><br>
+        <input type="text" id="streetNo" required>
+        <br><br>
+
+        <label>Barangay <span style="color:red;">*</span></label><br>
+        <input type="text" id="barangay" required>
+        <br><br>
+
+        <label>City / Municipality <span style="color:red;">*</span></label><br>
+        <input type="text" id="city" required>
+        <br><br>
+
+        <label>Province <span style="color:red;">*</span></label><br>
+        <input type="text" id="province" required>
+        <br><br>
+
+    </fieldset>
+
+    <br>
+
+
+    <!-- ========================= -->
+    <!-- CHIEF COMPLAINT -->
+    <!-- ========================= -->
+
+    <fieldset>
+
+        <legend>
+            <strong>Chief Complaint</strong>
+        </legend>
+
+        <label>Chief Complaint <span style="color:red;">*</span></label><br>
+
+        <textarea
+            id="chiefComplaint"
+            rows="4"
+            cols="60"
+            required
+        ></textarea>
+
+        <br><br>
+
+        <label>Symptoms <span style="color:red;">*</span></label><br>
+
+        <textarea
+            id="symptoms"
+            rows="4"
+            cols="60"
+            required
+        ></textarea>
+
+        <br><br>
+
+        <label>Medication Used Before Admission <span style="color:red;">*</span></label><br>
+
+        <textarea
+            id="medicationUsed"
+            rows="4"
+            cols="60"
+            required
+        ></textarea>
+
+    </fieldset>
+
+    <br>
+
+
+    <!-- ===================================================== -->
+    <!-- FAMILY / GUARDIAN INFORMATION -->
+    <!-- MAXIMUM 6 ENTRIES -->
+    <!-- ===================================================== -->
+
+    <fieldset>
+
+        <legend>
+            <strong>Family / Guardian Information</strong>
+        </legend>
+
+        <p>
+            You may add up to 6 family members or guardians.
+        </p>
+
+        <div id="familyGuardianContainer"></div>
+
+        <button
+            type="button"
+            class="add-entry-btn"
+            id="addFamilyGuardian"
+        >
+            + Add Family / Guardian
+        </button>
+
+        <span class="entry-limit">
+            Maximum 6 entries
+        </span>
+
+    </fieldset>
+
+    <br>
+
+
+    <!-- ===================================================== -->
+    <!-- HISTORY OF PRESENT ILLNESS -->
+    <!-- MAXIMUM 6 ENTRIES -->
+    <!-- ===================================================== -->
+
+    <fieldset>
+
+        <legend>
+            <strong>History of Present Illness</strong>
+        </legend>
+
+        <p>
+            You may add up to 6 history entries.
+        </p>
+
+        <div id="hpiContainer"></div>
+
+        <button
+            type="button"
+            class="add-entry-btn"
+            id="addHPI"
+        >
+            + Add HPI Entry
+        </button>
+
+        <span class="entry-limit">
+            Maximum 6 entries
+        </span>
+
+    </fieldset>
+
+    <br>
+
+
+    <!-- ===================================================== -->
+    <!-- PAST ILLNESS -->
+    <!-- MAXIMUM 6 ENTRIES -->
+    <!-- ===================================================== -->
+
+    <fieldset>
+
+        <legend>
+            <strong>Past Illness</strong>
+        </legend>
+
+        <p>
+            You may add up to 6 past illness entries.
+        </p>
+
+        <div id="pastIllnessContainer"></div>
+
+        <button
+            type="button"
+            class="add-entry-btn"
+            id="addPastIllness"
+        >
+            + Add Past Illness
+        </button>
+
+        <span class="entry-limit">
+            Maximum 6 entries
+        </span>
+
+    </fieldset>
+
+    <br>
+
+
+    <!-- ===================================================== -->
+    <!-- PAST MEDICATIONS -->
+    <!-- MAXIMUM 6 ENTRIES -->
+    <!-- ===================================================== -->
+
+    <fieldset>
+
+        <legend>
+            <strong>Past Medications</strong>
+        </legend>
+
+        <p>
+            You may add up to 6 medication entries.
+        </p>
+
+        <div id="pastMedicationContainer"></div>
+
+        <button
+            type="button"
+            class="add-entry-btn"
+            id="addPastMedication"
+        >
+            + Add Past Medication
+        </button>
+
+        <span class="entry-limit">
+            Maximum 6 entries
+        </span>
+
+    </fieldset>
+
+    <br>
+
+
+    <!-- ========================= -->
+    <!-- FORM BUTTONS -->
+    <!-- ========================= -->
+
+    <button type="submit" id="insert">
+        Submit
+    </button>
+
+    <button type="reset" id="clear">
+        Clear
+    </button>
+
+    <button type="button" onclick="history.back()">
+        Back
+    </button>
+
+</form>
+
+
+<script type="module">
+
+import {
+    initializeApp
+}
+from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+
+import {
+    getDatabase,
+    ref,
+    push,
+    set,
+    get
+}
+from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
+
+
+/* =========================================================
+   FIREBASE
+========================================================= */
+
+const firebaseConfig = {
+    apiKey: "AIzaSyBRm3dUt3HreTquM_Ba9JfYmZD2CLVV0Gc",
+    authDomain: "meditrack-59cca.firebaseapp.com",
+    databaseURL: "https://meditrack-59cca-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "meditrack-59cca",
+    storageBucket: "meditrack-59cca.firebasestorage.app",
+    messagingSenderId: "656003988692",
+    appId: "1:656003988692:web:badfe96b7d830837a4cf41"
+};
+
+const app = initializeApp(firebaseConfig);
+
+const db = getDatabase();
+
+
+/* =========================================================
+   BASIC ELEMENTS
+========================================================= */
+
+const form = document.querySelector("#patientForm");
+
+const admissionNumber =
+    document.querySelector("#admissionNumber");
+
+const admissionDate =
+    document.querySelector("#admissionDate");
+
+const admissionTime =
+    document.querySelector("#admissionTime");
+
+const assignedArea =
+    document.querySelector("#assignedArea");
+
+const room =
+    document.querySelector("#room");
+
+const assignedDoctor =
+    document.querySelector("#assignedDoctor");
+
+const firstName =
+    document.querySelector("#fName");
+
+const middleName =
+    document.querySelector("#mName");
+
+const lastName =
+    document.querySelector("#lName");
+
+const suffix =
+    document.querySelector("#suffix");
+
+const dob =
+    document.querySelector("#dob");
+
+/* =========================================================
+   DOB - PREVENT FUTURE DATES
+========================================================= */
+
+function setDOBMaximumDate() {
+
+    const today = new Date();
+
+    const year =
+        today.getFullYear();
+
+    const month =
+        String(today.getMonth() + 1)
+        .padStart(2, "0");
+
+    const day =
+        String(today.getDate())
+        .padStart(2, "0");
+
+    const todayString =
+        `${year}-${month}-${day}`;
+
+    dob.max = todayString;
+
+}
+
+setDOBMaximumDate();
+const age =
+    document.querySelector("#age");
+
+const sex =
+    document.querySelector("#sex");
+
+const contactNumber =
+    document.querySelector("#contactNumber");
+
+const occupation =
+    document.querySelector("#occupation");
+
+const maritalStatus =
+    document.querySelector("#marital_status");
+
+const occupyingIndiv =
+    document.querySelector("#occupyingIndiv");
+
+const streetNo =
+    document.querySelector("#streetNo");
+
+const barangay =
+    document.querySelector("#barangay");
+
+const city =
+    document.querySelector("#city");
+
+const province =
+    document.querySelector("#province");
+
+const chiefComplaint =
+    document.querySelector("#chiefComplaint");
+
+const symptoms =
+    document.querySelector("#symptoms");
+
+const medicationUsed =
+    document.querySelector("#medicationUsed");
+
+
+/* =========================================================
+   WARD / ROOM
+========================================================= */
+
+const wardRooms = {
+
+    "OB-GYN and Surgery Ward (4th floor)": [
+        "401",
+        "402",
+        "403",
+        "404",
+        "405",
+        "406",
+        "407"
+    ],
+
+    "Medical Ward (5th floor)": [
+        "501",
+        "502",
+        "503",
+        "504",
+        "505",
+        "506",
+        "507",
+        "508",
+        "509",
+        "510",
+        "511",
+        "512",
+        "513",
+        "514",
+        "515"
+    ],
+
+    "Critical Care Ward (5th floor)": [
+        "516",
+        "517",
+        "518",
+        "519",
+        "520"
+    ],
+
+    "General Ward (6th floor)": [
+        "601",
+        "602",
+        "603",
+        "604",
+        "605",
+        "606",
+        "607",
+        "608",
+        "609",
+        "610",
+        "611",
+        "612",
+        "613",
+        "614",
+        "615"
+    ]
+
+};
+
+
+/* =========================================================
+   LOAD DOCTORS
+========================================================= */
+
+async function loadDoctors() {
+
+    try {
+
+        const snapshot =
+            await get(ref(db, "users"));
+
+        assignedDoctor.innerHTML =
+            '<option value="">Select Doctor</option>';
+
+        if (!snapshot.exists()) {
             return;
         }
 
-        const birthDate = new Date(dob.value);
-        const today = new Date();
+        snapshot.forEach(child => {
 
-        let years = today.getFullYear() - birthDate.getFullYear();
+            const user = child.val();
 
-        const monthDifference = today.getMonth() - birthDate.getMonth();
+            if (user.userType !== "Doctor") {
+                return;
+            }
 
-        if (
-            monthDifference < 0 ||
-            (monthDifference === 0 && today.getDate() < birthDate.getDate())
-        ) {
-            years--;
-        }
+            const option =
+                document.createElement("option");
 
-        age.value = years;
-        }
-        dob.addEventListener("change", computeAge);
+            option.value = child.key;
 
-        async function initializeAdmission(){
+            option.dataset.name =
+                "Dr. " +
+                (user.firstName || "") +
+                " " +
+                (user.lastName || "");
 
-            const now = new Date();
+            option.textContent =
+                option.dataset.name;
 
-            admissionDate.value =
-                now.toISOString().split("T")[0];
+            assignedDoctor.appendChild(option);
 
-            admissionTime.value =
-                now.toTimeString().slice(0,5);
+        });
 
-            // Count existing admissions
+    } catch (error) {
 
-            const snapshot =
-            await get(ref(db,"patients"));
+        console.error(
+            "Error loading doctors:",
+            error
+        );
 
-            let count = 1;
+    }
 
-            if (snapshot.exists()) {
+}
 
-                count = 0;
+loadDoctors();
 
-                snapshot.forEach(() => {
-                    count++;
-                });
 
-                count++;
+/* =========================================================
+   GET OCCUPIED ROOMS
+========================================================= */
+
+async function getOccupiedRooms(ward) {
+
+    const snapshot =
+        await get(ref(db, "patients"));
+
+    const occupied = [];
+
+    if (snapshot.exists()) {
+
+        snapshot.forEach(child => {
+
+            const patient = child.val();
+
+            if (
+                patient.assignedArea === ward &&
+                patient.room &&
+                patient.admissionStatus === "Admitted"
+            ) {
+
+                occupied.push(patient.room);
 
             }
 
-            const yyyy =
-            now.getFullYear();
-
-            const mm =
-            String(now.getMonth()+1)
-            .padStart(2,"0");
-
-            const dd =
-            String(now.getDate())
-            .padStart(2,"0");
-
-            admissionNumber.value =
-            `ADM-${yyyy}${mm}${dd}-${String(count).padStart(4,"0")}`;
-
-        }
-
-        initializeAdmission();
-
-        function InsertData() {
-            // Generate a unique key
-            const patientRef = push(ref(db,"patients"));
-            const patientId = patientRef.key;
-
-            const generatedAdmissionNumber =
-                "ADM-" +
-                new Date().toISOString().slice(0,10).replace(/-/g,"") +
-                "-" +
-                patientId.substring(0,6).toUpperCase();
-                
-            const fullName = [
-
-                firstName.value.trim(),
-
-                middleName.value.trim(),
-
-                lastName.value.trim(),
-
-                suffix.value.trim()
-
-            ]
-            .filter(part => part !== "")
-            .join(" ");
-
-            const selectedDoctor = assignedDoctor.options[assignedDoctor.selectedIndex];
-
-            set(patientRef, {
-                // Admission Information
-                admissionNumber: admissionNumber.value,
-                admissionDate: admissionDate.value,
-                admissionTime: admissionTime.value,
-                assignedArea: assignedArea.value,
-                room: room.value,
-                assignedDoctorId: assignedDoctor.value,
-                assignedDoctor: selectedDoctor.dataset.name,
-                
-                admissionStatus: "Admitted",
-                expectedDischargeDate: "",
-                dischargeStatus: "Not Discharged",
-                dischargeDate: "",
-                dischargeTime: "",
-                dischargeType: "",
-                dischargeSummary: "",
-                dischargedBy: "",
-
-                // Patient Information
-                patient_id: patientId,
-                fullName: fullName,
-                firstName: firstName.value,
-                middleName: middleName.value,
-                lastName: lastName.value,
-                suffix: suffix.value,
-                dateOfBirth: dob.value,
-                age: Number(age.value),
-                sex: sex.value,
-                contactNumber: contactNumber.value,
-                occupation: occupation.value,
-                maritalStatus: maritalStatus.value,
-                occupyingIndividual: occupyingIndiv.value,
-
-                // Address
-                streetNo: streetNo.value,
-                barangay: barangay.value,
-                city: city.value,
-                province: province.value,
-
-                // Chief Complaint
-                chiefComplaint: chiefComplaint.value,
-                symptoms: symptoms.value,
-                medicationUsed: medicationUsed.value,
-
-                // Family History
-                familyConditionType: familyConditionType.value,
-                familyHistoryNote: familyHistoryNote.value,
-
-                // History of Present Illness
-                onset: onsetDesc.value,
-                provocation: provocationDesc.value,
-                quality: qualityDescn.value,
-                radiation: radiationDesc.value,
-                severityScore: severityScore.value,
-
-                // Past Illness
-                conditionName: conditionName.value,
-                conditionType: conditionType.value,
-                pmhNote: pmhNote.value,
-
-                // Medication History
-                medicationName: medicationName.value,
-                dose: dose.value,
-                frequency: frequency.value,
-                route: route.value,
-                status: status.value,
-                prescriptionReason: prescriptionReason.value,
-
-                // Timestamp
-                createdAt: new Date().toISOString()
-            })
-            .then(() => {
-                alert("Patient record added successfully!");
-                        window.location.href = "view_records.html";
-            })
-            .catch((error) => {
-                alert("Error: " + error.message);
-            });
-        }
-
-        insertBtn.addEventListener("click", function(e) {
-            e.preventDefault();
-            InsertData();
         });
-        </script>
+
+    }
+
+    return occupied;
+
+}
+
+
+/* =========================================================
+   POPULATE ROOMS
+========================================================= */
+
+async function populateRooms() {
+
+    const ward =
+        assignedArea.value;
+
+    room.innerHTML = "";
+
+    if (!ward) {
+
+        room.disabled = true;
+
+        room.innerHTML =
+            '<option value="">Select ward first</option>';
+
+        return;
+
+    }
+
+    const allRooms =
+        wardRooms[ward] || [];
+
+    const occupiedRooms =
+        await getOccupiedRooms(ward);
+
+    const availableRooms =
+        allRooms.filter(
+            r => !occupiedRooms.includes(r)
+        );
+
+    room.disabled = false;
+
+    if (availableRooms.length === 0) {
+
+        room.innerHTML =
+            '<option value="">No available rooms</option>';
+
+        document.getElementById("roomStatus").textContent =
+            "All rooms in this ward are currently occupied.";
+
+        return;
+
+    }
+
+    room.innerHTML =
+        '<option value="">Select Room</option>';
+
+    availableRooms.forEach(r => {
+
+        const option =
+            document.createElement("option");
+
+        option.value = r;
+
+        option.textContent =
+            `Room ${r}`;
+
+        room.appendChild(option);
+
+    });
+
+    document.getElementById("roomStatus").textContent =
+        `${availableRooms.length} room(s) available`;
+
+}
+
+assignedArea.addEventListener(
+    "change",
+    populateRooms
+);
+
+
+/* =========================================================
+   CALCULATE AGE
+========================================================= */
+
+function computeAge() {
+
+    if (!dob.value) {
+
+        age.value = "";
+
+        return;
+
+    }
+
+    const birthDate =
+        new Date(dob.value + "T00:00:00");
+
+    const today =
+        new Date();
+
+    today.setHours(0, 0, 0, 0);
+
+    /* Prevent future birth dates */
+
+    if (birthDate > today) {
+
+        alert(
+            "Date of Birth cannot be a future date."
+        );
+
+        dob.value = "";
+
+        age.value = "";
+
+        return;
+
+    }
+
+    let years =
+        today.getFullYear() -
+        birthDate.getFullYear();
+
+    const monthDifference =
+        today.getMonth() -
+        birthDate.getMonth();
+
+    if (
+        monthDifference < 0 ||
+        (
+            monthDifference === 0 &&
+            today.getDate() < birthDate.getDate()
+        )
+    ) {
+
+        years--;
+
+    }
+
+    age.value =
+        years;
+
+}
+
+dob.addEventListener(
+    "change",
+    computeAge
+);
+
+
+/* =========================================================
+   INITIALIZE ADMISSION
+========================================================= */
+
+async function initializeAdmission() {
+
+    const now =
+        new Date();
+
+    admissionDate.value =
+        now.toISOString().split("T")[0];
+
+    admissionTime.value =
+        now.toTimeString().slice(0, 5);
+
+
+    const snapshot =
+        await get(ref(db, "patients"));
+
+    let count = 1;
+
+    if (snapshot.exists()) {
+
+        count = 0;
+
+        snapshot.forEach(() => {
+            count++;
+        });
+
+        count++;
+
+    }
+
+
+    const yyyy =
+        now.getFullYear();
+
+    const mm =
+        String(now.getMonth() + 1)
+        .padStart(2, "0");
+
+    const dd =
+        String(now.getDate())
+        .padStart(2, "0");
+
+
+    admissionNumber.value =
+        `ADM-${yyyy}${mm}${dd}-${String(count).padStart(4, "0")}`;
+
+}
+
+initializeAdmission();
+
+
+/* =========================================================
+   REPEATABLE ENTRY FUNCTIONS
+   MAXIMUM = 6
+========================================================= */
+
+const MAX_ENTRIES = 6;
+
+
+/* =========================================================
+   FAMILY / GUARDIAN
+========================================================= */
+
+const familyGuardianContainer =
+    document.querySelector("#familyGuardianContainer");
+
+const addFamilyGuardianBtn =
+    document.querySelector("#addFamilyGuardian");
+
+
+function addFamilyGuardianEntry() {
+
+    const currentCount =
+        familyGuardianContainer
+            .querySelectorAll(".repeat-entry")
+            .length;
+
+    if (currentCount >= MAX_ENTRIES) {
+
+        alert(
+            "You can add a maximum of 6 family/guardian entries."
+        );
+
+        return;
+
+    }
+
+
+    const entry =
+        document.createElement("div");
+
+    entry.className =
+        "repeat-entry";
+
+    entry.innerHTML = `
+
+        <div class="entry-number">
+            Family / Guardian #${currentCount + 1}
+        </div>
+
+        <button
+            type="button"
+            class="remove-entry"
+        >
+            Remove
+        </button>
+
+        <label>Name</label><br>
+
+        <input
+            type="text"
+            class="guardian-name"
+        >
+
+        <br><br>
+
+        <label>Relationship</label><br>
+
+        <select class="guardian-relationship">
+
+            <option value="">
+                Select
+            </option>
+
+            <option value="Father">
+                Father
+            </option>
+
+            <option value="Mother">
+                Mother
+            </option>
+
+            <option value="Spouse">
+                Spouse
+            </option>
+
+            <option value="Son">
+                Son
+            </option>
+
+            <option value="Daughter">
+                Daughter
+            </option>
+
+            <option value="Sibling">
+                Sibling
+            </option>
+
+            <option value="Grandparent">
+                Grandparent
+            </option>
+
+            <option value="Relative">
+                Relative
+            </option>
+
+            <option value="Legal Guardian">
+                Legal Guardian
+            </option>
+
+            <option value="Other">
+                Other
+            </option>
+
+        </select>
+
+        <br><br>
+
+        <label>Contact Number</label><br>
+
+        <input
+            type="tel"
+            class="guardian-contact"
+            placeholder="09xxxxxxxxx"
+        >
+
+        <br><br>
+
+        <label>Address</label><br>
+
+        <textarea
+            class="guardian-address"
+            rows="3"
+        ></textarea>
+
+    `;
+
+
+    entry
+        .querySelector(".remove-entry")
+        .addEventListener(
+            "click",
+            () => {
+
+                entry.remove();
+
+                updateEntryNumbers(
+                    familyGuardianContainer,
+                    "Family / Guardian"
+                );
+
+            }
+        );
+
+
+    familyGuardianContainer
+        .appendChild(entry);
+
+}
+
+
+addFamilyGuardianBtn.addEventListener(
+    "click",
+    addFamilyGuardianEntry
+);
+
+
+/* =========================================================
+   HPI
+========================================================= */
+
+const hpiContainer =
+    document.querySelector("#hpiContainer");
+
+const addHPIBtn =
+    document.querySelector("#addHPI");
+
+
+function addHPIEntry() {
+
+    const currentCount =
+        hpiContainer
+            .querySelectorAll(".repeat-entry")
+            .length;
+
+    if (currentCount >= MAX_ENTRIES) {
+
+        alert(
+            "You can add a maximum of 6 HPI entries."
+        );
+
+        return;
+
+    }
+
+
+    const entry =
+        document.createElement("div");
+
+    entry.className =
+        "repeat-entry";
+
+    entry.innerHTML = `
+
+        <div class="entry-number">
+            HPI Entry #${currentCount + 1}
+        </div>
+
+        <button
+            type="button"
+            class="remove-entry"
+        >
+            Remove
+        </button>
+
+        <label>Onset</label><br>
+
+        <select class="hpi-onset">
+
+            <option value="">
+                Select
+            </option>
+
+            <option value="Sudden">
+                Sudden
+            </option>
+
+            <option value="Gradual">
+                Gradual
+            </option>
+
+            <option value="Unknown">
+                Unknown
+            </option>
+
+        </select>
+
+        <br><br>
+
+        <label>Provocation</label><br>
+
+        <textarea
+            class="hpi-provocation"
+            rows="3"
+        ></textarea>
+
+        <br><br>
+
+        <label>Quality</label><br>
+
+        <textarea
+            class="hpi-quality"
+            rows="3"
+        ></textarea>
+
+        <br><br>
+
+        <label>Radiation</label><br>
+
+        <textarea
+            class="hpi-radiation"
+            rows="3"
+        ></textarea>
+
+        <br><br>
+
+        <label>Severity (0-10)</label><br>
+
+        <input
+            type="number"
+            class="hpi-severity"
+            min="0"
+            max="10"
+            value="0"
+        >
+
+    `;
+
+
+    entry
+        .querySelector(".remove-entry")
+        .addEventListener(
+            "click",
+            () => {
+
+                entry.remove();
+
+                updateEntryNumbers(
+                    hpiContainer,
+                    "HPI Entry"
+                );
+
+            }
+        );
+
+
+    hpiContainer
+        .appendChild(entry);
+
+}
+
+
+addHPIBtn.addEventListener(
+    "click",
+    addHPIEntry
+);
+
+
+/* =========================================================
+   PAST ILLNESS
+========================================================= */
+
+const pastIllnessContainer =
+    document.querySelector("#pastIllnessContainer");
+
+const addPastIllnessBtn =
+    document.querySelector("#addPastIllness");
+
+
+function addPastIllnessEntry() {
+
+    const currentCount =
+        pastIllnessContainer
+            .querySelectorAll(".repeat-entry")
+            .length;
+
+    if (currentCount >= MAX_ENTRIES) {
+
+        alert(
+            "You can add a maximum of 6 past illness entries."
+        );
+
+        return;
+
+    }
+
+
+    const entry =
+        document.createElement("div");
+
+    entry.className =
+        "repeat-entry";
+
+    entry.innerHTML = `
+
+        <div class="entry-number">
+            Past Illness #${currentCount + 1}
+        </div>
+
+        <button
+            type="button"
+            class="remove-entry"
+        >
+            Remove
+        </button>
+
+        <label>Condition Name</label><br>
+
+        <input
+            type="text"
+            class="illness-name"
+        >
+
+        <br><br>
+
+        <label>Condition Type</label><br>
+
+        <select class="illness-type">
+
+            <option value="">
+                Select
+            </option>
+
+            <option value="Chronic Disease">
+                Chronic Disease
+            </option>
+
+            <option value="Infectious Disease">
+                Infectious Disease
+            </option>
+
+            <option value="Mental Health">
+                Mental Health
+            </option>
+
+            <option value="Metabolic">
+                Metabolic
+            </option>
+
+            <option value="Cardiovascular">
+                Cardiovascular
+            </option>
+
+            <option value="Respiratory">
+                Respiratory
+            </option>
+
+            <option value="Neurologic">
+                Neurologic
+            </option>
+
+            <option value="Oncologic">
+                Oncologic
+            </option>
+
+            <option value="Other">
+                Other
+            </option>
+
+        </select>
+
+        <br><br>
+
+        <label>Notes</label><br>
+
+        <textarea
+            class="illness-notes"
+            rows="5"
+        ></textarea>
+
+    `;
+
+
+    entry
+        .querySelector(".remove-entry")
+        .addEventListener(
+            "click",
+            () => {
+
+                entry.remove();
+
+                updateEntryNumbers(
+                    pastIllnessContainer,
+                    "Past Illness"
+                );
+
+            }
+        );
+
+
+    pastIllnessContainer
+        .appendChild(entry);
+
+}
+
+
+addPastIllnessBtn.addEventListener(
+    "click",
+    addPastIllnessEntry
+);
+
+
+/* =========================================================
+   PAST MEDICATIONS
+========================================================= */
+
+const pastMedicationContainer =
+    document.querySelector("#pastMedicationContainer");
+
+const addPastMedicationBtn =
+    document.querySelector("#addPastMedication");
+
+
+function addPastMedicationEntry() {
+
+    const currentCount =
+        pastMedicationContainer
+            .querySelectorAll(".repeat-entry")
+            .length;
+
+    if (currentCount >= MAX_ENTRIES) {
+
+        alert(
+            "You can add a maximum of 6 past medication entries."
+        );
+
+        return;
+
+    }
+
+
+    const entry =
+        document.createElement("div");
+
+    entry.className =
+        "repeat-entry";
+
+    entry.innerHTML = `
+
+        <div class="entry-number">
+            Past Medication #${currentCount + 1}
+        </div>
+
+        <button
+            type="button"
+            class="remove-entry"
+        >
+            Remove
+        </button>
+
+        <label>Medication Name</label><br>
+
+        <input
+            type="text"
+            class="past-medication-name"
+        >
+
+        <br><br>
+
+        <label>Dosage</label><br>
+
+        <input
+            type="text"
+            class="past-medication-dose"
+        >
+
+        <br><br>
+
+        <label>Frequency</label><br>
+
+        <input
+            type="text"
+            class="past-medication-frequency"
+        >
+
+        <br><br>
+
+        <label>Route</label><br>
+
+        <select class="past-medication-route">
+
+            <option value="">
+                Select
+            </option>
+
+            <option value="Oral">
+                Oral
+            </option>
+
+            <option value="IV">
+                IV
+            </option>
+
+            <option value="IM">
+                IM
+            </option>
+
+            <option value="Subcutaneous">
+                Subcutaneous
+            </option>
+
+            <option value="Topical">
+                Topical
+            </option>
+
+            <option value="Inhalation">
+                Inhalation
+            </option>
+
+        </select>
+
+        <br><br>
+
+        <label>Status</label><br>
+
+        <select class="past-medication-status">
+
+            <option value="">
+                Select
+            </option>
+
+            <option value="Active">
+                Active
+            </option>
+
+            <option value="Stopped">
+                Stopped
+            </option>
+
+            <option value="Paused">
+                Paused
+            </option>
+
+            <option value="Completed">
+                Completed
+            </option>
+
+        </select>
+
+        <br><br>
+
+        <label>Reason for Medication</label><br>
+
+        <textarea
+            class="past-medication-reason"
+            rows="4"
+        ></textarea>
+
+    `;
+
+
+    entry
+        .querySelector(".remove-entry")
+        .addEventListener(
+            "click",
+            () => {
+
+                entry.remove();
+
+                updateEntryNumbers(
+                    pastMedicationContainer,
+                    "Past Medication"
+                );
+
+            }
+        );
+
+
+    pastMedicationContainer
+        .appendChild(entry);
+
+}
+
+
+addPastMedicationBtn.addEventListener(
+    "click",
+    addPastMedicationEntry
+);
+
+
+/* =========================================================
+   UPDATE ENTRY NUMBERS
+========================================================= */
+
+function updateEntryNumbers(
+    container,
+    label
+) {
+
+    const entries =
+        container.querySelectorAll(
+            ".repeat-entry"
+        );
+
+    entries.forEach(
+        (entry, index) => {
+
+            const number =
+                entry.querySelector(
+                    ".entry-number"
+                );
+
+            if (number) {
+
+                number.textContent =
+                    `${label} #${index + 1}`;
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   COLLECT FAMILY / GUARDIAN DATA
+========================================================= */
+
+function collectFamilyGuardianData() {
+
+    const entries =
+        familyGuardianContainer
+            .querySelectorAll(".repeat-entry");
+
+    const data = [];
+
+    entries.forEach(entry => {
+
+        data.push({
+
+            name:
+                entry
+                    .querySelector(".guardian-name")
+                    .value
+                    .trim(),
+
+            relationship:
+                entry
+                    .querySelector(".guardian-relationship")
+                    .value,
+
+            contactNumber:
+                entry
+                    .querySelector(".guardian-contact")
+                    .value
+                    .trim(),
+
+            address:
+                entry
+                    .querySelector(".guardian-address")
+                    .value
+                    .trim()
+
+        });
+
+    });
+
+    return data;
+
+}
+
+
+/* =========================================================
+   COLLECT HPI DATA
+========================================================= */
+
+function collectHPIData() {
+
+    const entries =
+        hpiContainer
+            .querySelectorAll(".repeat-entry");
+
+    const data = [];
+
+    entries.forEach(entry => {
+
+        data.push({
+
+            onset:
+                entry
+                    .querySelector(".hpi-onset")
+                    .value
+                    .trim(),
+
+            provocation:
+                entry
+                    .querySelector(".hpi-provocation")
+                    .value
+                    .trim(),
+
+            quality:
+                entry
+                    .querySelector(".hpi-quality")
+                    .value
+                    .trim(),
+
+            radiation:
+                entry
+                    .querySelector(".hpi-radiation")
+                    .value
+                    .trim(),
+
+            severityScore:
+                Number(
+                    entry
+                        .querySelector(".hpi-severity")
+                        .value || 0
+                )
+
+        });
+
+    });
+
+    return data;
+
+}
+
+
+/* =========================================================
+   COLLECT PAST ILLNESS DATA
+========================================================= */
+
+function collectPastIllnessData() {
+
+    const entries =
+        pastIllnessContainer
+            .querySelectorAll(".repeat-entry");
+
+    const data = [];
+
+    entries.forEach(entry => {
+
+        data.push({
+
+            conditionName:
+                entry
+                    .querySelector(".illness-name")
+                    .value
+                    .trim(),
+
+            conditionType:
+                entry
+                    .querySelector(".illness-type")
+                    .value,
+
+            notes:
+                entry
+                    .querySelector(".illness-notes")
+                    .value
+                    .trim()
+
+        });
+
+    });
+
+    return data;
+
+}
+
+
+/* =========================================================
+   COLLECT PAST MEDICATION DATA
+========================================================= */
+
+function collectPastMedicationData() {
+
+    const entries =
+        pastMedicationContainer
+            .querySelectorAll(".repeat-entry");
+
+    const data = [];
+
+    entries.forEach(entry => {
+
+        data.push({
+
+            medicationName:
+                entry
+                    .querySelector(".past-medication-name")
+                    .value
+                    .trim(),
+
+            dose:
+                entry
+                    .querySelector(".past-medication-dose")
+                    .value
+                    .trim(),
+
+            frequency:
+                entry
+                    .querySelector(".past-medication-frequency")
+                    .value
+                    .trim(),
+
+            route:
+                entry
+                    .querySelector(".past-medication-route")
+                    .value,
+
+            status:
+                entry
+                    .querySelector(".past-medication-status")
+                    .value,
+
+            reason:
+                entry
+                    .querySelector(".past-medication-reason")
+                    .value
+                    .trim()
+
+        });
+
+    });
+
+    return data;
+
+}
+
+
+/* =========================================================
+   INSERT PATIENT
+========================================================= */
+
+async function InsertData() {
+
+    try {
+
+        /* ---------------------------------------------
+           Generate Firebase patient key
+        --------------------------------------------- */
+
+        const patientRef =
+            push(ref(db, "patients"));
+
+        const patientId =
+            patientRef.key;
+
+
+        /* ---------------------------------------------
+           Full name
+        --------------------------------------------- */
+
+        const fullName = [
+
+            firstName.value.trim(),
+
+            middleName.value.trim(),
+
+            lastName.value.trim(),
+
+            suffix.value.trim()
+
+        ]
+
+        .filter(part => part !== "")
+
+        .join(" ");
+
+
+        /* ---------------------------------------------
+           Doctor
+        --------------------------------------------- */
+
+        const selectedDoctor =
+            assignedDoctor.options[
+                assignedDoctor.selectedIndex
+            ];
+
+
+        /* ---------------------------------------------
+           Collect repeatable sections
+        --------------------------------------------- */
+
+        const familyGuardianInfo =
+            collectFamilyGuardianData();
+
+        const historyOfPresentIllness =
+            collectHPIData();
+
+        const pastIllnesses =
+            collectPastIllnessData();
+
+        const pastMedications =
+            collectPastMedicationData();
+
+
+        /* ---------------------------------------------
+           Save patient
+        --------------------------------------------- */
+
+        await set(
+            patientRef,
+            {
+
+                /* =========================
+                   ADMISSION INFORMATION
+                ========================= */
+
+                admissionNumber:
+                    admissionNumber.value,
+
+                admissionDate:
+                    admissionDate.value,
+
+                admissionTime:
+                    admissionTime.value,
+
+                assignedArea:
+                    assignedArea.value,
+
+                room:
+                    room.value,
+
+                assignedDoctorId:
+                    assignedDoctor.value,
+
+                assignedDoctor:
+                    selectedDoctor.dataset.name || "",
+
+                admissionStatus:
+                    "Admitted",
+
+                expectedDischargeDate:
+                    "",
+
+                dischargeStatus:
+                    "Not Discharged",
+
+                dischargeDate:
+                    "",
+
+                dischargeTime:
+                    "",
+
+                dischargeType:
+                    "",
+
+                dischargeSummary:
+                    "",
+
+                dischargedBy:
+                    "",
+
+
+                /* =========================
+                   PATIENT INFORMATION
+                ========================= */
+
+                patient_id:
+                    patientId,
+
+                fullName:
+                    fullName,
+
+                firstName:
+                    firstName.value.trim(),
+
+                middleName:
+                    middleName.value.trim(),
+
+                lastName:
+                    lastName.value.trim(),
+
+                suffix:
+                    suffix.value.trim(),
+
+                dateOfBirth:
+                    dob.value,
+
+                age:
+                    Number(age.value),
+
+                sex:
+                    sex.value,
+
+                contactNumber:
+                    contactNumber.value.trim(),
+
+                occupation:
+                    occupation.value.trim(),
+
+                maritalStatus:
+                    maritalStatus.value,
+
+                occupyingIndividual:
+                    occupyingIndiv.value.trim(),
+
+
+                /* =========================
+                   ADDRESS
+                ========================= */
+
+                streetNo:
+                    streetNo.value.trim(),
+
+                barangay:
+                    barangay.value.trim(),
+
+                city:
+                    city.value.trim(),
+
+                province:
+                    province.value.trim(),
+
+
+                /* =========================
+                   CHIEF COMPLAINT
+                ========================= */
+
+                chiefComplaint:
+                    chiefComplaint.value.trim(),
+
+                symptoms:
+                    symptoms.value.trim(),
+
+                medicationUsed:
+                    medicationUsed.value.trim(),
+
+
+                /* =========================
+                   FAMILY / GUARDIAN
+                   ARRAY - MAX 6
+                ========================= */
+
+                familyGuardianInfo:
+                    familyGuardianInfo,
+
+
+                /* =========================
+                   HISTORY OF PRESENT
+                   ILLNESS
+                   ARRAY - MAX 6
+                ========================= */
+
+                historyOfPresentIllness:
+                    historyOfPresentIllness,
+
+
+                /* =========================
+                   PAST ILLNESSES
+                   ARRAY - MAX 6
+                ========================= */
+
+                pastIllnesses:
+                    pastIllnesses,
+
+
+                /* =========================
+                   PAST MEDICATIONS
+                   ARRAY - MAX 6
+                ========================= */
+
+                pastMedications:
+                    pastMedications,
+
+
+                /* =========================
+                   TIMESTAMP
+                ========================= */
+
+                createdAt:
+                    new Date().toISOString()
+
+            }
+        );
+
+
+        alert(
+            "Patient record added successfully!"
+        );
+
+        window.location.href =
+            "view_records.html";
+
+
+    } catch (error) {
+
+        console.error(
+            "Error saving patient:",
+            error
+        );
+
+        alert(
+            "Error: " +
+            error.message
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   FORM SUBMIT
+========================================================= */
+
+form.addEventListener(
+    "submit",
+    function(event) {
+
+        event.preventDefault();
+
+        InsertData();
+
+    }
+);
+
+
+/* =========================================================
+   RESET FORM
+========================================================= */
+
+form.addEventListener(
+    "reset",
+    function() {
+
+        setTimeout(() => {
+
+            familyGuardianContainer.innerHTML = "";
+
+            hpiContainer.innerHTML = "";
+
+            pastIllnessContainer.innerHTML = "";
+
+            pastMedicationContainer.innerHTML = "";
+
+        }, 0);
+
+    }
+);
+
+</script>
+
 </body>
 </html>

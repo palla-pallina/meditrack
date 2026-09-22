@@ -13,17 +13,18 @@
 <a href="dashboard.html">Back to Dashboard</a>
 
 <h2>Create Prescription</h2>
-
+<label>Required fields are marked with an asterisk &#x28;<span style="color:red;">*</span>&#41;</label>
+<br><br>
 <form id="prescriptionForm">
 
 <h3>Prescription Information</h3>
 
-<label>Patient</label><br>
+<label>Patient <span style="color:red;">*</span></label><br>
 <select id="patient" required></select>
 
 <br><br>
 
-<label>Prescribing Physician</label><br>
+<label>Prescribing Physician <span style="color:red;">*</span></label><br>
 
 <input
     type="text"
@@ -44,7 +45,7 @@
 
 <h3>Add Medication</h3>
 
-<label>Search Medication</label><br>
+<label>Search Medication <span style="color:red;">*</span></label><br>
 
 <input
     type="text"
@@ -68,16 +69,16 @@
 
 <h4>Add New Medication to Database</h4>
 
-<label>Generic Name</label><br>
+<label>Generic Name <span style="color:red;">*</span></label><br>
 <input type="text" id="newGeneric"><br><br>
 
-<label>Brand Name</label><br>
+<label>Brand Name <span style="color:red;">*</span></label><br>
 <input type="text" id="newBrand"><br><br>
 
-<label>Drug Class</label><br>
+<label>Drug Class <span style="color:red;">*</span></label><br>
 <input type="text" id="newDrugClass"><br><br>
 
-<label>Dosage Form</label><br>
+<label>Dosage Form <span style="color:red;">*</span></label><br>
 
 <select id="newForm">
 
@@ -113,12 +114,12 @@ Save New Medication
 
 <br><br>
 
-<label>Dosage</label><br>
+<label>Dosage <span style="color:red;">*</span></label><br>
 <input type="text" id="dosage">
 
 <br><br>
 
-<label>Route</label><br>
+<label>Route <span style="color:red;">*</span></label><br>
 <select id="route">
 
 <option value="oral">Oral</option>
@@ -132,7 +133,7 @@ Save New Medication
 
 <br><br>
 
-<label>Frequency</label><br>
+<label>Frequency <span style="color:red;">*</span></label><br>
 
 <select id="frequency">
 
@@ -161,12 +162,12 @@ Save New Medication
 
 <br>
 
-<label>Start Date</label><br>
+<label>Start Date <span style="color:red;">*</span></label><br>
 <input type="date" id="startDate">
 
 <br><br>
 
-<label>End Date</label><br>
+<label>End Date <span style="color:red;">*</span></label><br>
 <input type="date" id="endDate">
 
 <br><br>
@@ -311,7 +312,7 @@ await get(ref(database,"patients"));
 
 const patient=document.getElementById("patient");
 
-patient.innerHTML="";
+patient.innerHTML='<option value="">Select Patient</option>';
 
 snapshot.forEach(child=>{
 

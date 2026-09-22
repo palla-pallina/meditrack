@@ -1,12 +1,3 @@
-<script type="module">
-
-import { requireRole }
-from "../../../public/auth_guard.js";
-
-requireRole("Admin"); // Admin, Clerk, Pharmacist, Head Nurse, Nurse
-
-</script>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -19,10 +10,11 @@ requireRole("Admin"); // Admin, Clerk, Pharmacist, Head Nurse, Nurse
 <button onclick="history.back()">Back</button>
 
 <h2>Create Staff Account</h2>
+<label>Required fields are marked with an asterisk &#x28;<span style="color:red;">*</span>&#41;</label>
 
 <form id="createUserForm">
 
-    <label>User Type</label><br>
+    <label>User Type</label><br> <span style="color:red;">*</span>
     <select id="userType" required>
         <option value="">Select</option>
         <option>Admin</option>
@@ -35,7 +27,7 @@ requireRole("Admin"); // Admin, Clerk, Pharmacist, Head Nurse, Nurse
 
     <br><br>
 
-    <label>First Name</label><br>
+    <label>First Name</label><br> <span style="color:red;">*</span>
     <input type="text" id="firstName" required>
 
     <br><br>
@@ -45,7 +37,7 @@ requireRole("Admin"); // Admin, Clerk, Pharmacist, Head Nurse, Nurse
 
     <br><br>
 
-    <label>Last Name</label><br>
+    <label>Last Name</label><br> <span style="color:red;">*</span>
     <input type="text" id="lastName" required>
 
     <br><br>
@@ -55,7 +47,7 @@ requireRole("Admin"); // Admin, Clerk, Pharmacist, Head Nurse, Nurse
 
     <br><br>
 
-    <label>Email</label><br>
+    <label>Email</label><br> <span style="color:red;">*</span>
     <input type="email" id="email" required>
 
     <br><br>
@@ -67,6 +59,39 @@ requireRole("Admin"); // Admin, Clerk, Pharmacist, Head Nurse, Nurse
 <hr>
 
 <pre id="output"></pre>
+
+<script type="module">
+
+import { requireRole }
+from "../../public/auth_guard.js";
+
+requireRole("Admin");
+
+import {
+    getAuth,
+    signOut
+} from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+
+const auth = getAuth();
+
+document.getElementById("logoutBtn")
+.addEventListener("click", async () => {
+
+    try {
+
+        await signOut(auth);
+
+        window.location.href = "../../public/login.html";
+
+    }
+    catch(error) {
+
+        alert(error.message);
+
+    }
+
+});
+</script>
 
 <script>
 
