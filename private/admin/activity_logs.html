@@ -11,6 +11,7 @@
     >
 
     <title>MediTrack | Activity Logs</title>
+    <link rel="icon" type="image/x-icon" href="../../draft.png">
 
     <link
         rel="stylesheet"
@@ -29,19 +30,33 @@
     <header class="topbar">
 
         <div class="topbar-left">
+            <div class="brand" aria-label="MediTrack Dashboard">
 
-            <h1>MediTrack</h1>
+                <img
+                    src="../../draft.png"
+                    alt="MediTrack Logo"
+                    class="actual-logo"
+                    style="height: 50px;"
+                >
 
-            <span>
-                Activity Logs
-            </span>
+                <span class="brand__text">
 
+                    <strong>
+                        MediTrack
+                    </strong>
+
+                    <span id="brandRole">
+                        Activity Logs
+                    </span>
+
+                </span>
+            </div>
         </div>
 
 
         <div class="topbar-right">
 
-            <a href="home.html">
+            <a href="dashboard.html">
                 Dashboard
             </a>
 
@@ -137,6 +152,10 @@
                         Prescription Created
                     </option>
 
+                    <option value="MEDICINE_DISPENSE">
+                        Medicine Dispense
+                    </option>
+
                     <option value="DISPENSER_ASSIGNED">
                         Dispenser Assigned
                     </option>
@@ -160,6 +179,10 @@
 
                     <option value="">
                         All User Types
+                    </option>
+
+                    <option value="System">
+                        System
                     </option>
 
                     <option value="Admin">
@@ -492,7 +515,7 @@ from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
 import {
     requireRole
 }
-from "../../public/auth_guard.js";
+from "../js/auth_guard.js";
 
 
 // ============================================================
@@ -601,6 +624,8 @@ let stopActivityListener = null;
 
 let stopMedicationListener = null;
 
+let stopDispenseListener = null;
+
 
 // ============================================================
 // AUTHENTICATION CHECK
@@ -613,7 +638,7 @@ onAuthStateChanged(
         if (!user) {
 
             window.location.href =
-                "../../public/login.html";
+                "../../index.html";
 
         }
 
@@ -729,10 +754,20 @@ function loadActivityLogs() {
 
     }
 
+    if (stopDispenseListener) {
+
+        stopDispenseListener();
+
+        stopDispenseListener = null;
+
+    }
+
 
     let normalActivityLogs = [];
 
     let medicationLogs = [];
+
+    let dispenseLogs = [];
 
 
     // ========================================================
@@ -745,7 +780,9 @@ function loadActivityLogs() {
 
             ...normalActivityLogs,
 
-            ...medicationLogs
+            ...medicationLogs,
+
+            ...dispenseLogs
 
         ];
 
@@ -803,7 +840,6 @@ function loadActivityLogs() {
         renderLogs();
 
     }
-
 
     // ========================================================
     // ACTIVITY LOGS
@@ -1055,8 +1091,121 @@ function loadActivityLogs() {
             }
         );
 
-}
+    // ========================================================
+    // DISPENSE LOGS
+    // ========================================================
 
+    const dispenseRef = ref(
+        db,
+        "Dispense_Log"
+    );
+
+    stopDispenseListener = onValue(
+        dispenseRef,
+
+        snapshot => {
+
+            dispenseLogs = [];
+
+            if (snapshot.exists()) {
+
+                snapshot.forEach(child => {
+
+                    const log = child.val();
+
+                    const date =
+                        log.Date || "";
+
+                    const time =
+                        log.Time || "";
+
+                    // Combine the date and time into a timestamp.
+                    // The Firebase values are interpreted as local time.
+                    const timestamp = normalizeTimestamp(
+                        date && time
+                            ? `${date}T${time}`
+                            : date || time
+                    );
+
+                    const motor =
+                        log.Motor || "Unknown Motor";
+
+                    const irSensor =
+                        log.Ir_Sensor || "Unknown";
+
+                    const loadCell =
+                        log.Load_Cell || "Unknown";
+
+                    dispenseLogs.push({
+
+                        id: child.key,
+
+                        source: "Dispense Log",
+
+                        logType: "dispense",
+
+                        uid: "",
+
+                        userName: "Dispensing System",
+
+                        userType: "System",
+
+                        email: "",
+
+                        action: "MEDICINE_DISPENSE",
+
+                        description:
+                            `Dispensing attempt using ${motor}. ` +
+                            `IR Sensor: ${irSensor}; ` +
+                            `Load Cell: ${loadCell}.`,
+
+                        targetType: "Dispenser",
+
+                        targetId: motor,
+
+                        // The supplied record does not contain
+                        // an explicit success/failure status.
+                        status: "WARNING",
+
+                        timestamp: timestamp,
+
+                        details: {
+
+                            dispenseId: child.key,
+
+                            date: date,
+
+                            time: time,
+
+                            motor: motor,
+
+                            irSensor: irSensor,
+
+                            loadCell: loadCell
+
+                        }
+
+                    });
+
+                });
+
+            }
+
+            processLogs();
+
+        },
+
+        error => {
+
+            console.error(
+                "Error reading Dispense_Log:",
+                error
+            );
+
+        }
+    );
+
+}
 
 // ============================================================
 // RENDER LOGS
@@ -1112,7 +1261,19 @@ function renderLogs() {
 
                         log.details?.timingStatus,
 
-                        log.details?.administrationStatus
+                        log.details?.administrationStatus,
+
+                        log.details?.dispenseId,
+
+                        log.details?.date,
+
+                        log.details?.time,
+
+                        log.details?.motor,
+
+                        log.details?.irSensor,
+
+                        log.details?.loadCell
 
                     ]
                     .map(
@@ -1475,12 +1636,11 @@ function renderLogs() {
 
 
             const sourceClass =
-                log.logType ===
-                "medication"
-                    ?
-                    "source-medication"
-                    :
-                    "source-activity";
+                log.logType === "medication"
+                    ? "source-medication"
+                    : log.logType === "dispense"
+                        ? "source-dispense"
+                        : "source-activity";
 
 
             sourceCell.innerHTML = `
@@ -1847,12 +2007,11 @@ function normalizeStatus(
 
         }
 
-
         if (
             value === "refused"
         ) {
 
-            return "WARNING";
+            return "FAILED";
 
         }
 
@@ -1877,50 +2036,21 @@ function normalizeStatus(
 // TIMESTAMP NORMALIZATION
 // ============================================================
 
-function normalizeTimestamp(
-    value
-) {
+function normalizeTimestamp(value) {
 
-    if (
-        typeof value ===
-        "number"
-    ) {
-
+    if (typeof value === "number") {
         return value;
-
     }
 
-
-    if (
-        typeof value !==
-        "string"
-    ) {
-
+    if (typeof value !== "string" || !value) {
         return 0;
-
     }
 
+    const parsed = new Date(value).getTime();
 
-    const parsed =
-        new Date(
-            value
-        )
-        .getTime();
-
-
-    if (
-        !isNaN(parsed)
-    ) {
-
-        return parsed;
-
-    }
-
-
-    return 0;
+    return !isNaN(parsed) ? parsed : 0;
 
 }
-
 
 // ============================================================
 // GET TIMESTAMP
@@ -2265,6 +2395,70 @@ function showDetails(
 
     }
 
+    // ========================================================
+    // DISPENSE LOG
+    // ========================================================
+
+    if (log.logType === "dispense") {
+
+        const details = log.details || {};
+
+        modalBody.innerHTML = `
+
+            <div class="detail-row">
+                <strong>Log ID</strong>
+                <span>${escapeHTML(log.id || "-")}</span>
+            </div>
+
+            <div class="detail-row">
+                <strong>Source</strong>
+                <span>Dispense Log</span>
+            </div>
+
+            <div class="detail-row">
+                <strong>Date</strong>
+                <span>${escapeHTML(details.date || "-")}</span>
+            </div>
+
+            <div class="detail-row">
+                <strong>Time</strong>
+                <span>${escapeHTML(details.time || "-")}</span>
+            </div>
+
+            <div class="detail-row">
+                <strong>Motor</strong>
+                <span>${escapeHTML(details.motor || "-")}</span>
+            </div>
+
+            <div class="detail-row">
+                <strong>IR Sensor</strong>
+                <span>${escapeHTML(details.irSensor || "-")}</span>
+            </div>
+
+            <div class="detail-row">
+                <strong>Load Cell</strong>
+                <span>${escapeHTML(details.loadCell || "-")}</span>
+            </div>
+
+            <div class="detail-row">
+                <strong>Status</strong>
+                <span>${escapeHTML(log.status || "-")}</span>
+            </div>
+
+            <div class="details-section">
+                <h4>Raw Firebase Data</h4>
+                <pre>${escapeHTML(
+                    JSON.stringify(details, null, 4)
+                )}</pre>
+            </div>
+
+        `;
+
+        detailsModal.classList.remove("hidden");
+
+        return;
+
+    }
 
     // ========================================================
     // Standard Activity Log

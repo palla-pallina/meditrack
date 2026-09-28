@@ -12,6 +12,7 @@
         rel="stylesheet"
         href="stylesheets/add_medication.css"
     >
+    <link rel="icon" type="image/x-icon" href="../../draft.png">
 
 </head>
 
@@ -178,11 +179,14 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
 
 import {
-    getAuth
+    getAuth,
+    onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
 
 import {
-    getDatabase
+    getDatabase,
+    ref,
+    get
 } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
 
 
@@ -211,6 +215,88 @@ const auth = getAuth(app);
 
 const database = getDatabase(app);
 
+// ============================================================
+// PHARMACIST ACCESS VALIDATION
+// ============================================================
+
+document.body.style.visibility = "hidden";
+
+async function validatePharmacistAccess() {
+    try {
+        const user = await new Promise((resolve, reject) => {
+            const unsubscribe = onAuthStateChanged(
+                auth,
+                (authenticatedUser) => {
+                    unsubscribe();
+                    resolve(authenticatedUser);
+                },
+                reject
+            );
+        });
+
+        if (!user) {
+            console.error("Access denied: No authenticated user.");
+            window.location.replace("../../index.html");
+            return false;
+        }
+
+        console.log("Authenticated UID:", user.uid);
+
+        const userSnapshot = await get(
+            ref(database, `users/${user.uid}`)
+        );
+
+        console.log("User record exists:", userSnapshot.exists());
+
+        if (!userSnapshot.exists()) {
+            console.error(
+                `Access denied: No record at users/${user.uid}`
+            );
+            window.location.replace("../../index.html");
+            return false;
+        }
+
+        const userData = userSnapshot.val();
+
+        console.log("User record:", userData);
+        console.log("Stored userType:", userData.userType);
+
+        const userType = String(userData.userType ?? "")
+            .trim()
+            .toLowerCase();
+
+        if (userType !== "pharmacist") {
+            console.error(
+                "Access denied: Expected Pharmacist, received:",
+                userData.userType
+            );
+
+            window.location.replace("../../index.html");
+            return false;
+        }
+
+        document.body.style.visibility = "visible";
+        return true;
+
+    } catch (error) {
+        console.error("Pharmacist validation failed:", error);
+
+        window.location.replace("../../index.html");
+        return false;
+    }
+}
+
+if (!(await validatePharmacistAccess())) {
+    throw new Error("Unauthorized access.");
+}
+
+
+// Stop execution if access is denied
+if (!(await validatePharmacistAccess())) {
+
+    throw new Error("Unauthorized access.");
+
+}
 
 // ============================================================
 // DOM ELEMENTS

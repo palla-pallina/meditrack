@@ -1,0 +1,1574 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>Assign Medication Schedule</title>
+<link rel="icon" type="image/x-icon" href="../../draft.png">
+
+<link
+    rel="stylesheet"
+    href="stylesheets/assign_schedule.css"
+>
+
+</head>
+
+<body>
+
+<a href="dashboard.html">
+    Dashboard
+</a>
+
+<h2>
+    Assign Medication Schedule
+</h2>
+
+<label>
+    Required fields are marked with an asterisk
+    &#x28;<span style="color:red;">*</span>&#41;
+</label>
+
+<br>
+<br>
+
+<form id="scheduleForm">
+
+<!-- ========================= -->
+<!-- PATIENT -->
+<!-- ========================= -->
+
+<fieldset>
+
+<legend>
+    <strong>Patient</strong>
+    <span style="color:red;">*</span>
+</legend>
+
+<label>
+    Select Patient
+</label>
+
+<br>
+
+<select
+    id="patientSelect"
+    required
+>
+
+<option value="">
+    Loading patients...
+</option>
+
+</select>
+
+<br>
+<br>
+
+<label>
+    Assigned Ward
+</label>
+
+<br>
+
+<input
+    type="text"
+    id="assignedArea"
+    readonly
+>
+
+<br>
+<br>
+
+<label>
+    Room
+</label>
+
+<br>
+
+<input
+    type="text"
+    id="room"
+    readonly
+>
+
+</fieldset>
+
+<br>
+
+
+<!-- ========================= -->
+<!-- NURSE -->
+<!-- ========================= -->
+
+<fieldset>
+
+<legend>
+    <strong>Nurse</strong>
+</legend>
+
+<label>
+    Assign Nurse
+    <span style="color:red;">*</span>
+</label>
+
+<br>
+
+<select
+    id="nurse"
+    required
+>
+
+<option value="">
+    Loading nurses...
+</option>
+
+</select>
+
+</fieldset>
+
+<br>
+
+
+<!-- ========================= -->
+<!-- MEDICATION -->
+<!-- ========================= -->
+
+<fieldset>
+
+<legend>
+    <strong>Medication</strong>
+</legend>
+
+<label>
+    Select Medication
+    <span style="color:red;">*</span>
+</label>
+
+<br>
+
+<select
+    id="prescriptionItem"
+    required
+>
+
+<option value="">
+    Select patient first
+</option>
+
+</select>
+
+<br>
+<br>
+
+<label>
+    Medication Name
+</label>
+
+<br>
+
+<input
+    type="text"
+    id="medicationName"
+    readonly
+>
+
+<br>
+<br>
+
+<label>
+    Dosage
+</label>
+
+<br>
+
+<input
+    type="text"
+    id="dosage"
+    readonly
+>
+
+<br>
+<br>
+
+<label>
+    Route
+</label>
+
+<br>
+
+<input
+    type="text"
+    id="route"
+    readonly
+>
+
+</fieldset>
+
+<br>
+
+
+<!-- ========================= -->
+<!-- SCHEDULE -->
+<!-- ========================= -->
+
+<fieldset>
+
+<legend>
+    <strong>Schedule</strong>
+</legend>
+
+<label>
+    Scheduled Dates
+    <span style="color:red;">*</span>
+</label>
+
+<br>
+
+<input
+    type="text"
+    id="scheduledDates"
+    readonly
+    placeholder="Select medication first"
+>
+
+<br>
+<br>
+
+<label>
+    Administration Time
+    <span style="color:red;">*</span>
+</label>
+
+<br>
+
+<select
+    id="scheduledTime"
+    required
+>
+
+<option value="">
+    Select medication first
+</option>
+
+</select>
+
+<br>
+<br>
+
+<label>
+    Status
+</label>
+
+<br>
+
+<input
+    type="text"
+    id="status"
+    value="Scheduled"
+    readonly
+>
+
+</fieldset>
+
+<br>
+
+<button type="submit">
+    Assign Schedule
+</button>
+
+</form>
+
+
+<pre id="result"></pre>
+
+
+<script type="module">
+
+
+/* =====================================================
+   FIREBASE
+===================================================== */
+
+import {
+    initializeApp
+}
+from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+
+
+import {
+    getDatabase,
+    ref,
+    get
+}
+from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
+
+
+/* =====================================================
+   FIREBASE CONFIG
+===================================================== */
+
+const firebaseConfig = {
+    apiKey: "AIzaSyBRm3dUt3HreTquM_Ba9JfYmZD2CLVV0Gc",
+    authDomain: "meditrack-59cca.firebaseapp.com",
+    databaseURL: "https://meditrack-59cca-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "meditrack-59cca",
+    storageBucket: "meditrack-59cca.firebasestorage.app",
+    messagingSenderId: "656003988692",
+    appId: "1:656003988692:web:badfe96b7d830837a4cf41"
+};
+
+
+const app =
+    initializeApp(firebaseConfig);
+
+
+const db =
+    getDatabase(app);
+
+
+/* =====================================================
+   DOM ELEMENTS
+===================================================== */
+
+const patientSelect =
+    document.getElementById(
+        "patientSelect"
+    );
+
+
+const prescriptionSelect =
+    document.getElementById(
+        "prescriptionItem"
+    );
+
+
+const assignedArea =
+    document.getElementById(
+        "assignedArea"
+    );
+
+
+const room =
+    document.getElementById(
+        "room"
+    );
+
+
+const medicationName =
+    document.getElementById(
+        "medicationName"
+    );
+
+
+const dosage =
+    document.getElementById(
+        "dosage"
+    );
+
+
+const route =
+    document.getElementById(
+        "route"
+    );
+
+
+const scheduledDates =
+    document.getElementById(
+        "scheduledDates"
+    );
+
+
+const scheduledTime =
+    document.getElementById(
+        "scheduledTime"
+    );
+
+
+/* =====================================================
+   LOCAL DATA
+===================================================== */
+
+let patients = {};
+
+let patientPrescriptionItems = {};
+
+
+/* =====================================================
+   INITIAL LOAD
+===================================================== */
+
+await loadEligiblePatients();
+
+await loadNurses();
+
+
+/* =====================================================
+   GENERATE DATE RANGE
+===================================================== */
+
+function generateScheduledDates(
+    startDate,
+    endDate
+){
+
+    if(
+        !startDate ||
+        !endDate
+    ){
+
+        return [];
+
+    }
+
+
+    const dates = [];
+
+
+    /*
+        Add midnight explicitly so that
+        timezone conversion does not shift
+        the date.
+    */
+
+    const current =
+        new Date(
+            `${startDate}T00:00:00`
+        );
+
+
+    const end =
+        new Date(
+            `${endDate}T00:00:00`
+        );
+
+
+    if(
+        Number.isNaN(
+            current.getTime()
+        ) ||
+        Number.isNaN(
+            end.getTime()
+        )
+    ){
+
+        return [];
+
+    }
+
+
+    /*
+        Prevent invalid ranges.
+    */
+
+    if(
+        current > end
+    ){
+
+        return [];
+
+    }
+
+
+    while(
+        current <= end
+    ){
+
+        const year =
+            current.getFullYear();
+
+
+        const month =
+            String(
+                current.getMonth() + 1
+            )
+            .padStart(
+                2,
+                "0"
+            );
+
+
+        const day =
+            String(
+                current.getDate()
+            )
+            .padStart(
+                2,
+                "0"
+            );
+
+
+        dates.push(
+            `${year}-${month}-${day}`
+        );
+
+
+        current.setDate(
+            current.getDate() + 1
+        );
+
+    }
+
+
+    return dates;
+
+}
+
+
+/* =====================================================
+   FORMAT DATE RANGE FOR DISPLAY
+===================================================== */
+
+function formatScheduledDateRange(
+    dates
+){
+
+    if(
+        !dates ||
+        dates.length === 0
+    ){
+
+        return "";
+
+    }
+
+
+    if(
+        dates.length === 1
+    ){
+
+        return dates[0];
+
+    }
+
+
+    return `${dates[0]} - ${
+        dates[dates.length - 1]
+    }`;
+
+}
+
+
+/* =====================================================
+   1 & 2. LOAD ELIGIBLE PATIENTS
+===================================================== */
+
+async function loadEligiblePatients(){
+
+    try{
+
+        const patientsSnap =
+            await get(
+                ref(
+                    db,
+                    "patients"
+                )
+            );
+
+
+        const prescriptionsSnap =
+            await get(
+                ref(
+                    db,
+                    "prescriptions"
+                )
+            );
+
+
+        const itemsSnap =
+            await get(
+                ref(
+                    db,
+                    "prescription_items"
+                )
+            );
+
+
+        const schedulesSnap =
+            await get(
+                ref(
+                    db,
+                    "medication_schedule"
+                )
+            );
+
+
+        patientSelect.innerHTML =
+            `
+            <option value="">
+                Select Patient
+            </option>
+            `;
+
+
+        /*
+            Check required data.
+        */
+
+        if(
+            !patientsSnap.exists() ||
+            !prescriptionsSnap.exists() ||
+            !itemsSnap.exists()
+        ){
+
+            return;
+
+        }
+
+
+        const prescriptions =
+            prescriptionsSnap.val();
+
+
+        /* =================================================
+           BUILD MAP OF ALREADY SCHEDULED TIMES
+        ================================================= */
+
+        const scheduledMap = {};
+
+
+        if(
+            schedulesSnap.exists()
+        ){
+
+            schedulesSnap.forEach(
+                scheduleSnap => {
+
+                    const data =
+                        scheduleSnap.val();
+
+
+                    const itemId =
+                        data.prescription_item_id;
+
+
+                    const time =
+                        data.scheduled_time;
+
+
+                    if(
+                        !itemId ||
+                        !time
+                    ){
+
+                        return;
+
+                    }
+
+
+                    if(
+                        !scheduledMap[itemId]
+                    ){
+
+                        scheduledMap[itemId] =
+                            new Set();
+
+                    }
+
+
+                    scheduledMap[itemId].add(
+                        time
+                    );
+
+                }
+            );
+
+        }
+
+
+        /* =================================================
+           BUILD PATIENT → ACTIVE PRESCRIPTION ITEMS
+        ================================================= */
+
+        const map = {};
+
+
+        itemsSnap.forEach(
+            itemSnap => {
+
+                const item =
+                    itemSnap.val();
+
+
+                const itemId =
+                    itemSnap.key;
+
+
+                const prescriptionId =
+                    item.prescription_id;
+
+
+                const patientId =
+                    item.patient_id;
+
+
+                /*
+                    Validate references.
+                */
+
+                if(
+                    !prescriptionId ||
+                    !patientId
+                ){
+
+                    return;
+
+                }
+
+
+                /*
+                    Find parent prescription.
+                */
+
+                const prescription =
+                    prescriptions[
+                        prescriptionId
+                    ];
+
+
+                if(!prescription){
+
+                    return;
+
+                }
+
+
+                /*
+                    Only active prescriptions.
+                */
+
+                const prescriptionStatus =
+                    String(
+                        prescription.status ||
+                        ""
+                    )
+                    .trim()
+                    .toLowerCase();
+
+
+                if(
+                    prescriptionStatus !==
+                    "active"
+                ){
+
+                    return;
+
+                }
+
+
+                /*
+                    Get administration times.
+                */
+
+                const allTimes =
+                    Array.isArray(
+                        item.administration_times
+                    )
+                    ? item.administration_times
+                    : [];
+
+
+                /*
+                    Get already scheduled
+                    administration times.
+                */
+
+                const scheduledTimes =
+                    scheduledMap[itemId] ||
+                    new Set();
+
+
+                /*
+                    Keep only unscheduled times.
+                */
+
+                const remainingTimes =
+                    allTimes.filter(
+                        time =>
+                            !scheduledTimes.has(
+                                time
+                            )
+                    );
+
+
+                /*
+                    If all administration times
+                    have already been scheduled,
+                    do not include the item.
+                */
+
+                if(
+                    remainingTimes.length === 0
+                ){
+
+                    return;
+
+                }
+
+
+                /*
+                    Validate prescription dates.
+                */
+
+                if(
+                    !item.start_date ||
+                    !item.end_date
+                ){
+
+                    return;
+
+                }
+
+
+                /*
+                    Make patient entry.
+                */
+
+                if(
+                    !map[patientId]
+                ){
+
+                    map[patientId] = [];
+
+                }
+
+
+                map[patientId].push({
+
+                    id:
+                        itemId,
+
+                    ...item,
+
+                    administration_times:
+                        remainingTimes
+
+                });
+
+            }
+        );
+
+
+        /* =================================================
+           POPULATE PATIENT DROPDOWN
+        ================================================= */
+
+        Object.keys(map).forEach(
+            patientId => {
+
+                const patient =
+                    patientsSnap
+                        .child(
+                            patientId
+                        )
+                        .val();
+
+
+                if(!patient){
+
+                    return;
+
+                }
+
+
+                patients[patientId] =
+                    patient;
+
+
+                patientPrescriptionItems[
+                    patientId
+                ] =
+                    map[patientId];
+
+
+                const option =
+                    document.createElement(
+                        "option"
+                    );
+
+
+                option.value =
+                    patientId;
+
+
+                option.textContent =
+                    patient.fullName ||
+                    patient.name ||
+                    patientId;
+
+
+                patientSelect.appendChild(
+                    option
+                );
+
+            }
+        );
+
+    }
+    catch(error){
+
+        console.error(
+            "Error loading eligible patients:",
+            error
+        );
+
+
+        patientSelect.innerHTML =
+            `
+            <option value="">
+                Error loading patients
+            </option>
+            `;
+
+    }
+
+}
+
+
+/* =====================================================
+   PATIENT SELECTED
+===================================================== */
+
+patientSelect.addEventListener(
+    "change",
+    () => {
+
+        const patientId =
+            patientSelect.value;
+
+
+        const patient =
+            patients[patientId];
+
+
+        prescriptionSelect.innerHTML =
+            `
+            <option value="">
+                Select Medication
+            </option>
+            `;
+
+
+        medicationName.value =
+            "";
+
+
+        dosage.value =
+            "";
+
+
+        route.value =
+            "";
+
+
+        scheduledDates.value =
+            "";
+
+
+        scheduledTime.innerHTML =
+            `
+            <option value="">
+                Select medication first
+            </option>
+            `;
+
+
+        /*
+            No patient selected.
+        */
+
+        if(!patient){
+
+            assignedArea.value =
+                "";
+
+
+            room.value =
+                "";
+
+
+            return;
+
+        }
+
+
+        /*
+            Automatically populate
+            ward and room.
+        */
+
+        assignedArea.value =
+            patient.assignedArea ||
+            "";
+
+
+        room.value =
+            patient.room ||
+            "";
+
+
+        /*
+            Load prescription items.
+        */
+
+        const items =
+            patientPrescriptionItems[
+                patientId
+            ] || [];
+
+
+        items.forEach(
+            item => {
+
+                const option =
+                    document.createElement(
+                        "option"
+                    );
+
+
+                option.value =
+                    item.id;
+
+
+                option.textContent =
+                    item.medication_name ||
+                    item.brand_name ||
+                    item.id;
+
+
+                prescriptionSelect.appendChild(
+                    option
+                );
+
+            }
+        );
+
+    }
+);
+
+/* =====================================================
+   FORMAT ADMINISTRATION TIME FOR DISPLAY
+===================================================== */
+
+function formatAdministrationTime(time){
+
+    if(!time){
+        return "";
+    }
+
+    const parts = time.split(":");
+
+    if(parts.length < 2){
+        return time;
+    }
+
+    let hours = parseInt(parts[0], 10);
+    const minutes = parts[1];
+
+    if(Number.isNaN(hours)){
+        return time;
+    }
+
+    const period =
+        hours >= 12
+            ? "PM"
+            : "AM";
+
+    hours =
+        hours % 12 || 12;
+
+    return `${hours}:${minutes} ${period}`;
+
+}
+
+/* =====================================================
+   MEDICATION SELECTED
+===================================================== */
+
+prescriptionSelect.addEventListener(
+    "change",
+    () => {
+
+        const patientId =
+            patientSelect.value;
+
+
+        const items =
+            patientPrescriptionItems[
+                patientId
+            ] || [];
+
+
+        const item =
+            items.find(
+                i =>
+                    i.id ===
+                    prescriptionSelect.value
+            );
+
+
+        /*
+            Reset fields.
+        */
+
+        medicationName.value =
+            "";
+
+
+        dosage.value =
+            "";
+
+
+        route.value =
+            "";
+
+
+        scheduledDates.value =
+            "";
+
+
+        scheduledTime.innerHTML =
+            `
+            <option value="">
+                Select Time
+            </option>
+            `;
+
+
+        if(!item){
+
+            return;
+
+        }
+
+
+        /* =================================================
+           MEDICATION INFORMATION
+        ================================================= */
+
+        medicationName.value =
+            item.medication_name ||
+            "";
+
+
+        dosage.value =
+            item.dosage ||
+            "";
+
+
+        route.value =
+            item.route ||
+            "";
+
+
+        /* =================================================
+           COMPUTE SCHEDULED DATES
+        ================================================= */
+
+        const dates =
+            generateScheduledDates(
+                item.start_date,
+                item.end_date
+            );
+
+
+        if(
+            dates.length > 0
+        ){
+
+            scheduledDates.value =
+                formatScheduledDateRange(
+                    dates
+                );
+
+        }
+        else{
+
+            scheduledDates.value =
+                "Invalid prescription date range";
+
+        }
+
+
+        /* =================================================
+           POPULATE ADMINISTRATION TIMES
+        ================================================= */
+
+        (
+            item.administration_times ||
+            []
+        )
+        .forEach(
+            time => {
+
+                const option =
+                    document.createElement(
+                        "option"
+                    );
+
+                option.value =
+                    time;
+
+                option.textContent =
+                    formatAdministrationTime(time);
+
+                scheduledTime.appendChild(
+                    option
+                );
+
+            }
+        );
+
+    }
+);
+
+
+/* =====================================================
+   LOAD NURSES
+===================================================== */
+
+async function loadNurses(){
+
+    try{
+
+        const snapshot =
+            await get(
+                ref(
+                    db,
+                    "users"
+                )
+            );
+
+
+        const select =
+            document.getElementById(
+                "nurse"
+            );
+
+
+        select.innerHTML =
+            `
+            <option value="">
+                Select Nurse
+            </option>
+            `;
+
+
+        if(
+            !snapshot.exists()
+        ){
+
+            return;
+
+        }
+
+
+        snapshot.forEach(
+            user => {
+
+                const u =
+                    user.val();
+
+
+                if(
+                    u.userType ===
+                        "Nurse" ||
+                    u.userType ===
+                        "Head Nurse"
+                ){
+
+                    const option =
+                        document.createElement(
+                            "option"
+                        );
+
+
+                    option.value =
+                        user.key;
+
+
+                    option.textContent =
+                        u.fullName ||
+                        `${u.firstName || ""} ${u.lastName || ""}`.trim() ||
+                        user.key;
+
+
+                    select.appendChild(
+                        option
+                    );
+
+                }
+
+            }
+        );
+
+    }
+    catch(error){
+
+        console.error(
+            "Error loading nurses:",
+            error
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   SAVE SCHEDULE
+===================================================== */
+
+document
+    .getElementById(
+        "scheduleForm"
+    )
+    .addEventListener(
+        "submit",
+        async function(e){
+
+            e.preventDefault();
+
+
+            /* =================================================
+               GET SELECTED PATIENT
+            ================================================= */
+
+            const patientId =
+                patientSelect.value;
+
+
+            const items =
+                patientPrescriptionItems[
+                    patientId
+                ] || [];
+
+
+            const selectedItem =
+                items.find(
+                    item =>
+                        item.id ===
+                        prescriptionSelect.value
+                );
+
+
+            if(!selectedItem){
+
+                alert(
+                    "Please select a medication."
+                );
+
+                return;
+
+            }
+
+
+            /* =================================================
+               GENERATE SCHEDULED DATES
+            ================================================= */
+
+            const scheduledDatesList =
+                generateScheduledDates(
+                    selectedItem.start_date,
+                    selectedItem.end_date
+                );
+
+
+            if(
+                scheduledDatesList.length === 0
+            ){
+
+                alert(
+                    "The prescription does not have a valid start date and end date."
+                );
+
+                return;
+
+            }
+
+
+            /* =================================================
+               VALIDATE ADMINISTRATION TIME
+            ================================================= */
+
+            if(
+                !scheduledTime.value
+            ){
+
+                alert(
+                    "Please select an administration time."
+                );
+
+                return;
+
+            }
+
+
+            /* =================================================
+               VALIDATE NURSE
+            ================================================= */
+
+            const nurseUid =
+                document.getElementById(
+                    "nurse"
+                ).value;
+
+
+            if(!nurseUid){
+
+                alert(
+                    "Please select a nurse."
+                );
+
+                return;
+
+            }
+
+
+            /* =================================================
+               BUILD PAYLOAD
+            ================================================= */
+
+            const payload = {
+
+                prescription_item_id:
+                    prescriptionSelect.value,
+
+                nurse_uid:
+                    nurseUid,
+
+                scheduled_dates:
+                    scheduledDatesList,
+
+                scheduled_time:
+                    scheduledTime.value,
+
+                dosage:
+                    dosage.value,
+
+                route:
+                    route.value,
+
+                status:
+                    "Scheduled",
+
+                assigned_area:
+                    assignedArea.value,
+
+                room:
+                    room.value
+
+            };
+
+
+            console.log(
+                "Schedule payload:",
+                payload
+            );
+
+
+            /* =================================================
+               SEND TO PHP
+            ================================================= */
+
+            try{
+
+                const response =
+                    await fetch(
+                        "assign_schedule.php",
+                        {
+
+                            method:
+                                "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body:
+                                JSON.stringify(
+                                    payload
+                                )
+
+                        }
+                    );
+
+
+                const result =
+                    await response.json();
+
+
+                document
+                    .getElementById(
+                        "result"
+                    )
+                    .textContent =
+                        JSON.stringify(
+                            result,
+                            null,
+                            4
+                        );
+
+
+                /* =================================================
+                   SUCCESS
+                ================================================= */
+
+                if(
+                    result.success
+                ){
+
+                    alert(
+                        "Medication schedule assigned successfully."
+                    );
+
+
+                    window.location.href =
+                        `view_schedule.html?id=${
+                            encodeURIComponent(
+                                result.schedule_id
+                            )
+                        }`;
+
+                }
+                else{
+
+                    alert(
+                        result.message ||
+                        "Failed to assign medication schedule."
+                    );
+
+                }
+
+            }
+            catch(error){
+
+                console.error(
+                    "Error assigning schedule:",
+                    error
+                );
+
+
+                document
+                    .getElementById(
+                        "result"
+                    )
+                    .textContent =
+                        error.toString();
+
+
+                alert(
+                    "An error occurred while assigning the medication schedule."
+                );
+
+            }
+
+        }
+    );
+
+</script>
+
+</body>
+</html>

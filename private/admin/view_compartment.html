@@ -11,331 +11,7 @@ MediTrack | View Dispenser Carousel
 
 <link rel="stylesheet"
       href="stylesheets/view_compartment.css">
-
-<style>
-
-*{
-    box-sizing:border-box;
-}
-
-body{
-    padding:20px;
-}
-
-
-.top-bar{
-    margin-bottom:20px;
-}
-
-.dashboard-link{
-    display:inline-block;
-    padding:9px 15px;
-    background:#1976d2;
-    color:white;
-    text-decoration:none;
-    border-radius:5px;
-}
-
-h1{
-    margin-bottom:5px;
-}
-
-.subtitle{
-    color:#666;
-    margin-top:0;
-}
-
-fieldset{
-    background:white;
-    border:1px solid #ddd;
-    border-radius:8px;
-    padding:20px;
-    margin-bottom:20px;
-}
-
-legend{
-    padding:0 10px;
-}
-
-.info-grid{
-    display:grid;
-    grid-template-columns:
-        repeat(3,1fr);
-    gap:15px;
-}
-
-.info-box{
-    display:flex;
-    flex-direction:column;
-}
-
-.info-box label{
-    font-size:12px;
-    font-weight:bold;
-    color:#666;
-    margin-bottom:5px;
-}
-
-.info-box input{
-    padding:10px;
-    border:1px solid #ddd;
-    border-radius:5px;
-    background:#f8f9fa;
-}
-
-.patient-name{
-    font-size:20px;
-    font-weight:bold;
-}
-
-.status-badge{
-    display:inline-block;
-    width:max-content;
-    padding:6px 11px;
-    border-radius:14px;
-    font-size:12px;
-    font-weight:bold;
-}
-
-.status-empty{
-    background:#f8d7da;
-    color:#842029;
-}
-
-.status-low{
-    background:#fff3cd;
-    color:#664d03;
-}
-
-.status-normal{
-    background:#d1e7dd;
-    color:#0f5132;
-}
-
-.status-full{
-    background:#cfe2ff;
-    color:#084298;
-}
-
-.status-refill{
-    background:#ffe5b4;
-    color:#8a4b00;
-}
-
-.progress-container{
-    margin-top:8px;
-    height:12px;
-    width:100%;
-    background:#e9ecef;
-    border-radius:10px;
-    overflow:hidden;
-}
-
-.progress-bar{
-    height:100%;
-    background:#1976d2;
-}
-
-.summary-grid{
-    display:grid;
-    grid-template-columns:
-        repeat(4,1fr);
-    gap:15px;
-}
-
-.summary-card{
-    background:white;
-    border:1px solid #ddd;
-    border-radius:8px;
-    padding:18px;
-}
-
-.summary-card label{
-    display:block;
-    font-size:12px;
-    font-weight:bold;
-    color:#666;
-    margin-bottom:8px;
-}
-
-.summary-value{
-    font-size:24px;
-    font-weight:bold;
-}
-
-.medication-card{
-    border:1px solid #ddd;
-    border-radius:8px;
-    padding:15px;
-    margin-bottom:12px;
-    background:#fafafa;
-}
-
-.medication-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:10px;
-}
-
-.medication-name{
-    font-size:17px;
-    font-weight:bold;
-}
-
-.medication-details{
-    display:grid;
-    grid-template-columns:
-        repeat(4,1fr);
-    gap:10px;
-}
-
-.medication-detail{
-    font-size:13px;
-}
-
-.medication-detail strong{
-    display:block;
-    color:#666;
-    font-size:11px;
-}
-
-.slots-table-container{
-    background:white;
-    border:1px solid #ddd;
-    border-radius:8px;
-    overflow-x:auto;
-}
-
-table{
-    width:100%;
-    border-collapse:collapse;
-    min-width:1000px;
-}
-
-thead{
-    background:#1976d2;
-    color:white;
-}
-
-th,
-td{
-    padding:12px;
-    border-bottom:1px solid #ddd;
-    text-align:left;
-    vertical-align:top;
-}
-
-tbody tr:hover{
-    background:#f8f9fa;
-}
-
-.slot-number{
-    font-weight:bold;
-    font-size:16px;
-}
-
-.medicine-item{
-    background:#f1f5f9;
-    border-left:4px solid #1976d2;
-    padding:8px 10px;
-    margin-bottom:6px;
-    border-radius:4px;
-}
-
-.medicine-item:last-child{
-    margin-bottom:0;
-}
-
-.medicine-item strong{
-    display:block;
-}
-
-.medicine-item small{
-    color:#666;
-}
-
-.empty-slot{
-    color:#999;
-    font-style:italic;
-}
-
-.refill-box{
-    background:#fff3cd;
-    border:1px solid #ffecb5;
-    border-radius:7px;
-    padding:15px;
-    margin-top:15px;
-}
-
-.refill-box h3{
-    margin-top:0;
-    color:#664d03;
-}
-
-.action-bar{
-    display:flex;
-    gap:10px;
-    margin-top:20px;
-}
-
-button{
-    padding:10px 18px;
-    border:none;
-    border-radius:5px;
-    cursor:pointer;
-}
-
-.edit-button{
-    background:#198754;
-    color:white;
-}
-
-.back-button{
-    background:#6c757d;
-    color:white;
-}
-
-.refill-button{
-    background:#fd7e14;
-    color:white;
-}
-
-.loading{
-    padding:20px;
-    background:white;
-    border-radius:8px;
-}
-
-.error{
-    padding:15px;
-    background:#f8d7da;
-    color:#842029;
-    border-radius:7px;
-}
-
-@media(max-width:1000px){
-
-    .info-grid,
-    .medication-details,
-    .summary-grid{
-        grid-template-columns:
-            repeat(2,1fr);
-    }
-
-}
-
-@media(max-width:600px){
-
-    .info-grid,
-    .medication-details,
-    .summary-grid{
-        grid-template-columns:1fr;
-    }
-
-}
-
-</style>
+<link rel="icon" type="image/x-icon" href="../../draft.png">
 
 </head>
 
@@ -671,7 +347,7 @@ button{
 <!-- SLOT SCHEDULE -->
 <!-- ================================================= -->
 
-<fieldset style="margin-left: -157px;">
+<fieldset>
 
 <legend>
     <strong>Carousel Slot Schedule</strong>
@@ -836,7 +512,7 @@ from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
 import {
     requireRole
 }
-from "../../public/auth_guard.js";
+from "../js/auth_guard.js";
 
 
 requireRole("Admin");
@@ -1148,6 +824,56 @@ function formatScheduleDate(
 
 }
 
+
+/* =====================================================
+   FORMAT ADMINISTRATION TIME
+===================================================== */
+
+function formatAdministrationTime(time){
+
+    if(!time){
+        return "-";
+    }
+
+    const value =
+        String(time).trim();
+
+    const match =
+        value.match(
+            /^(\d{1,2}):(\d{2})$/
+        );
+
+    if(!match){
+        return value;
+    }
+
+    let hours =
+        parseInt(
+            match[1],
+            10
+        );
+
+    const minutes =
+        match[2];
+
+    if(
+        hours < 0 ||
+        hours > 23
+    ){
+        return value;
+    }
+
+    const period =
+        hours >= 12
+            ? "PM"
+            : "AM";
+
+    const hour12 =
+        hours % 12 || 12;
+
+    return `${hour12}:${minutes} ${period}`;
+
+}
 
 
 /* =====================================================
@@ -1784,8 +1510,11 @@ function renderSlots(
                     <strong>
 
                         ${escapeHtml(
-                            slot.administration_time ||
-                            "-"
+
+                            formatAdministrationTime(
+                                slot.administration_time
+                            )
+
                         )}
 
                     </strong>

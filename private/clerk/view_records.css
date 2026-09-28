@@ -156,7 +156,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 30px;
+    gap: 32px;
     padding: 32px 34px;
     margin-bottom: 28px;
     border: 1px solid #cfe3f7;
@@ -176,6 +176,83 @@ body {
     border-radius: 50%;
     background: rgba(47, 134, 232, 0.08);
     pointer-events: none;
+    min-width: 0;
+}
+
+.dashboard-clock__icon {
+    width: 42px;
+    height: 42px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 11px;
+
+    color: #1f70bd;
+    background: #eaf4ff;
+}
+
+
+.dashboard-clock__icon svg {
+    width: 22px;
+    height: 22px;
+
+    stroke: currentColor;
+    stroke-width: 1.8;
+
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+
+.dashboard-clock__content {
+    display: flex;
+    flex-direction: column;
+}
+
+
+.dashboard-clock__date {
+    margin-bottom: 3px;
+
+    color: #718295;
+
+    font-size: 0.72rem;
+    font-weight: 600;
+}
+
+
+.dashboard-clock__time {
+    color: #0b2947;
+
+    font-size: 1.25rem;
+    font-weight: 750;
+
+    letter-spacing: -0.02em;
+
+    font-variant-numeric: tabular-nums;
+}
+
+
+/* ============================================================
+   RESPONSIVE CLOCK
+============================================================ */
+
+@media (max-width: 760px) {
+
+    .page-heading {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 18px;
+    }
+
+    .dashboard-clock {
+        width: 100%;
+        min-width: 0;
+    }
+
 }
 
 .page-heading__eyebrow {
@@ -663,4 +740,40 @@ body {
         justify-self: start;
     }
 
+}
+
+
+.module-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: inherit;
+}
+
+.module-card__link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+}
+
+.module-card__arrow {
+    width: 18px;
+    height: 18px;
+}
+
+.brand__icon svg,
+.logout-btn svg,
+.dashboard-clock__icon svg,
+.module-card__icon svg,
+.module-card__arrow {
+    width: 20px;
+    height: 20px;
+}
+
+.logout-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
 }

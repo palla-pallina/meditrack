@@ -33,7 +33,7 @@ export function requireRole(role){
 
         if(!user){
 
-            window.location.href="../../public/login.html";
+            window.location.href="../../index.html";
             return;
         }
 
@@ -45,7 +45,7 @@ export function requireRole(role){
 
             auth.signOut();
 
-            window.location.href="../../public/login.html";
+            window.location.href="../../index.html";
 
             return;
 
@@ -57,7 +57,7 @@ export function requireRole(role){
 
             alert("Access denied.");
 
-            window.location.href="../../public/login.html";
+            window.location.href="../../index.html";
 
         }
 

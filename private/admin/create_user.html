@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <title>Create User</title>
 <link rel="stylesheet" href="stylesheets/create_user.css">
+<link rel="icon" type="image/x-icon" href="../../draft.png">
+
 </head>
 
 <body>
@@ -63,7 +65,7 @@
 <script type="module">
 
 import { requireRole }
-from "../../public/auth_guard.js";
+from "../js/auth_guard.js";
 
 requireRole("Admin");
 
@@ -81,7 +83,7 @@ document.getElementById("logoutBtn")
 
         await signOut(auth);
 
-        window.location.href = "../../public/login.html";
+        window.location.href = "../../index.html";
 
     }
     catch(error) {

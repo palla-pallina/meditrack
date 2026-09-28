@@ -3,6 +3,8 @@
 <head>
     <title>MediTrack | Discharge Patient</title>
     <link rel="stylesheet" href="stylesheets/discharge_patient.css">
+    <link rel="icon" type="image/x-icon" href="../../draft.png">
+
 </head>
 
 <body>
@@ -10,6 +12,7 @@
 <a href="view_records.html">Dashboard</a><br><br>
 
 <h2>Discharge Patient</h2>
+<label>Required fields are marked with an asterisk &#x28;<span style="color:red;">*</span>&#41;</label>
 
 <form id="dischargeForm">
 
@@ -73,7 +76,7 @@ readonly>
 
 <br><br>
 
-<label>Discharge Type *</label><br>
+<label>Discharge Type <span style="color:red;">*</span></label><br>
 
 <select
 id="dischargeType"
@@ -105,7 +108,7 @@ Expired
 
 <br><br>
 
-<label>Discharge Summary *</label><br>
+<label>Discharge Summary <span style="color:red;">*</span></label><br>
 
 <textarea
 id="dischargeSummary"
@@ -135,14 +138,18 @@ import { initializeApp }
 from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
 
 import {
-
-getDatabase,
-ref,
-get,
-update
-
+    getDatabase,
+    ref,
+    get,
+    update
 }
 from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
+
+import {
+    getAuth,
+    onAuthStateChanged
+}
+from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBRm3dUt3HreTquM_Ba9JfYmZD2CLVV0Gc",
@@ -156,7 +163,89 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 
-const db = getDatabase();
+const db = getDatabase(app);
+const auth = getAuth(app);
+
+/* =========================================================
+   CLERK ACCOUNT VALIDATION
+========================================================= */
+
+const dischargeForm =
+    document.getElementById("dischargeForm");
+
+const dashboardLink =
+    document.querySelector('a[href="view_records.html"]');
+
+// Hide the page content until authorization succeeds.
+dischargeForm.style.display = "none";
+dashboardLink.style.display = "none";
+
+async function validateClerkAccess() {
+
+    try {
+
+        const user = await new Promise((resolve, reject) => {
+
+            const unsubscribe = onAuthStateChanged(
+                auth,
+                authenticatedUser => {
+                    unsubscribe();
+                    resolve(authenticatedUser);
+                },
+                error => {
+                    unsubscribe();
+                    reject(error);
+                }
+            );
+
+        });
+
+        // Redirect if the user is not authenticated.
+        if (!user) {
+            window.location.replace("../../index.html");
+            return false;
+        }
+
+        // Retrieve the user's account information.
+        const userSnapshot = await get(
+            ref(db, `users/${user.uid}`)
+        );
+
+        // Redirect if the account record does not exist.
+        if (!userSnapshot.exists()) {
+            window.location.replace("../../index.html");
+            return false;
+        }
+
+        const userData = userSnapshot.val();
+
+        // Only Clerk accounts are authorized.
+        if (userData.userType !== "Clerk") {
+            window.location.replace("../../index.html");
+            return false;
+        }
+
+        // Allow access after successful validation.
+        dischargeForm.style.display = "";
+        dashboardLink.style.display = "";
+
+        return true;
+
+    } catch (error) {
+
+        console.error("Account validation failed:", error);
+
+        window.location.replace("../../index.html");
+
+        return false;
+
+    }
+
+}
+
+if (!(await validateClerkAccess())) {
+    throw new Error("Unauthorized access.");
+}
 
 const params =
 new URLSearchParams(window.location.search);

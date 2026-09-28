@@ -7,6 +7,7 @@
     <title>MediTrack | Patient Admission Record</title>
 
     <link rel="stylesheet" href="stylesheets/view_patient.css">
+    <link rel="icon" type="image/x-icon" href="../../draft.png">
 
     <style>
 
@@ -340,6 +341,10 @@
             remove
         } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
 
+        import {
+            getAuth,
+            onAuthStateChanged
+        } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
 
         // =====================================================
         // FIREBASE CONFIG
@@ -357,9 +362,79 @@
 
 
         const app = initializeApp(firebaseConfig);
-
         const db = getDatabase(app);
+        const auth = getAuth(app);
 
+        // =====================================================
+        // CLERK ACCESS VALIDATION
+        // =====================================================
+
+        // Hide the page until access has been verified.
+        document.body.style.visibility = "hidden";
+
+        async function validateClerkAccess() {
+            try {
+                const user = await new Promise((resolve, reject) => {
+                    let unsubscribe = () => {};
+
+                    unsubscribe = onAuthStateChanged(
+                        auth,
+                        (authenticatedUser) => {
+                            unsubscribe();
+                            resolve(authenticatedUser);
+                        },
+                        (error) => {
+                            unsubscribe();
+                            reject(error);
+                        }
+                    );
+                });
+
+                // Redirect if the user is not authenticated.
+                if (!user) {
+                    window.location.replace("../../index.html");
+                    return false;
+                }
+
+                // Retrieve the authenticated user's account data.
+                const userSnapshot = await get(
+                    ref(db, `users/${user.uid}`)
+                );
+
+                // Redirect if the account does not exist.
+                if (!userSnapshot.exists()) {
+                    window.location.replace("../../index.html");
+                    return false;
+                }
+
+                const userData = userSnapshot.val();
+
+                // Allow access only to Clerk accounts.
+                if (userData.userType !== "Clerk") {
+                    window.location.replace("../../index.html");
+                    return false;
+                }
+
+                // The user is authorized.
+                document.body.style.visibility = "visible";
+
+                return true;
+
+            } catch (error) {
+                console.error(
+                    "Clerk account validation failed:",
+                    error
+                );
+
+                window.location.replace("../../index.html");
+                return false;
+            }
+        }
+
+        // Stop the script if access is denied.
+        if (!(await validateClerkAccess())) {
+            throw new Error("Unauthorized access.");
+        }
 
         // =====================================================
         // GET PATIENT ID
@@ -391,6 +466,38 @@
         const pastMedicationContainer =
             document.getElementById("pastMedicationContainer");
 
+
+        // =====================================================
+        // FORMAT TIME
+        // Converts HH:MM to 12-hour format
+        // =====================================================
+
+        function formatTime(time) {
+
+            if (!time) {
+                return "-";
+            }
+
+            const value = String(time).trim();
+
+            const match = value.match(/^(\d{1,2}):(\d{2})$/);
+
+            if (!match) {
+                return value;
+            }
+
+            let hours = parseInt(match[1], 10);
+            const minutes = match[2];
+
+            if (hours < 0 || hours > 23) {
+                return value;
+            }
+
+            const period = hours >= 12 ? "PM" : "AM";
+            const hour12 = hours % 12 || 12;
+
+            return `${hour12}:${minutes} ${period}`;
+        }
 
         // =====================================================
         // HELPER
@@ -1135,7 +1242,7 @@
                     document.getElementById(
                         "admissionTime"
                     ).textContent =
-                        p.admissionTime || "";
+                        formatTime(p.admissionTime);
 
                     document.getElementById(
                         "assignedArea"
@@ -1204,7 +1311,7 @@
                         document.getElementById(
                             "dischargeTime"
                         ).textContent =
-                            p.dischargeTime || "";
+                            formatTime(p.dischargeTime);
 
 
                         document.getElementById(

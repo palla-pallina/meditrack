@@ -8,6 +8,7 @@
     <title>
         MediTrack | Edit Patient Admission Form
     </title>
+    <link rel="icon" type="image/x-icon" href="../../draft.png">
 
     <link
         rel="stylesheet"
@@ -852,6 +853,10 @@ import {
 }
 from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
 
+import {
+    getAuth,
+    onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
 
 /* =========================================================
    FIREBASE CONFIG
@@ -867,14 +872,94 @@ const firebaseConfig = {
     appId: "1:656003988692:web:badfe96b7d830837a4cf41"
 };
 
+const app = initializeApp(firebaseConfig);
 
-const app =
-    initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const auth = getAuth(app);
 
+/* =========================================================
+   CLERK ACCOUNT VALIDATION
+========================================================= */
 
-const db =
-    getDatabase();
+const form = document.querySelector("#patientForm");
 
+const dashboardLink = document.querySelector(
+    'a[href="view_records.html"]'
+);
+
+// Hide the form until authorization is confirmed.
+form.style.display = "none";
+dashboardLink.style.display = "none";
+
+async function validateClerkAccess() {
+
+    try {
+
+        const user = await new Promise((resolve, reject) => {
+
+            const unsubscribe = onAuthStateChanged(
+                auth,
+                authenticatedUser => {
+                    unsubscribe();
+                    resolve(authenticatedUser);
+                },
+                error => {
+                    unsubscribe();
+                    reject(error);
+                }
+            );
+
+        });
+
+        // Redirect if no user is signed in.
+        if (!user) {
+            window.location.replace("../../index.html");
+            return false;
+        }
+
+        // Retrieve the user's account record.
+        const userSnapshot = await get(
+            ref(db, `users/${user.uid}`)
+        );
+
+        // Redirect if the user record does not exist.
+        if (!userSnapshot.exists()) {
+            window.location.replace("../../index.html");
+            return false;
+        }
+
+        const userData = userSnapshot.val();
+
+        // Only Clerk accounts may access this page.
+        if (userData.userType !== "Clerk") {
+            window.location.replace("../../index.html");
+            return false;
+        }
+
+        // Show the page after successful validation.
+        form.style.display = "";
+        dashboardLink.style.display = "";
+
+        return true;
+
+    } catch (error) {
+
+        console.error(
+            "Clerk account validation failed:",
+            error
+        );
+
+        window.location.replace("../../index.html");
+
+        return false;
+
+    }
+
+}
+
+if (!(await validateClerkAccess())) {
+    throw new Error("Unauthorized access.");
+}
 
 /* =========================================================
    GET PATIENT ID FROM URL
@@ -912,10 +997,6 @@ const MAX_ENTRIES = 6;
 /* =========================================================
    FORM ELEMENTS
 ========================================================= */
-
-const form =
-    document.querySelector("#patientForm");
-
 
 const admissionNumber =
     document.querySelector("#admissionNumber");

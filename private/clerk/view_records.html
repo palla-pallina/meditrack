@@ -1,52 +1,170 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <title>Patient Records Dashboard</title>
 
-        <link rel="stylesheet" href="stylesheets/view_records.css">
-    </head>
-    
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="MediTrack User Dashboard.">
+
+    <title>MediTrack | User Dashboard</title>
+    <link rel="icon" type="image/x-icon" href="../../draft.png">
+
+    <!-- ======================================================
+         GOOGLE FONT
+    ======================================================= -->
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <!-- ======================================================
+         DASHBOARD CSS
+    ======================================================= -->
+
+    <link rel="stylesheet" href="view_records.css">
+    <link rel="stylesheet" href="stylesheets/view_records.css">
+
+    <!-- ======================================================
+         LUCIDE ICONS
+    ======================================================= -->
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+</head>
 
 <body>
 
-<header>
+<!-- ==========================================================
+     HEADER
+=========================================================== -->
 
-    <div class="logo">
+<header class="topbar">
 
-        <h2>MediTrack</h2>
-        <span>Patient Admission Records</span>
+    <div class="topbar__inner">
+
+        <!-- BRAND -->
+
+        <div class="brand" aria-label="MediTrack Dashboard">
+
+            <img
+                src="../../draft.png"
+                alt="MediTrack Logo"
+                class="actual-logo"
+                style="height: 50px;"
+            >
+
+            <span class="brand__text">
+
+                <strong>
+                    MediTrack
+                </strong>
+
+                <span id="brandRole">
+                    User Dashboard
+                </span>
+
+            </span>
+
+        </div>
+
+
+        <!-- LOGOUT -->
+
+        <button
+            id="logoutBtn"
+            class="logout-btn"
+            type="button"
+        >
+
+            <i
+                data-lucide="log-out"
+                aria-hidden="true"
+            ></i>
+
+            <span>
+                Log out
+            </span>
+
+        </button>
 
     </div>
 
-    <button id="logoutBtn" class="logout-btn">
-        Log Out
-    </button>
-
 </header>
 
-<main>
 
-    <section class="page-header">
+<!-- ==========================================================
+     MAIN DASHBOARD
+=========================================================== -->
 
-        <div>
+<main class="dashboard">
 
-            <h1>Patient Records</h1>
 
-            <p>
-                Manage patient admission records and demographic information.
+    <!-- ======================================================
+         PAGE HEADING
+    ======================================================= -->
+
+    <section
+        class="page-heading"
+        aria-labelledby="page-title"
+    >
+
+        <div class="page-heading__content">
+
+            <p
+                class="page-heading__eyebrow"
+                id="roleLabel"
+            >
+                User
+            </p>
+
+            <h1 id="page-title">
+                Welcome
+            </h1>
+
+            <p id="page-description">
+                Manage medications, monitor inventory, and support medication dispensing operations. 
             </p>
 
         </div>
 
-        <div class="actions">
 
-            <a href="add_patient.html" class="btn btn-primary">
-                + Add Patient
-            </a>
+        <!-- ==================================================
+             LIVE CLOCK
+        =================================================== -->
 
-            <button id="refreshBtn" class="btn btn-secondary">
-                Refresh
-            </button>
+        <div
+            class="dashboard-clock"
+            aria-label="Current time"
+        >
+
+            <div
+                class="dashboard-clock__icon"
+                aria-hidden="true"
+            >
+                <i data-lucide="clock-3"></i>
+            </div>
+
+            <div class="dashboard-clock__content">
+
+                <span
+                    id="currentDate"
+                    class="dashboard-clock__date"
+                >
+                    Loading date...
+                </span>
+
+                <strong
+                    id="currentTime"
+                    class="dashboard-clock__time"
+                >
+                    --:--:--
+                </strong>
+
+            </div>
 
         </div>
 
@@ -54,10 +172,15 @@
 
     <section class="toolbar">
 
-        <input
-            type="text"
-            id="searchInput"
-            placeholder="Search patient...">
+        <div class="toolbar__search">
+            <i data-lucide="search" aria-hidden="true"></i>
+
+            <input
+                type="text"
+                id="searchInput"
+                placeholder="     Search patient..."
+            >
+        </div>
 
         <select id="statusFilter">
             <option value="Admitted" selected>Admitted</option>
@@ -69,6 +192,23 @@
             <option value="recent">Recent</option>
             <option value="oldest">Oldest</option>
         </select>
+
+        <a
+            href="add_patient.html"
+            class="btn btn-primary"
+        >
+            <i data-lucide="user-plus" aria-hidden="true"></i>
+            <span>Add Patient</span>
+        </a>
+
+        <button
+            id="refreshBtn"
+            class="btn btn-secondary"
+            type="button"
+        >
+            <i data-lucide="refresh-cw" aria-hidden="true"></i>
+            <span>Refresh</span>
+        </button>
 
     </section>
 
@@ -99,311 +239,1682 @@
         </table>
 
     </section>
-    
-    <script type="module">
 
-    import { requireRole }
-    from "../../public/auth_guard.js";
+    <div class="pagination" id="pagination">
 
-    requireRole("Clerk");
+        <button
+            type="button"
+            class="pagination-btn"
+            id="prevPage"
+        >
+            <i
+                data-lucide="chevron-left"
+                aria-hidden="true"
+            ></i>
+
+            <span>
+                Previous
+            </span>
+        </button>
+
+
+        <div
+            class="pagination-info"
+            id="paginationInfo"
+        >
+            Page 1 of 1
+        </div>
+
+
+        <button
+            type="button"
+            class="pagination-btn"
+            id="nextPage"
+        >
+            <span>
+                Next
+            </span>
+
+            <i
+                data-lucide="chevron-right"
+                aria-hidden="true"
+            ></i>
+        </button>
+
+    </div>
+
+    <!-- ======================================================
+         FOOTER
+    ======================================================= -->
+
+    <footer class="footer">
+
+        <span>
+            MediTrack Smart Medicine Dispensing System
+        </span>
+
+        <span id="footerRole">
+            User Console
+        </span>
+
+    </footer>
+
+</main>
+
+
+<!-- ==========================================================
+     JAVASCRIPT
+=========================================================== -->
+
+
+<script type="module">
+
+    // ========================================================
+    // FIREBASE IMPORTS
+    // ========================================================
+
+    import {
+        initializeApp
+    } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+
+    import {
+        getDatabase,
+        ref,
+        get,
+        remove
+    } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
 
     import {
         getAuth,
         signOut
-    } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+    } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
 
-    const auth = getAuth();
+    import {
+        requireRole
+    } from "../js/auth_guard.js";
 
-    document.getElementById("logoutBtn")
-    .addEventListener("click", async () => {
 
-        try {
+    // ========================================================
+    // USER ROLE
+    // ========================================================
 
-            await signOut(auth);
+    const USER_ROLE = "Clerk";
 
-            window.location.href = "../../public/login.html";
+
+    // ========================================================
+    // PAGINATION SETTINGS
+    // ========================================================
+
+    const ROWS_PER_PAGE = 10;
+
+    let currentPage = 1;
+
+    let patients = [];
+
+
+    // ========================================================
+    // LIVE CLOCK
+    // ========================================================
+
+    const currentDate =
+        document.getElementById("currentDate");
+
+    const currentTime =
+        document.getElementById("currentTime");
+
+
+    function updateClock() {
+
+        const now = new Date();
+
+
+        if (currentTime) {
+
+            currentTime.textContent =
+                now.toLocaleTimeString(
+                    "en-PH",
+                    {
+                        hour: "numeric",
+                        minute: "2-digit",
+                        second: "2-digit",
+                        hour12: true
+                    }
+                );
 
         }
-        catch(error) {
 
-            alert(error.message);
+
+        if (currentDate) {
+
+            currentDate.textContent =
+                now.toLocaleDateString(
+                    "en-PH",
+                    {
+                        weekday: "short",
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric"
+                    }
+                );
 
         }
 
-    });
-    </script>
+    }
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
 
-        import {
-            getDatabase,
-            ref,
-            get,
-            remove
-        } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
+    updateClock();
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyBRm3dUt3HreTquM_Ba9JfYmZD2CLVV0Gc",
-            authDomain: "meditrack-59cca.firebaseapp.com",
-            databaseURL: "https://meditrack-59cca-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "meditrack-59cca",
-            storageBucket: "meditrack-59cca.firebasestorage.app",
-            messagingSenderId: "656003988692",
-            appId: "1:656003988692:web:badfe96b7d830837a4cf41"
-        };
+    setInterval(
+        updateClock,
+        1000
+    );
 
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
 
-        const table = document.querySelector("#patientTable");
-        let patients = [];
-        const refreshBtn = document.querySelector("#refreshBtn");
+    // ========================================================
+    // TIME-BASED GREETING
+    // ========================================================
 
-        function loadPatients() {
+    function getTimeGreeting() {
 
-            table.innerHTML = "";
+        const hour =
+            new Date().getHours();
 
-            get(ref(db, "patients"))
 
-            .then((snapshot) => {
+        if (hour < 12) {
 
-                patients = [];
+            return "Good morning";
 
-                if (!snapshot.exists()) {
+        }
 
-                    table.innerHTML = `
-                        <tr>
-                            <td colspan="7">
-                                No patient records found.
-                            </td>
-                        </tr>
-                    `;
 
-                    return;
+        if (hour < 18) {
+
+            return "Good afternoon";
+
+        }
+
+
+        return "Good evening";
+
+    }
+
+
+    // ========================================================
+    // DASHBOARD CONFIGURATION
+    // ========================================================
+
+    const DASHBOARD_CONFIG = {
+
+        role:
+            USER_ROLE,
+
+        title:
+            `${getTimeGreeting()}, ${USER_ROLE}`,
+
+        description:
+            "Manage patient admission records and demographic information.",
+
+        brandSubtitle:
+            `${USER_ROLE} Dashboard`,
+
+        footerLabel:
+            `${USER_ROLE} Console`
+
+    };
+
+
+    // ========================================================
+    // USER ACCESS
+    // ========================================================
+
+    requireRole(
+        USER_ROLE
+    );
+
+
+    // ========================================================
+    // FIREBASE CONFIGURATION
+    // ========================================================
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBRm3dUt3HreTquM_Ba9JfYmZD2CLVV0Gc",
+        authDomain: "meditrack-59cca.firebaseapp.com",
+        databaseURL: "https://meditrack-59cca-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "meditrack-59cca",
+        storageBucket: "meditrack-59cca.firebasestorage.app",
+        messagingSenderId: "656003988692",
+        appId: "1:656003988692:web:badfe96b7d830837a4cf41"
+    };
+
+
+    // ========================================================
+    // INITIALIZE FIREBASE
+    // ========================================================
+
+    const app =
+        initializeApp(
+            firebaseConfig
+        );
+
+
+    const auth =
+        getAuth(
+            app
+        );
+
+
+    const database =
+        getDatabase(
+            app
+        );
+
+
+    // ========================================================
+    // DOM ELEMENTS
+    // ========================================================
+
+    const table =
+        document.getElementById(
+            "patientTable"
+        );
+
+
+    const refreshBtn =
+        document.getElementById(
+            "refreshBtn"
+        );
+
+
+    const logoutButton =
+        document.getElementById(
+            "logoutBtn"
+        );
+
+
+    const brandRole =
+        document.getElementById(
+            "brandRole"
+        );
+
+
+    const roleLabel =
+        document.getElementById(
+            "roleLabel"
+        );
+
+
+    const pageTitle =
+        document.getElementById(
+            "page-title"
+        );
+
+
+    const pageDescription =
+        document.getElementById(
+            "page-description"
+        );
+
+
+    const footerRole =
+        document.getElementById(
+            "footerRole"
+        );
+
+
+    const searchInput =
+        document.getElementById(
+            "searchInput"
+        );
+
+
+    const statusFilter =
+        document.getElementById(
+            "statusFilter"
+        );
+
+
+    const sortOrder =
+        document.getElementById(
+            "sortOrder"
+        );
+
+
+    // ========================================================
+    // PAGINATION DOM ELEMENTS
+    // ========================================================
+
+    const prevPageButton =
+        document.getElementById(
+            "prevPage"
+        );
+
+
+    const nextPageButton =
+        document.getElementById(
+            "nextPage"
+        );
+
+
+    const paginationInfo =
+        document.getElementById(
+            "paginationInfo"
+        );
+
+
+    // ========================================================
+    // OPTIONAL DASHBOARD ELEMENTS
+    // ========================================================
+    // These may not exist on the patient records page.
+    // They are intentionally kept optional.
+
+    const moduleGrid =
+        document.getElementById(
+            "moduleGrid"
+        );
+
+
+    const activityPreviewList =
+        document.getElementById(
+            "activityPreviewList"
+        );
+
+
+    const activityPreviewLoading =
+        document.getElementById(
+            "activityPreviewLoading"
+        );
+
+
+    const activityPreviewEmpty =
+        document.getElementById(
+            "activityPreviewEmpty"
+        );
+
+
+    // ========================================================
+    // VALIDATE REQUIRED ELEMENTS
+    // ========================================================
+
+    if (!table) {
+
+        console.error(
+            "Patient table (#patientTable) was not found."
+        );
+
+    }
+
+
+    // ========================================================
+    // INITIAL FILTER
+    // ========================================================
+    // If "All Patients" exists, use it initially.
+    //
+    // This prevents an empty table when Firebase records use
+    // different capitalization or when older patient records
+    // do not have the expected admissionStatus value.
+
+    if (statusFilter) {
+
+        const allOption =
+            Array.from(
+                statusFilter.options
+            ).find(
+                option =>
+                    option.value.trim().toLowerCase() === "all"
+            );
+
+
+        if (allOption) {
+
+            statusFilter.value =
+                allOption.value;
+
+        }
+
+    }
+
+
+    // ========================================================
+    // UTILITY: SAFE STRING
+    // ========================================================
+
+    function safeString(value) {
+
+        if (
+            value === null ||
+            value === undefined
+        ) {
+
+            return "";
+
+        }
+
+
+        return String(value);
+
+    }
+
+
+    // ========================================================
+    // UTILITY: NORMALIZE TEXT
+    // ========================================================
+
+    function normalizeText(value) {
+
+        return safeString(value)
+            .trim()
+            .toLowerCase();
+
+    }
+
+
+    // ========================================================
+    // UTILITY: BUILD FULL NAME
+    // ========================================================
+
+    function getFullName(patient) {
+
+        return [
+
+            patient.firstName,
+
+            patient.middleName,
+
+            patient.lastName,
+
+            patient.suffix
+
+        ]
+        .map(
+            value => safeString(value).trim()
+        )
+        .filter(
+            Boolean
+        )
+        .join(" ");
+
+    }
+
+
+    // ========================================================
+    // UTILITY: ESCAPE HTML
+    // ========================================================
+    // Prevents patient data containing HTML characters from
+    // being inserted directly into the page.
+
+    function escapeHtml(value) {
+
+        return safeString(value)
+            .replace(
+                /&/g,
+                "&amp;"
+            )
+            .replace(
+                /</g,
+                "&lt;"
+            )
+            .replace(
+                />/g,
+                "&gt;"
+            )
+            .replace(
+                /"/g,
+                "&quot;"
+            )
+            .replace(
+                /'/g,
+                "&#039;"
+            );
+
+    }
+
+
+    // ========================================================
+    // GET FILTERED PATIENTS
+    // ========================================================
+    // This is the central filtering function.
+    //
+    // It is used by:
+    // - renderPatients()
+    // - pagination
+    // - search
+    // - status filter
+    // - sorting
+    //
+    // Keeping the filtering logic in one place prevents
+    // pagination and filtering from producing different results.
+
+    function getFilteredPatients() {
+
+        let filtered = [
+            ...patients
+        ];
+
+
+        // ====================================================
+        // STATUS FILTER
+        // ====================================================
+
+        const selectedStatus =
+            normalizeText(
+                statusFilter
+                    ? statusFilter.value
+                    : "all"
+            );
+
+
+        if (
+            selectedStatus &&
+            selectedStatus !== "all"
+        ) {
+
+            filtered =
+                filtered.filter(
+                    patient => {
+
+                        const patientStatus =
+                            normalizeText(
+                                patient.admissionStatus
+                            );
+
+
+                        return (
+                            patientStatus ===
+                            selectedStatus
+                        );
+
+                    }
+                );
+
+        }
+
+
+        // ====================================================
+        // SEARCH FILTER
+        // ====================================================
+
+        const search =
+            normalizeText(
+                searchInput
+                    ? searchInput.value
+                    : ""
+            );
+
+
+        if (search) {
+
+            filtered =
+                filtered.filter(
+                    patient => {
+
+                        const fullName =
+                            normalizeText(
+                                getFullName(patient)
+                            );
+
+
+                        const admissionNumber =
+                            normalizeText(
+                                patient.admissionNumber
+                            );
+
+
+                        const contactNumber =
+                            normalizeText(
+                                patient.contactNumber
+                            );
+
+
+                        const city =
+                            normalizeText(
+                                patient.city
+                            );
+
+
+                        const chiefComplaint =
+                            normalizeText(
+                                patient.chiefComplaint
+                            );
+
+
+                        return (
+
+                            fullName.includes(
+                                search
+                            ) ||
+
+                            admissionNumber.includes(
+                                search
+                            ) ||
+
+                            contactNumber.includes(
+                                search
+                            ) ||
+
+                            city.includes(
+                                search
+                            ) ||
+
+                            chiefComplaint.includes(
+                                search
+                            )
+
+                        );
+
+                    }
+                );
+
+        }
+
+
+        // ====================================================
+        // SORT
+        // ====================================================
+
+        const selectedSort =
+            sortOrder
+                ? normalizeText(
+                    sortOrder.value
+                )
+                : "recent";
+
+
+        filtered.sort(
+            (a, b) => {
+
+                const timestampA =
+                    getDateTimestamp(
+                        a.createdAt
+                    );
+
+
+                const timestampB =
+                    getDateTimestamp(
+                        b.createdAt
+                    );
+
+
+                if (
+                    selectedSort === "oldest"
+                ) {
+
+                    return (
+                        timestampA -
+                        timestampB
+                    );
+
                 }
 
-                snapshot.forEach((child) => {
 
-                    patients.push({
-
-                        id: child.key,
-
-                        ...child.val()
-
-                    });
-
-                });
-
-                renderPatients();
-
-            })
-
-            .catch((error)=>{
-
-                alert(error.message);
-
-            });
-
-        }
-
-        function renderPatients() {
-
-            table.innerHTML = "";
-
-            const status =
-                document.getElementById("statusFilter").value;
-
-            const sort =
-                document.getElementById("sortOrder").value;
-
-            const search =
-                document
-                .getElementById("searchInput")
-                .value
-                .trim()
-                .toLowerCase();
-
-            let filtered = [...patients];
-
-            // Filter
-
-            if(status !== "All"){
-
-                filtered = filtered.filter(patient =>
-                    patient.admissionStatus === status
+                return (
+                    timestampB -
+                    timestampA
                 );
 
             }
+        );
 
-            if(search){
 
-                filtered = filtered.filter(patient => {
+        return filtered;
 
-                    const fullName = [
-                        patient.firstName,
-                        patient.middleName,
-                        patient.lastName,
-                        patient.suffix
-                    ]
-                    .filter(Boolean)
-                    .join(" ")
-                    .toLowerCase();
+    }
 
-                    return (
 
-                        fullName.includes(search) ||
+    // ========================================================
+    // GET DATE TIMESTAMP
+    // ========================================================
 
-                        (patient.admissionNumber || "")
-                            .toLowerCase()
-                            .includes(search) ||
+    function getDateTimestamp(value) {
 
-                        (patient.contactNumber || "")
-                            .toLowerCase()
-                            .includes(search) ||
+        if (
+            value === null ||
+            value === undefined ||
+            value === ""
+        ) {
 
-                        (patient.city || "")
-                            .toLowerCase()
-                            .includes(search) ||
+            return 0;
 
-                        (patient.chiefComplaint || "")
-                            .toLowerCase()
-                            .includes(search)
+        }
 
-                    );
 
-                });
+        // Firebase timestamps can sometimes be numbers.
 
-            }
+        if (
+            typeof value === "number"
+        ) {
 
-            // Sort
+            return value;
 
-            filtered.sort((a,b)=>{
+        }
 
-                const dateA =
-                    new Date(
-                        (a.createdAt || "") + ""
-                    );
 
-                const dateB =
-                    new Date(
-                        (b.createdAt || "") + ""
-                    );
+        const timestamp =
+            new Date(
+                value
+            ).getTime();
 
-                if(sort === "recent"){
 
-                    return dateB - dateA;
+        // Invalid dates are placed at the end.
 
-                }
+        if (
+            Number.isNaN(timestamp)
+        ) {
 
-                return dateA - dateB;
+            return 0;
 
-            });
+        }
 
-            if(filtered.length === 0){
 
-                table.innerHTML = `
-                    <tr>
-                        <td colspan="7">
-                            No patient records found.
-                        </td>
-                    </tr>
-                `;
+        return timestamp;
+
+    }
+
+
+    // ========================================================
+    // LOAD PATIENTS
+    // ========================================================
+
+    async function loadPatients() {
+
+        if (!table) {
+
+            return;
+
+        }
+
+
+        table.innerHTML = `
+            <tr>
+                <td colspan="7">
+                    Loading patient records...
+                </td>
+            </tr>
+        `;
+
+
+        currentPage = 1;
+
+
+        try {
+
+            console.log(
+                "Loading patients from Firebase..."
+            );
+
+
+            const snapshot =
+                await get(
+                    ref(
+                        database,
+                        "patients"
+                    )
+                );
+
+
+            patients = [];
+
+
+            // =================================================
+            // NO FIREBASE DATA
+            // =================================================
+
+            if (
+                !snapshot.exists()
+            ) {
+
+                console.warn(
+                    "Firebase patients node does not exist or is empty."
+                );
+
+
+                renderEmptyState(
+                    "No patient records found."
+                );
+
+
+                updatePagination(
+                    0
+                );
+
 
                 return;
 
             }
 
-            filtered.forEach(patient=>{
+
+            // =================================================
+            // READ PATIENT RECORDS
+            // =================================================
+
+            snapshot.forEach(
+                child => {
+
+                    const data =
+                        child.val();
+
+
+                    if (
+                        data &&
+                        typeof data === "object"
+                    ) {
+
+                        patients.push({
+
+                            id:
+                                child.key,
+
+                            ...data
+
+                        });
+
+                    }
+
+                }
+            );
+
+
+            console.log(
+                `Loaded ${patients.length} patient record(s).`
+            );
+
+
+            // =================================================
+            // RENDER
+            // =================================================
+
+            renderPatients();
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Failed to load patients:",
+                error
+            );
+
+
+            renderEmptyState(
+                "Unable to load patient records."
+            );
+
+
+            updatePagination(
+                0
+            );
+
+
+            alert(
+                `Failed to load patient records.\n\n${error.message}`
+            );
+
+        }
+
+    }
+
+
+    // ========================================================
+    // RENDER EMPTY STATE
+    // ========================================================
+
+    function renderEmptyState(message) {
+
+        if (!table) {
+
+            return;
+
+        }
+
+
+        table.innerHTML = `
+            <tr>
+                <td colspan="7">
+                    ${escapeHtml(message)}
+                </td>
+            </tr>
+        `;
+
+    }
+
+
+    // ========================================================
+    // RENDER PATIENTS
+    // ========================================================
+
+    function renderPatients() {
+
+        if (!table) {
+
+            return;
+
+        }
+
+
+        table.innerHTML = "";
+
+
+        // ====================================================
+        // GET FILTERED DATA
+        // ====================================================
+
+        const filtered =
+            getFilteredPatients();
+
+
+        // ====================================================
+        // TOTAL PAGES
+        // ====================================================
+
+        const totalPages =
+            filtered.length > 0
+                ? Math.ceil(
+                    filtered.length /
+                    ROWS_PER_PAGE
+                )
+                : 0;
+
+
+        // ====================================================
+        // NO RESULTS
+        // ====================================================
+
+        if (
+            filtered.length === 0
+        ) {
+
+            renderEmptyState(
+                getNoResultsMessage()
+            );
+
+
+            currentPage = 1;
+
+
+            updatePagination(
+                0
+            );
+
+
+            return;
+
+        }
+
+
+        // ====================================================
+        // MAKE SURE CURRENT PAGE IS VALID
+        // ====================================================
+
+        if (
+            currentPage < 1
+        ) {
+
+            currentPage = 1;
+
+        }
+
+
+        if (
+            currentPage > totalPages
+        ) {
+
+            currentPage =
+                totalPages;
+
+        }
+
+
+        // ====================================================
+        // CALCULATE PAGE RANGE
+        // ====================================================
+
+        const startIndex =
+            (
+                currentPage - 1
+            ) *
+            ROWS_PER_PAGE;
+
+
+        const endIndex =
+            startIndex +
+            ROWS_PER_PAGE;
+
+
+        const pagePatients =
+            filtered.slice(
+                startIndex,
+                endIndex
+            );
+
+
+        // ====================================================
+        // RENDER CURRENT PAGE
+        // ====================================================
+
+        pagePatients.forEach(
+            patient => {
+
+                const id =
+                    escapeHtml(
+                        patient.id
+                    );
+
+
+                const fullName =
+                    escapeHtml(
+                        getFullName(patient)
+                    );
+
+
+                const age =
+                    escapeHtml(
+                        patient.age
+                    );
+
+
+                const sex =
+                    escapeHtml(
+                        patient.sex
+                    );
+
+
+                const contactNumber =
+                    escapeHtml(
+                        patient.contactNumber
+                    );
+
+
+                const city =
+                    escapeHtml(
+                        patient.city
+                    );
+
+
+                const chiefComplaint =
+                    escapeHtml(
+                        patient.chiefComplaint
+                    );
+
 
                 table.innerHTML += `
 
-                <tr>
+                    <tr>
 
-                    <td>${patient.firstName ?? ""} ${patient.middleName ?? ""} ${patient.lastName ?? ""}</td>
+                        <td>
+                            ${fullName}
+                        </td>
 
-                    <td>${patient.age ?? ""}</td>
+                        <td>
+                            ${age}
+                        </td>
 
-                    <td>${patient.sex ?? ""}</td>
+                        <td>
+                            ${sex}
+                        </td>
 
-                    <td>${patient.contactNumber ?? ""}</td>
+                        <td>
+                            ${contactNumber}
+                        </td>
 
-                    <td>${patient.city ?? ""}</td>
+                        <td>
+                            ${city}
+                        </td>
 
-                    <td>${patient.chiefComplaint ?? ""}</td>
+                        <td>
+                            ${chiefComplaint}
+                        </td>
 
-                    <td>
+                        <td>
 
-                        <a href="view_patient.html?id=${patient.id}">
-                            <button class="action-btn view">
-                                View
+                            <a
+                                href="view_patient.html?id=${encodeURIComponent(patient.id)}"
+                            >
+                                <button
+                                    class="action-btn view"
+                                    type="button"
+                                >
+                                    View
+                                </button>
+                            </a>
+
+
+                            <a
+                                href="edit_patient.html?id=${encodeURIComponent(patient.id)}"
+                            >
+                                <button
+                                    class="action-btn edit"
+                                    type="button"
+                                >
+                                    Edit
+                                </button>
+                            </a>
+
+
+                            <button
+                                class="action-btn delete deleteBtn"
+                                data-id="${id}"
+                                type="button"
+                            >
+                                Delete
                             </button>
-                        </a>
 
-                        <a href="edit_patient.html?id=${patient.id}">
-                            <button class="action-btn edit">
-                                Edit
-                            </button>
-                        </a>
+                        </td>
 
-                        <button
-                            class="action-btn delete deleteBtn"
-                            data-id="${patient.id}">
-                            Delete
-                        </button>
-
-                    </td>
-
-                </tr>
+                    </tr>
 
                 `;
 
-            });
+            }
+        );
 
-            addDeleteListeners();
+
+        // ====================================================
+        // UPDATE PAGINATION
+        // ====================================================
+
+        updatePagination(
+            totalPages
+        );
+
+
+        // ====================================================
+        // DELETE LISTENERS
+        // ====================================================
+
+        addDeleteListeners();
+
+
+        // ====================================================
+        // REFRESH LUCIDE ICONS
+        // ====================================================
+
+        if (
+            typeof lucide !== "undefined"
+        ) {
+
+            lucide.createIcons();
 
         }
 
-        function addDeleteListeners() {
-            const deleteButtons = document.querySelectorAll(".deleteBtn");
+    }
 
-            deleteButtons.forEach((button) => {
-                button.addEventListener("click", () => {
-                    const id = button.dataset.id;
 
-                    if (!confirm("Delete this patient record?")) {
-                        return;
+    // ========================================================
+    // NO RESULTS MESSAGE
+    // ========================================================
+
+    function getNoResultsMessage() {
+
+        const search =
+            searchInput
+                ? searchInput.value.trim()
+                : "";
+
+
+        const selectedStatus =
+            statusFilter
+                ? statusFilter.value
+                : "All";
+
+
+        if (
+            search
+        ) {
+
+            return "No patient records match your search.";
+
+        }
+
+
+        if (
+            selectedStatus &&
+            normalizeText(selectedStatus) !== "all"
+        ) {
+
+            return `No ${selectedStatus.toLowerCase()} patient records found.`;
+
+        }
+
+
+        return "No patient records found.";
+
+    }
+
+
+    // ========================================================
+    // UPDATE PAGINATION
+    // ========================================================
+
+    function updatePagination(
+        totalPages
+    ) {
+
+        if (
+            !paginationInfo ||
+            !prevPageButton ||
+            !nextPageButton
+        ) {
+
+            return;
+
+        }
+
+
+        // ====================================================
+        // NO RECORDS
+        // ====================================================
+
+        if (
+            totalPages === 0
+        ) {
+
+            paginationInfo.textContent =
+                "Page 0 of 0";
+
+
+            prevPageButton.disabled =
+                true;
+
+
+            nextPageButton.disabled =
+                true;
+
+
+            return;
+
+        }
+
+
+        // ====================================================
+        // PAGE INFORMATION
+        // ====================================================
+
+        paginationInfo.textContent =
+            `Page ${currentPage} of ${totalPages}`;
+
+
+        // ====================================================
+        // PREVIOUS
+        // ====================================================
+
+        prevPageButton.disabled =
+            currentPage <= 1;
+
+
+        // ====================================================
+        // NEXT
+        // ====================================================
+
+        nextPageButton.disabled =
+            currentPage >= totalPages;
+
+    }
+
+
+    // ========================================================
+    // PREVIOUS PAGE
+    // ========================================================
+
+    if (prevPageButton) {
+
+        prevPageButton.addEventListener(
+            "click",
+            () => {
+
+                if (
+                    currentPage <= 1
+                ) {
+
+                    return;
+
+                }
+
+
+                currentPage--;
+
+                renderPatients();
+
+            }
+        );
+
+    }
+
+
+    // ========================================================
+    // NEXT PAGE
+    // ========================================================
+
+    if (nextPageButton) {
+
+        nextPageButton.addEventListener(
+            "click",
+            () => {
+
+                const filtered =
+                    getFilteredPatients();
+
+
+                const totalPages =
+                    Math.ceil(
+                        filtered.length /
+                        ROWS_PER_PAGE
+                    );
+
+
+                if (
+                    currentPage >= totalPages
+                ) {
+
+                    return;
+
+                }
+
+
+                currentPage++;
+
+                renderPatients();
+
+            }
+        );
+
+    }
+
+
+    // ========================================================
+    // DELETE PATIENT
+    // ========================================================
+
+    function addDeleteListeners() {
+
+        const deleteButtons =
+            document.querySelectorAll(
+                ".deleteBtn"
+            );
+
+
+        deleteButtons.forEach(
+            button => {
+
+                button.addEventListener(
+                    "click",
+                    async () => {
+
+                        const id =
+                            button.dataset.id;
+
+
+                        if (
+                            !id
+                        ) {
+
+                            alert(
+                                "Unable to identify the patient record."
+                            );
+
+                            return;
+
+                        }
+
+
+                        const confirmed =
+                            confirm(
+                                "Delete this patient record?\n\nThis action cannot be undone."
+                            );
+
+
+                        if (
+                            !confirmed
+                        ) {
+
+                            return;
+
+                        }
+
+
+                        try {
+
+                            button.disabled =
+                                true;
+
+
+                            button.textContent =
+                                "Deleting...";
+
+
+                            await remove(
+                                ref(
+                                    database,
+                                    `patients/${id}`
+                                )
+                            );
+
+
+                            alert(
+                                "Patient record deleted successfully."
+                            );
+
+
+                            // Reload data and reset page.
+
+                            await loadPatients();
+
+                        }
+
+                        catch (error) {
+
+                            console.error(
+                                "Failed to delete patient:",
+                                error
+                            );
+
+
+                            alert(
+                                `Failed to delete patient record.\n\n${error.message}`
+                            );
+
+
+                            button.disabled =
+                                false;
+
+
+                            button.textContent =
+                                "Delete";
+
+                        }
+
                     }
+                );
 
-                    remove(ref(db, "patients/" + id))
-                        .then(() => {
-                            alert("Patient record deleted successfully.");
-                            loadPatients(); // Refresh the table
-                        })
-                        .catch((error) => {
-                            alert(error.message);
-                        });
-                });
-            });
-        }
+            }
+        );
 
-        refreshBtn.addEventListener("click", loadPatients);
-        loadPatients();
+    }
 
-        document
-        .getElementById("searchInput")
-        .addEventListener("input", renderPatients);
 
-        document
-        .getElementById("statusFilter")
-        .addEventListener("change", renderPatients);
+    // ========================================================
+    // REFRESH
+    // ========================================================
 
-        document
-        .getElementById("sortOrder")
-        .addEventListener("change", renderPatients);
-    </script>
+    if (refreshBtn) {
 
-</main>
+        refreshBtn.addEventListener(
+            "click",
+            () => {
+
+                loadPatients();
+
+            }
+        );
+
+    }
+
+
+    // ========================================================
+    // SEARCH
+    // ========================================================
+
+    if (searchInput) {
+
+        searchInput.addEventListener(
+            "input",
+            () => {
+
+                currentPage = 1;
+
+                renderPatients();
+
+            }
+        );
+
+    }
+
+
+    // ========================================================
+    // STATUS FILTER
+    // ========================================================
+
+    if (statusFilter) {
+
+        statusFilter.addEventListener(
+            "change",
+            () => {
+
+                currentPage = 1;
+
+                renderPatients();
+
+            }
+        );
+
+    }
+
+
+    // ========================================================
+    // SORT ORDER
+    // ========================================================
+
+    if (sortOrder) {
+
+        sortOrder.addEventListener(
+            "change",
+            () => {
+
+                currentPage = 1;
+
+                renderPatients();
+
+            }
+        );
+
+    }
+
+
+    // ========================================================
+    // APPLY DASHBOARD CONFIGURATION
+    // ========================================================
+
+    if (brandRole) {
+
+        brandRole.textContent =
+            DASHBOARD_CONFIG.brandSubtitle;
+
+    }
+
+
+    if (roleLabel) {
+
+        roleLabel.textContent =
+            DASHBOARD_CONFIG.role;
+
+    }
+
+
+    if (pageTitle) {
+
+        pageTitle.textContent =
+            DASHBOARD_CONFIG.title;
+
+    }
+
+
+    if (pageDescription) {
+
+        pageDescription.textContent =
+            DASHBOARD_CONFIG.description;
+
+    }
+
+
+    if (footerRole) {
+
+        footerRole.textContent =
+            DASHBOARD_CONFIG.footerLabel;
+
+    }
+
+
+    // ========================================================
+    // LOGOUT
+    // ========================================================
+
+    if (logoutButton) {
+
+        logoutButton.addEventListener(
+            "click",
+            async () => {
+
+                try {
+
+                    await signOut(
+                        auth
+                    );
+
+
+                    window.location.href =
+                        "../../index.html";
+
+                }
+
+                catch (error) {
+
+                    console.error(
+                        "Logout error:",
+                        error
+                    );
+
+
+                    alert(
+                        error.message
+                    );
+
+                }
+
+            }
+        );
+
+    }
+
+
+    // ========================================================
+    // INITIALIZE LUCIDE
+    // ========================================================
+
+    if (
+        typeof lucide !== "undefined"
+    ) {
+
+        lucide.createIcons();
+
+    }
+
+
+    // ========================================================
+    // INITIALIZE PATIENT RECORDS
+    // ========================================================
+
+    loadPatients();
+
+
+</script>
 
 </body>
-
+</html>

@@ -1,0 +1,390 @@
+/* MediTrack | View Dispenser Carousel
+   Drop-in replacement for stylesheets/view_compartment.css.
+   Remove the inline <style> block from the HTML so the two don't fight. */
+
+:root {
+  --ink: #12283f;
+  --ink-soft: #4d6379;
+  --ink-faint: #7c8ea1;
+  --brand: #0f4fa3;
+  --brand-bright: #1976d2;
+  --brand-tint: #eaf3fd;
+  --page: #f3f7fb;
+  --card: #ffffff;
+  --line: #dbe6f1;
+  --line-strong: #c3d3e4;
+
+  --ok: #17794f;      --ok-bg: #e6f5ee;
+  --warn: #9a5b00;    --warn-bg: #fff4dc;  --warn-line: #f0c96b;
+  --bad: #b83232;     --bad-bg: #fdecec;
+
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 1px 2px rgba(18, 40, 63, .05), 0 6px 20px rgba(18, 40, 63, .06);
+  --font: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { background: var(--page); }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font);
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--ink);
+  background: var(--page);
+}
+
+button, input { font: inherit; }
+
+:focus-visible {
+  outline: 3px solid rgba(25, 118, 210, .35);
+  outline-offset: 2px;
+}
+
+/* ---------- Page frame ---------- */
+
+.container {
+  width: min(100% - 32px, 1080px);
+  margin: 0 auto;
+  padding: 32px 0 64px;
+}
+
+.top-bar { margin-bottom: 20px; }
+
+.dashboard-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  color: var(--brand);
+  font-size: .875rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 150ms, color 150ms, border-color 150ms;
+}
+.dashboard-link:hover {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: #fff;
+}
+
+h1 {
+  margin: 0 0 6px;
+  font-size: clamp(1.6rem, 3.4vw, 2.1rem);
+  font-weight: 700;
+  letter-spacing: -.02em;
+  line-height: 1.2;
+}
+
+.subtitle {
+  max-width: 62ch;
+  margin: 0 0 28px;
+  color: var(--ink-soft);
+}
+
+/* ---------- Loading / error ---------- */
+
+.loading,
+.error {
+  padding: 18px 20px;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--ink-soft);
+}
+.error {
+  border-color: #f0bcbc;
+  background: var(--bad-bg);
+  color: var(--bad);
+  font-weight: 600;
+}
+
+/* ---------- Sections (fieldsets) ---------- */
+
+#content > fieldset,
+#refillContainer { margin-bottom: 20px; }
+
+fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 22px 24px 24px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--card);
+  box-shadow: var(--shadow);
+}
+
+/* float trick so the legend sits inside the card as a heading */
+legend {
+  float: left;
+  width: 100%;
+  margin: 0 0 18px;
+  padding: 0 0 14px;
+  border-bottom: 1px solid var(--line);
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+legend + * { clear: both; }
+
+fieldset > p { margin: 0 0 16px; color: var(--ink-soft); }
+
+/* ---------- Field grid ---------- */
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 18px 20px;
+}
+
+label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--ink-soft);
+  font-size: .8rem;
+  font-weight: 600;
+}
+
+input[readonly] {
+  width: 100%;
+  min-height: 42px;
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--page);
+  color: var(--ink);
+  font-size: .92rem;
+  font-variant-numeric: tabular-nums;
+  text-overflow: ellipsis;
+}
+input[readonly]:focus { border-color: var(--brand-bright); }
+
+.patient-name { font-weight: 600; }
+
+/* ---------- Status badges ---------- */
+
+#statusContainer { display: flex; align-items: center; min-height: 42px; }
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: .82rem;
+  font-weight: 600;
+  background: var(--brand-tint);
+  color: var(--brand);
+}
+.status-badge::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.status-normal, .status-full { background: var(--ok-bg); color: var(--ok); }
+.status-low, .status-refill  { background: var(--warn-bg); color: var(--warn); }
+.status-empty                { background: var(--bad-bg); color: var(--bad); }
+
+/* ---------- Inventory bar ---------- */
+
+.progress-container {
+  height: 8px;
+  margin-top: 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--brand-tint);
+}
+.progress-bar {
+  height: 100%;
+  width: 0;
+  border-radius: inherit;
+  background: var(--brand-bright);
+  transition: width 500ms ease;
+}
+
+/* ---------- Summary ---------- */
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin: 20px 0;
+}
+.summary-grid + br { display: none; }
+
+.summary-card {
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--brand-bright);
+  border-radius: var(--radius);
+  background: var(--card);
+}
+.summary-card label { margin-bottom: 4px; }
+
+.summary-value {
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -.01em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Refill callout ---------- */
+
+.refill-box {
+  padding: 18px 20px;
+  border: 1px solid var(--warn-line);
+  border-left: 5px solid #e0a020;
+  border-radius: var(--radius);
+  background: var(--warn-bg);
+  color: #5e3a00;
+}
+.refill-box h3 { margin: 0 0 8px; font-size: 1rem; color: var(--warn); }
+.refill-box p { margin: 0 0 6px; }
+.refill-box p:last-child { margin-bottom: 0; }
+
+/* ---------- Medications ---------- */
+
+#medicationContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+}
+#medicationContainer > p { grid-column: 1 / -1; margin: 0; color: var(--ink-soft); }
+
+.medication-card {
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--page);
+}
+
+.medication-name {
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+  font-size: 1.02rem;
+  font-weight: 600;
+  color: var(--brand);
+}
+
+.medication-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 16px;
+}
+.medication-detail { font-size: .9rem; min-width: 0; overflow-wrap: anywhere; }
+.medication-detail strong {
+  display: block;
+  color: var(--ink-soft);
+  font-size: .78rem;
+  font-weight: 600;
+}
+
+/* ---------- Slot schedule table ---------- */
+
+.slots-table-container {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+}
+
+table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+  font-size: .9rem;
+}
+
+th {
+  position: sticky;
+  top: 0;
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--line-strong);
+  background: var(--brand-tint);
+  color: var(--ink);
+  font-size: .8rem;
+  font-weight: 600;
+  text-align: left;
+  white-space: nowrap;
+}
+
+td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+  font-variant-numeric: tabular-nums;
+}
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:hover { background: #f8fbfe; }
+
+td small { display: block; color: var(--ink-faint); font-size: .76rem; }
+
+.slot-number {
+  display: inline-grid;
+  place-items: center;
+  min-width: 30px;
+  height: 30px;
+  padding: 0 6px;
+  margin-bottom: 4px;
+  border-radius: 8px;
+  background: var(--brand);
+  color: #fff;
+  font-weight: 700;
+}
+
+.medicine-item + .medicine-item {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--line);
+}
+.medicine-item strong { display: block; }
+
+.empty-slot { color: var(--ink-faint); font-style: italic; }
+
+/* ---------- Actions ---------- */
+
+.action-bar { margin-top: 24px; display: flex; gap: 10px; }
+
+.back-button {
+  min-height: 42px;
+  padding: 0 22px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  color: var(--brand);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 150ms, color 150ms, border-color 150ms;
+}
+.back-button:hover {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: #fff;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 860px) {
+  .summary-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 560px) {
+  .container { width: min(100% - 24px, 1080px); padding-top: 20px; }
+  fieldset { padding: 18px 16px 20px; }
+  .info-grid { grid-template-columns: 1fr; }
+  .medication-details { grid-template-columns: 1fr; }
+  .back-button { width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}

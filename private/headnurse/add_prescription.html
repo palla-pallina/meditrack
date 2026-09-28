@@ -6,6 +6,8 @@
 <title>New Prescription</title>
 
 <link rel="stylesheet" href="stylesheets/add_prescription.css">
+<link rel="icon" type="image/x-icon" href="../../draft.png">
+
 </head>
 
 <body>
@@ -20,15 +22,56 @@
 <h3>Prescription Information</h3>
 
 <label>Patient <span style="color:red;">*</span></label><br>
-<select id="patient" required></select>
+
+<input
+    type="text"
+    id="patientSearch"
+    placeholder="Search patient by name..."
+    autocomplete="off"
+>
+
+<div
+    id="patientResults"
+    class="search-dropdown"
+    style="
+        border:1px solid #ccc;
+        max-height:180px;
+        overflow-y:auto;
+        display:none;
+    ">
+</div>
+
+<input
+    type="hidden"
+    id="patient"
+>
 
 <br><br>
 
-<label>Prescribing Physician <span style="color:red;">*</span></label><br> 
+<label>Prescribing Physician <span style="color:red;">*</span></label><br>
 
-<select id="physician" required> 
-    <option value="">Loading doctors...</option> 
-</select>
+<input
+    type="text"
+    id="physicianSearch"
+    placeholder="Search physician by name..."
+    autocomplete="off"
+>
+
+<div
+    id="physicianResults"
+    class="search-dropdown"
+    style="
+        border:1px solid #ccc;
+        max-height:180px;
+        overflow-y:auto;
+        display:none;
+    ">
+</div>
+
+<input
+    type="hidden"
+    id="physician"
+>
 
 <br><br>
 
@@ -259,12 +302,72 @@ const database=getDatabase(app);
 
 const auth = getAuth(app);
 
+/* =====================================================
+   AUTHENTICATION
+===================================================== */
+
+onAuthStateChanged(auth, async (user) => {
+
+    if (!user) {
+
+        currentUser = null;
+        currentUserProfile = null;
+
+        alert("Your session has expired. Please log in again.");
+
+        window.location.href = "../../index.html";
+
+        return;
+    }
+
+    currentUser = user;
+
+    try {
+
+        const snapshot = await get(
+            ref(database, "users/" + user.uid)
+        );
+
+        if (!snapshot.exists()) {
+
+            console.error(
+                "Authenticated user profile not found."
+            );
+
+            await auth.signOut();
+
+            window.location.href = "../../index.html";
+
+            return;
+        }
+
+        currentUserProfile = snapshot.val();
+
+        console.log(
+            "Authenticated user:",
+            currentUser.uid,
+            currentUserProfile
+        );
+
+    }
+    catch (error) {
+
+        console.error(
+            "Failed to load user profile:",
+            error
+        );
+
+    }
+
+});
+
 let currentUser = null;
 let currentUserProfile = null;
 
-let medications=[];
-
-let selectedTimes=[];
+let medications = [];
+let patients = [];
+let physicians = [];
+let selectedTimes = [];
 
 function calculateAdministrationTimes(){
 
@@ -297,134 +400,430 @@ function calculateAdministrationTimes(){
 }
 
 
-let prescriptionItems=[];
-
-loadPatients(); 
-
-loadDoctors(); 
-
-loadMedications();
-
-async function loadPatients(){
-
-const snapshot=
-
-await get(ref(database,"patients"));
-
-const patient=document.getElementById("patient");
-
-patient.innerHTML='<option value="">Select Patient</option>';
-
-snapshot.forEach(child=>{
-
-const p=child.val();
-
-patient.innerHTML+=
-
-`<option value="${child.key}">
-
-${p.fullName}
-
-</option>`;
-
-});
+let prescriptionItems = [];
 
 onAuthStateChanged(auth, async (user) => {
 
     if (!user) {
 
-        location.href =
-            "../../public/login.html";
+        currentUser = null;
+        currentUserProfile = null;
+
+        window.location.href = "../../index.html";
 
         return;
     }
 
     currentUser = user;
 
+    try {
+
+        const snapshot = await get(
+            ref(database, "users/" + user.uid)
+        );
+
+        if (!snapshot.exists()) {
+
+            await auth.signOut();
+
+            window.location.href = "../../index.html";
+
+            return;
+        }
+
+        currentUserProfile = snapshot.val();
+
+        // Load page data only after authentication is confirmed
+        await Promise.all([
+            loadPatients(),
+            loadDoctors(),
+            loadMedications()
+        ]);
+
+    }
+    catch (error) {
+
+        console.error(
+            "Authentication initialization failed:",
+            error
+        );
+
+        alert(
+            "Unable to initialize your session. Please log in again."
+        );
+
+    }
+
+});
+
+async function loadPatients() {
+
+    patients = [];
+
+    const snapshot = await get(
+        ref(database, "patients")
+    );
+
+    if (!snapshot.exists()) {
+        return;
+    }
+
+    snapshot.forEach(child => {
+
+        const p = child.val();
+
+        // Exclude discharged patients
+        if (
+            String(p.dischargeStatus || "")
+                .trim()
+                .toLowerCase() === "discharged"
+        ) {
+            return;
+        }
+
+        patients.push({
+            id: child.key,
+            ...p
+        });
+
+    });
+}
+
+async function loadDoctors() {
+
+    physicians = [];
+
+    const snapshot = await get(
+        ref(database, "users")
+    );
+
+    if (!snapshot.exists()) {
+        return;
+    }
+
+    snapshot.forEach(child => {
+
+        const user = child.val();
+
+        // Only Doctors
+        if (user.userType !== "Doctor") {
+            return;
+        }
+
+        // Exclude disabled doctor accounts
+        if (
+            String(user.accountStatus || "")
+                .trim()
+                .toLowerCase() === "disabled"
+        ) {
+            return;
+        }
+
+        physicians.push({
+            id: child.key,
+            ...user
+        });
+
+    });
+}
+
+/* =====================================================
+   PATIENT SEARCH
+===================================================== */
+
+const patientSearch =
+    document.getElementById("patientSearch");
+
+const patientResults =
+    document.getElementById("patientResults");
+
+const patientHidden =
+    document.getElementById("patient");
+
+
+function renderPatientResults(keyword = "") {
+
+    const searchTerm =
+        keyword
+            .toLowerCase()
+            .trim();
+
+    patientResults.innerHTML = "";
+
+    const matches =
+        patients.filter(patient => {
+
+            const name =
+                String(patient.fullName || "")
+                    .toLowerCase();
+
+            return name.includes(searchTerm);
+
+        });
+
+
+    if (matches.length === 0) {
+
+        patientResults.innerHTML = `
+            <div style="padding:10px;">
+                No patients found.
+            </div>
+        `;
+
+        patientResults.style.display = "block";
+
+        return;
+    }
+
+
+    matches.forEach(patient => {
+
+        const div =
+            document.createElement("div");
+
+        div.style.padding = "10px";
+        div.style.cursor = "pointer";
+        div.style.borderBottom = "1px solid #eee";
+
+        div.innerHTML = `
+            <strong>
+                ${patient.fullName || "Unnamed Patient"}
+            </strong>
+        `;
+
+
+        div.addEventListener("click", function () {
+
+            patientSearch.value =
+                patient.fullName || "";
+
+            patientHidden.value =
+                patient.id;
+
+            patientResults.style.display =
+                "none";
+
+        });
+
+
+        patientResults.appendChild(div);
+
+    });
+
+
+    patientResults.style.display =
+        "block";
+}
+
+
+patientSearch.addEventListener(
+    "input",
+    function () {
+
+        /*
+         * Clear the selected UID whenever
+         * the user changes the search text.
+         */
+        patientHidden.value = "";
+
+        renderPatientResults(
+            this.value
+        );
+
+    }
+);
+
+
+patientSearch.addEventListener(
+    "focus",
+    function () {
+
+        renderPatientResults(
+            this.value
+        );
+
+    }
+);
+
+/* =====================================================
+   PHYSICIAN SEARCH
+===================================================== */
+
+const physicianSearch =
+    document.getElementById("physicianSearch");
+
+const physicianResults =
+    document.getElementById("physicianResults");
+
+const physicianHidden =
+    document.getElementById("physician");
+
+
+function renderPhysicianResults(keyword = "") {
+
+    const searchTerm =
+        keyword
+            .toLowerCase()
+            .trim();
+
+    physicianResults.innerHTML = "";
+
+    const matches =
+        physicians.filter(physician => {
+
+            const name =
+                String(physician.fullName || "")
+                    .toLowerCase();
+
+            return name.includes(searchTerm);
+
+        });
+
+
+    if (matches.length === 0) {
+
+        physicianResults.innerHTML = `
+            <div style="padding:10px;">
+                No physicians found.
+            </div>
+        `;
+
+        physicianResults.style.display =
+            "block";
+
+        return;
+    }
+
+
+    matches.forEach(physician => {
+
+        const div =
+            document.createElement("div");
+
+        div.style.padding = "10px";
+        div.style.cursor = "pointer";
+        div.style.borderBottom =
+            "1px solid #eee";
+
+        div.innerHTML = `
+            <strong>
+                ${physician.fullName || "Unnamed Physician"}
+            </strong>
+        `;
+
+
+        div.addEventListener(
+            "click",
+            function () {
+
+                physicianSearch.value =
+                    physician.fullName || "";
+
+                physicianHidden.value =
+                    physician.id;
+
+                physicianResults.style.display =
+                    "none";
+
+            }
+        );
+
+
+        physicianResults.appendChild(div);
+
+    });
+
+
+    physicianResults.style.display =
+        "block";
+}
+
+
+physicianSearch.addEventListener(
+    "input",
+    function () {
+
+        /*
+         * Clear the selected UID whenever
+         * the search text changes.
+         */
+        physicianHidden.value = "";
+
+        renderPhysicianResults(
+            this.value
+        );
+
+    }
+);
+
+
+physicianSearch.addEventListener(
+    "focus",
+    function () {
+
+        renderPhysicianResults(
+            this.value
+        );
+
+    }
+);
+
+async function loadCurrentDoctor(uid) {
+
     const snapshot =
         await get(
-            ref(
-                database,
-                "users/" + user.uid
-            )
+            ref(database, "users/" + uid)
         );
 
     if (!snapshot.exists()) {
 
         alert(
-            "User profile not found."
+            "Doctor account not found."
         );
 
         return;
     }
 
-    currentUserProfile =
+    const doctor =
         snapshot.val();
 
-    if (
-        currentUserProfile.userType !==
-        "Head Nurse"
-    ) {
+    if (doctor.userType !== "Doctor") {
 
         alert(
-            "Only Head Nurse users can record digital prescriptions."
+            "Only doctors can create prescriptions."
         );
 
         return;
+    }
+
+    document
+        .getElementById("physicianSearch")
+        .value =
+        doctor.fullName || "";
+
+    document
+        .getElementById("physician")
+        .value =
+        uid;
+}
+
+document.addEventListener("click", function (event) {
+
+    if (
+        !patientSearch.contains(event.target) &&
+        !patientResults.contains(event.target)
+    ) {
+        patientResults.style.display = "none";
+    }
+
+    if (
+        !physicianSearch.contains(event.target) &&
+        !physicianResults.contains(event.target)
+    ) {
+        physicianResults.style.display = "none";
     }
 
 });
-
-}
-
-async function loadDoctors(){ 
-
-    const snapshot = await get(ref(database, "users")); 
-    const physician = document.getElementById("physician"); 
-    
-    physician.innerHTML = '<option value="">Select Physician</option>';
-    
-    if(!snapshot.exists()) return; 
-    
-    snapshot.forEach(child => { 
-        const user = child.val(); 
-        
-        if(user.userType === "Doctor"){ 
-            physician.innerHTML += ` 
-                <option value="${child.key}"> ${user.fullName} </option> 
-            `; 
-        } 
-    }); 
-}
-
-async function loadCurrentDoctor(uid){
-
-    const snapshot =
-    await get(ref(database,"users/"+uid));
-
-    if(!snapshot.exists()){
-
-        alert("Doctor account not found.");
-        return;
-
-    }
-
-    const doctor = snapshot.val();
-
-    if(doctor.userType !== "Doctor"){
-
-        alert("Only doctors can create prescriptions.");
-        return;
-
-    }
-
-    document.getElementById("physician").value =
-    doctor.fullName;
-
-    document.getElementById("physicianUid").value =
-    uid;
-
-}
 
 async function loadMedications(){
 
@@ -795,28 +1194,81 @@ document
 
 };
 
+/* =====================================================
+   FORMAT ADMINISTRATION TIME
+===================================================== */
+
+function formatAdministrationTime(time){
+
+    if(!time){
+        return "-";
+    }
+
+    const value =
+        String(time).trim();
+
+    const match =
+        value.match(
+            /^(\d{1,2}):(\d{2})$/
+        );
+
+    if(!match){
+        return value;
+    }
+
+    let hours =
+        parseInt(
+            match[1],
+            10
+        );
+
+    const minutes =
+        match[2];
+
+    if(
+        hours < 0 ||
+        hours > 23
+    ){
+        return value;
+    }
+
+    const period =
+        hours >= 12
+            ? "PM"
+            : "AM";
+
+    const hour12 =
+        hours % 12 || 12;
+
+    return `${hour12}:${minutes} ${period}`;
+}
+
 function renderTimes(){
 
     const ul =
-    document.getElementById("timeList");
+        document.getElementById(
+            "timeList"
+        );
 
     ul.innerHTML = "";
 
-    selectedTimes.forEach(time => {
+    selectedTimes.forEach(
+        time => {
 
-        const [h,m] =
-        time.split(":").map(Number);
+            const li =
+                document.createElement(
+                    "li"
+                );
 
-        const period =
-        h >= 12 ? "PM" : "AM";
+            li.textContent =
+                formatAdministrationTime(
+                    time
+                );
 
-        const hour12 =
-        h % 12 || 12;
+            ul.appendChild(li);
 
-        ul.innerHTML +=
-        `<li>${hour12}:${String(m).padStart(2,"0")} ${period}</li>`;
-
-    });
+        }
+    );
 
 }
 
@@ -921,7 +1373,11 @@ tbody.innerHTML+=`
 
 <td>${item.frequency}</td>
 
-<td>${item.administration_times.join(", ")}</td>
+<td>
+    ${item.administration_times
+        .map(formatAdministrationTime)
+        .join(", ")}
+</td>
 
 <td>
 
@@ -953,6 +1409,129 @@ renderMedications();
 
 }
 
+/* =====================================================
+   DUPLICATE PRESCRIPTION CHECK
+===================================================== */
+
+async function checkDuplicatePrescriptionItems(patientId, newItems) {
+
+    const itemsSnapshot = await get(
+        ref(database, "prescription_items")
+    );
+
+    if (!itemsSnapshot.exists()) {
+        return [];
+    }
+
+    const duplicates = [];
+
+    for (const newItem of newItems) {
+
+        if (
+            !newItem.medication_id ||
+            !newItem.start_date ||
+            !newItem.end_date
+        ) {
+            continue;
+        }
+
+        const newStart = new Date(
+            `${newItem.start_date}T00:00:00`
+        );
+
+        const newEnd = new Date(
+            `${newItem.end_date}T23:59:59`
+        );
+
+        itemsSnapshot.forEach(child => {
+
+            const existingItem = child.val();
+
+            // Same patient
+            if (existingItem.patient_id !== patientId) {
+                return;
+            }
+
+            // Same medication
+            if (
+                existingItem.medication_id !==
+                newItem.medication_id
+            ) {
+                return;
+            }
+
+            // Same dosage
+            if (
+                String(existingItem.dosage || "")
+                    .trim()
+                    .toLowerCase() !==
+                String(newItem.dosage || "")
+                    .trim()
+                    .toLowerCase()
+            ) {
+                return;
+            }
+
+            // Same route
+            if (
+                String(existingItem.route || "")
+                    .trim()
+                    .toLowerCase() !==
+                String(newItem.route || "")
+                    .trim()
+                    .toLowerCase()
+            ) {
+                return;
+            }
+
+            if (
+                !existingItem.start_date ||
+                !existingItem.end_date
+            ) {
+                return;
+            }
+
+            const existingStart = new Date(
+                `${existingItem.start_date}T00:00:00`
+            );
+
+            const existingEnd = new Date(
+                `${existingItem.end_date}T23:59:59`
+            );
+
+            // Date ranges overlap
+            const datesOverlap =
+                newStart <= existingEnd &&
+                newEnd >= existingStart;
+
+            if (datesOverlap) {
+
+                duplicates.push({
+                    medication:
+                        existingItem.medication_name ||
+                        newItem.medication_name,
+
+                    dosage:
+                        existingItem.dosage ||
+                        newItem.dosage,
+
+                    route:
+                        existingItem.route ||
+                        newItem.route,
+
+                    startDate:
+                        existingItem.start_date,
+
+                    endDate:
+                        existingItem.end_date
+                });
+            }
+        });
+    }
+
+    return duplicates;
+}
+
 document
 .getElementById("prescriptionForm")
 .addEventListener(
@@ -975,6 +1554,7 @@ document
             );
 
             return;
+
         }
 
 
@@ -989,6 +1569,84 @@ document
             );
 
             return;
+
+        }
+
+
+        // =====================================================
+        // Get Patient
+        // =====================================================
+
+        const patientSelect =
+            document.getElementById("patient");
+
+        const patientId =
+            patientSelect.value;
+
+        if (!patientId) {
+
+            alert(
+                "Please select a patient from the search results."
+            );
+
+            patientSearch.focus();
+
+            return;
+        }
+
+        // =====================================================
+        // Check For Duplicate Prescriptions
+        // =====================================================
+
+        try {
+
+            const duplicates =
+                await checkDuplicatePrescriptionItems(
+                    patientId,
+                    prescriptionItems
+                );
+
+
+            if (duplicates.length > 0) {
+
+                const duplicateMessage =
+                    duplicates
+                        .map(item =>
+                            `${item.medication} ${item.dosage} (${item.route})\n` +
+                            `Existing prescription: ${item.startDate} to ${item.endDate}`
+                        )
+                        .join("\n\n");
+
+
+                alert(
+                    "Duplicate prescription detected.\n\n" +
+                    duplicateMessage +
+                    "\n\n" +
+                    "The prescription was not saved."
+                );
+
+
+                return;
+
+            }
+
+        }
+        catch (error) {
+
+            console.error(
+                "Duplicate prescription check failed:",
+                error
+            );
+
+
+            alert(
+                "Unable to verify existing prescriptions. " +
+                "The prescription was not saved."
+            );
+
+
+            return;
+
         }
 
 
@@ -996,35 +1654,28 @@ document
         // Build Payload
         // =====================================================
 
-        const patientSelect =
-            document.getElementById("patient");
-
         const physicianSelect =
             document.getElementById("physician");
-
-
-        const patientId =
-            patientSelect.value;
 
         const physicianUid =
             physicianSelect.value;
 
-        const physicianName =
-            physicianSelect
-                .options[
-                    physicianSelect.selectedIndex
-                ]
-                ?.text
-                .trim() || "";
+        if (!physicianUid) {
+
+            alert(
+                "Please select a prescribing physician from the search results."
+            );
+
+            physicianSearch.focus();
+
+            return;
+        }
 
 
-        const patientName =
-            patientSelect
-                .options[
-                    patientSelect.selectedIndex
-                ]
-                ?.text
-                .trim() || "";
+        const physicianName = physicianSearch.value.trim();
+
+
+        const patientName = patientSearch.value.trim();
 
 
         const payload = {
@@ -1189,19 +1840,8 @@ document
                     }
                 );
 
-
-                console.log(
-                    "Prescription activity logged."
-                );
-
             }
             catch (logError) {
-
-                /*
-                 * Prescription was already saved.
-                 * Do not tell the user that the prescription
-                 * failed just because audit logging failed.
-                 */
 
                 console.error(
                     "Prescription activity logging failed:",
@@ -1209,18 +1849,6 @@ document
                 );
 
             }
-
-
-            // =================================================
-            // Display Success
-            // =================================================
-
-            statusElement.textContent =
-                JSON.stringify(
-                    result,
-                    null,
-                    4
-                );
 
 
             // =================================================
@@ -1252,7 +1880,6 @@ document
 
     }
 );
-
 </script>
 
 </body>

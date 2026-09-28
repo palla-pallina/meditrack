@@ -168,52 +168,109 @@ body {
         var(--blue-50);
 }
 
-header {
-    min-height: 74px;
-    padding: 16px 38px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-    background: rgba(255, 255, 255, 0.96);
-    color: var(--text);
-    border-bottom: 1px solid var(--line);
-    box-shadow: 0 6px 18px rgba(37, 82, 124, 0.06);
+
+/* Top navigation */
+.topbar {
     position: sticky;
     top: 0;
     z-index: 20;
+    background: rgba(255, 255, 255, 0.94);
+    border-bottom: 1px solid var(--border);
+    box-shadow: 0 7px 22px rgba(19, 76, 130, 0.08);
     backdrop-filter: blur(12px);
 }
 
-.logo h2 {
-    margin: 0;
-    color: var(--blue-900);
-    font-size: 1.25rem;
-    letter-spacing: -0.02em;
+.topbar__inner {
+    width: min(1180px, calc(100% - 40px));
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
 }
 
-.logo span {
-    display: block;
-    margin-top: 3px;
+.brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 13px;
+}
+
+.brand__icon {
+    width: 46px;
+    height: 46px;
+    display: grid;
+    place-items: center;
+    border-radius: 14px;
+    color: var(--white);
+    background: linear-gradient(135deg, var(--blue-700), var(--blue-500));
+    box-shadow: 0 8px 18px rgba(25, 118, 210, 0.26);
+}
+
+.brand__icon svg {
+    width: 25px;
+    height: 25px;
+    fill: currentColor;
+}
+
+.brand__text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+}
+
+.brand__text strong {
+    color: var(--blue-900);
+    font-size: 1.08rem;
+    letter-spacing: -0.01em;
+}
+
+.brand__text span {
+    margin-top: 4px;
     color: var(--muted);
     font-size: 0.78rem;
-    opacity: 1;
+    font-weight: 500;
 }
 
 .logout-btn {
-    min-height: 40px;
-    padding: 0 15px;
+    appearance: none;
+    border: 1px solid #bcd8f2;
     background: var(--white);
     color: var(--blue-700);
-    border: 1px solid var(--line-strong);
-    border-radius: 10px;
+    min-height: 42px;
+    padding: 0 16px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font: inherit;
+    font-size: 0.9rem;
     font-weight: 700;
+    cursor: pointer;
+    transition: 160ms ease;
+}
+
+.logout-btn svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.9;
+    stroke-linecap: round;
+    stroke-linejoin: round;
 }
 
 .logout-btn:hover {
     color: var(--white);
     background: var(--blue-700);
     border-color: var(--blue-700);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px rgba(20, 103, 200, 0.18);
+}
+
+.logout-btn:focus-visible,
+.module-card__link:focus-visible {
+    outline: 3px solid rgba(25, 118, 210, 0.28);
+    outline-offset: 3px;
 }
 
 main {
@@ -285,9 +342,34 @@ main {
 
 .toolbar {
     display: grid;
-    grid-template-columns: minmax(260px, 1fr) 190px 150px;
+    grid-template-columns:
+        minmax(260px, 1fr)
+        180px
+        150px
+        auto
+        auto;
+    align-items: center;
     gap: 10px;
     margin-bottom: 16px;
+}
+
+.toolbar__search {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.toolbar__search svg {
+    position: absolute;
+    left: 13px;
+    width: 17px;
+    height: 17px;
+    color: var(--muted);
+    pointer-events: none;
+}
+
+.toolbar__search input {
+    padding-left: 40px;
 }
 
 .toolbar input,
@@ -297,6 +379,26 @@ main {
     border: 1px solid var(--line-strong);
     border-radius: 10px;
     background: var(--white);
+}
+
+.toolbar__search input {
+    width: 100%;
+}
+
+.toolbar .btn {
+    min-height: 44px;
+    padding: 0 15px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    white-space: nowrap;
+}
+
+.toolbar .btn svg {
+    width: 17px;
+    height: 17px;
+    flex-shrink: 0;
 }
 
 .table-card {
@@ -396,8 +498,43 @@ tbody tr:hover {
         flex-direction: column;
     }
 
+
+
+    .table-card {
+        overflow-x: auto;
+    }
+
+    table {
+        min-width: 900px;
+    }
+}
+
+@media (max-width: 900px) {
+
+    header {
+        padding: 14px 20px;
+    }
+
+    main {
+        width: min(100% - 24px, 1360px);
+        padding-top: 28px;
+    }
+
+    .page-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
     .toolbar {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .toolbar__search {
+        grid-column: 1 / -1;
+    }
+
+    .toolbar .btn {
+        width: 100%;
     }
 
     .table-card {
@@ -410,6 +547,19 @@ tbody tr:hover {
 }
 
 @media (max-width: 560px) {
+
+    .toolbar {
+        grid-template-columns: 1fr;
+    }
+
+    .toolbar__search {
+        grid-column: auto;
+    }
+
+    .toolbar .btn {
+        width: 100%;
+    }
+
     .actions,
     .actions .btn {
         width: 100%;
@@ -417,5 +567,79 @@ tbody tr:hover {
 
     .logout-btn {
         padding-inline: 12px;
+    }
+}
+
+/* =========================
+   PAGINATION
+========================= */
+
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px 18px;
+    border-top: 1px solid var(--border);
+    background: #fff;
+}
+
+.pagination-info {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    text-align: center;
+}
+
+.pagination-btn {
+    min-height: 40px;
+    padding: 0 14px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--text);
+
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.pagination-btn:hover:not(:disabled) {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+}
+
+.pagination-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.pagination-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* Mobile */
+@media (max-width: 560px) {
+    .pagination {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .pagination-btn {
+        width: 100%;
+    }
+
+    .pagination-info {
+        order: -1;
     }
 }

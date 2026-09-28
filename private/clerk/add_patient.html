@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>MediTrack | Patient Admission Form</title>
+    <link rel="icon" type="image/x-icon" href="../../draft.png">
 
     <link rel="stylesheet" href="stylesheets/add_patient.css">
 
@@ -474,8 +475,7 @@
 
 import {
     initializeApp
-}
-from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
 
 import {
     getDatabase,
@@ -483,9 +483,12 @@ import {
     push,
     set,
     get
-}
-from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
+} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
 
+import {
+    getAuth,
+    onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
 
 /* =========================================================
    FIREBASE
@@ -503,7 +506,212 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 
-const db = getDatabase();
+const db = getDatabase(app);
+const auth = getAuth(app);
+
+/* =========================================================
+   CLERK ACCOUNT VALIDATION
+========================================================= */
+
+const patientForm = document.querySelector("#patientForm");
+
+const dashboardLink = document.querySelector(
+    'a[href="view_records.html"]'
+);
+
+// Hide the form until the account has been verified.
+patientForm.style.display = "none";
+dashboardLink.style.display = "none";
+
+async function validateClerkAccess() {
+
+    try {
+
+        // Wait until Firebase determines the authentication state.
+        const user = await new Promise((resolve, reject) => {
+
+            const unsubscribe = onAuthStateChanged(
+                auth,
+                authenticatedUser => {
+                    unsubscribe();
+                    resolve(authenticatedUser);
+                },
+                error => {
+                    unsubscribe();
+                    reject(error);
+                }
+            );
+
+        });
+
+        // Redirect users who are not signed in.
+        if (!user) {
+
+            alert("Please log in to access this page.");
+
+            window.location.replace("login.html");
+
+            return false;
+
+        }
+
+        // Retrieve the authenticated user's database record.
+        const userSnapshot = await get(
+            ref(db, `users/${user.uid}`)
+        );
+
+        if (!userSnapshot.exists()) {
+
+            alert("User account not found.");
+
+            await auth.signOut();
+
+            window.location.replace("login.html");
+
+            return false;
+
+        }
+
+        const userData = userSnapshot.val();
+
+        // Only Clerk accounts may access this page.
+        if (userData.userType !== "Clerk") {
+
+            alert(
+                "Access denied. Only Clerk accounts can access the Patient Admission Form."
+            );
+
+            window.location.replace("view_records.html");
+
+            return false;
+
+        }
+
+        // Authorization successful.
+        patientForm.style.display = "";
+        dashboardLink.style.display = "";
+
+        return true;
+
+    } catch (error) {
+
+        console.error(
+            "Clerk validation error:",
+            error
+        );
+
+        window.location.replace("../../index.html");
+
+        return false;
+
+    }
+
+}
+
+// Stop the rest of the script until authorization succeeds.
+if (!(await validateClerkAccess())) {
+    throw new Error("Unauthorized access to Patient Admission Form.");
+}
+
+/* =========================================================
+   CLERK ACCOUNT VALIDATION
+========================================================= */
+
+const patientForm = document.querySelector("#patientForm");
+
+const dashboardLink = document.querySelector(
+    'a[href="view_records.html"]'
+);
+
+// Hide the form until the account has been verified.
+patientForm.style.display = "none";
+dashboardLink.style.display = "none";
+
+async function validateClerkAccess() {
+
+    try {
+
+        // Wait until Firebase determines the authentication state.
+        const user = await new Promise((resolve, reject) => {
+
+            const unsubscribe = onAuthStateChanged(
+                auth,
+                authenticatedUser => {
+                    unsubscribe();
+                    resolve(authenticatedUser);
+                },
+                error => {
+                    unsubscribe();
+                    reject(error);
+                }
+            );
+
+        });
+
+        // Redirect users who are not signed in.
+        if (!user) {
+
+            window.location.replace("../../index.html");
+
+            return false;
+
+        }
+
+        // Retrieve the authenticated user's database record.
+        const userSnapshot = await get(
+            ref(db, `users/${user.uid}`)
+        );
+
+        if (!userSnapshot.exists()) {
+
+            await auth.signOut();
+
+            window.location.replace("../../index.html");
+
+            return false;
+
+        }
+
+        const userData = userSnapshot.val();
+
+        // Only Clerk accounts may access this page.
+        if (userData.userType !== "Clerk") {
+
+            alert(
+                "Access denied. Only Clerk accounts can access the Patient Admission Form."
+            );
+
+            window.location.replace("view_records.html");
+
+            return false;
+
+        }
+
+        // Authorization successful.
+        patientForm.style.display = "";
+        dashboardLink.style.display = "";
+
+        return true;
+
+    } catch (error) {
+
+        console.error(
+            "Clerk validation error:",
+            error
+        );
+
+        window.location.replace("../../index.html");
+
+        return false;
+
+    }
+
+}
+
+// Stop the rest of the script until authorization succeeds.
+if (!(await validateClerkAccess())) {
+    throw new Error("Unauthorized access to Patient Admission Form.");
+}
 
 
 /* =========================================================

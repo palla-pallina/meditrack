@@ -1,78 +1,239 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<title>Prescription Records</title>
-<link rel="stylesheet" href="stylesheets/view_prescriptions.css">
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Prescription Records</title>
+
+    <link
+        rel="stylesheet"
+        href="stylesheets/view_prescriptions.css"
+    >
+    <link rel="icon" type="image/x-icon" href="../../draft.png">
+
+
 </head>
+
 
 <body>
 
 <h2>Prescription Records</h2>
 
-<a href="dashboard.html">Dashboard</a>
-<a href="add_prescription.html">New Digital Prescription</a>
+
+<a href="dashboard.html">
+    Dashboard
+</a>
+
+<a href="add_prescription.html">
+    New Digital Prescription
+</a>
+
 
 <hr>
+
+
+<!-- =====================================================
+     SEARCH
+====================================================== -->
 
 <input
-type="text"
-id="search"
-placeholder="Search patient or physician">
+    type="text"
+    id="search"
+    placeholder="Search patient or physician"
+>
 
-<button id="searchBtn">
-Search
+
+<button
+    id="searchBtn"
+    type="button"
+>
+    Search
 </button>
+
+
+<!-- =====================================================
+     STATUS FILTER
+====================================================== -->
+
+<label for="statusSort">
+    Status:
+</label>
+
+
+<select id="statusSort">
+
+    <option
+        value="All"
+        selected
+    >
+        All
+    </option>
+
+    <option value="Active">
+        Active
+    </option>
+
+    <option value="Done">
+        Done
+    </option>
+
+    <option value="On Hold">
+        On Hold
+    </option>
+
+</select>
+
+
+<!-- =====================================================
+     DATE SORT
+====================================================== -->
+
+<label for="dateSort">
+    Date:
+</label>
+
+
+<select id="dateSort">
+
+    <option
+        value="recent"
+        selected
+    >
+        Recent
+    </option>
+
+    <option value="oldest">
+        Oldest
+    </option>
+
+</select>
+
 
 <hr>
 
-<table border="1" cellpadding="8">
 
-<thead>
+<!-- =====================================================
+     PRESCRIPTION TABLE
+====================================================== -->
 
-<tr>
+<table
+    border="1"
+    cellpadding="8"
+>
 
-<th>Patient</th>
-<th>Status</th>
-<th>Medications</th>
-<th>Actions</th>
+    <thead>
 
-</tr>
+        <tr>
 
-</thead>
+            <th>
+                Patient
+            </th>
 
-<tbody id="table">
+            <th>
+                Status
+            </th>
 
-<tr>
+            <th>
+                Medications
+            </th>
 
-<td colspan="6">
+            <th>
+                Actions
+            </th>
 
-Loading...
+        </tr>
 
-</td>
+    </thead>
 
-</tr>
 
-</tbody>
+    <tbody id="table">
+
+        <tr>
+
+            <td colspan="4">
+                Checking user access...
+            </td>
+
+        </tr>
+
+    </tbody>
 
 </table>
 
+
+<!-- =====================================================
+     PAGINATION
+====================================================== -->
+
+<div
+    id="pagination"
+    class="pagination"
+>
+
+    <button
+        id="previousPage"
+        type="button"
+    >
+        Previous
+    </button>
+
+
+    <div
+        id="pageNumbers"
+        class="pageNumbers"
+    ></div>
+
+
+    <button
+        id="nextPage"
+        type="button"
+    >
+        Next
+    </button>
+
+</div>
+
+
 <script type="module">
 
-import { initializeApp }
+
+// =====================================================
+// FIREBASE IMPORTS
+// =====================================================
+
+import {
+    initializeApp
+}
 from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+
+
+import {
+    getAuth,
+    onAuthStateChanged
+}
+from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+
 
 import {
 
-getDatabase,
-ref,
-get,
-remove
+    getDatabase,
+    ref,
+    get,
+    set,
+    remove
 
 }
 from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
 
-const firebaseConfig={
+
+// =====================================================
+// FIREBASE CONFIGURATION
+// =====================================================
+const firebaseConfig = {
     apiKey: "AIzaSyBRm3dUt3HreTquM_Ba9JfYmZD2CLVV0Gc",
     authDomain: "meditrack-59cca.firebaseapp.com",
     databaseURL: "https://meditrack-59cca-default-rtdb.asia-southeast1.firebasedatabase.app",
@@ -82,153 +243,1657 @@ const firebaseConfig={
     appId: "1:656003988692:web:badfe96b7d830837a4cf41"
 };
 
-const app=initializeApp(firebaseConfig);
 
-const database=getDatabase(app);
 
-const table=document.getElementById("table");
+// =====================================================
+// INITIALIZE FIREBASE
+// =====================================================
 
-let prescriptions=[];
+const app =
+    initializeApp(
+        firebaseConfig
+    );
 
-loadPrescriptions();
 
-async function loadPrescriptions(){
+const auth =
+    getAuth(
+        app
+    );
 
-const snapshot=
 
-await get(ref(database,"prescriptions"));
+const database =
+    getDatabase(
+        app
+    );
 
-prescriptions=[];
 
-if(snapshot.exists()){
+// =====================================================
+// VARIABLES
+// =====================================================
 
-snapshot.forEach(child=>{
+const table =
+    document.getElementById(
+        "table"
+    );
 
-prescriptions.push({
 
-id:child.key,
+const pagination =
+    document.getElementById(
+        "pagination"
+    );
 
-...child.val()
 
-});
+const previousPageButton =
+    document.getElementById(
+        "previousPage"
+    );
 
-});
 
-}
+const nextPageButton =
+    document.getElementById(
+        "nextPage"
+    );
 
-renderTable(prescriptions);
-}
 
-async function renderTable(data){
+const pageNumbers =
+    document.getElementById(
+        "pageNumbers"
+    );
 
-table.innerHTML="";
 
-if(data.length===0){
+let prescriptions = [];
 
-table.innerHTML=
+let prescriptionItems = {};
 
-"<tr><td colspan='6'>No prescriptions found.</td></tr>";
+let filteredPrescriptions = [];
 
-return;
 
-}
+// =====================================================
+// PAGINATION SETTINGS
+// =====================================================
 
-for(const prescription of data){
+const ITEMS_PER_PAGE = 10;
 
-const itemSnapshot=
+let currentPage = 1;
 
-await get(
 
-ref(
+// =====================================================
+// USER VALIDATION
+// =====================================================
 
-database,
+onAuthStateChanged(
+    auth,
+    async user => {
 
-"prescription_items"
+        /*
+         * Check whether the user is logged in.
+         */
 
-)
+        if (
+            !user
+        ) {
 
+            table.innerHTML = `
+
+                <tr>
+
+                    <td colspan="4">
+
+                        Authentication required.
+
+                    </td>
+
+                </tr>
+
+            `;
+
+
+            alert(
+                "You must be logged in to access Prescription Records."
+            );
+
+
+            window.location.href =
+                "../../index.html";
+
+
+            return;
+
+        }
+
+
+        try {
+
+            /*
+             * Retrieve the authenticated user's
+             * account information.
+             */
+
+            const userSnapshot =
+                await get(
+                    ref(
+                        database,
+                        `users/${user.uid}`
+                    )
+                );
+
+
+            /*
+             * Make sure the user record exists.
+             */
+
+            if (
+                !userSnapshot.exists()
+            ) {
+
+                table.innerHTML = `
+
+                    <tr>
+
+                        <td colspan="4">
+
+                            User account information not found.
+
+                        </td>
+
+                    </tr>
+
+                `;
+
+
+                alert(
+                    "User account information could not be found."
+                );
+
+
+                window.location.href =
+                    "dashboard.html";
+
+
+                return;
+
+            }
+
+
+            const userData =
+                userSnapshot.val();
+
+
+            /*
+             * Get the user's role.
+             */
+
+            const userType =
+                String(
+                    userData.userType ||
+                    ""
+                )
+                .trim();
+
+
+            if (
+                userType !== "Head Nurse"
+            ) {
+
+                table.innerHTML = `
+
+                    <tr>
+
+                        <td colspan="4">
+
+                            Access denied.
+
+                        </td>
+
+                    </tr>
+
+                `;
+
+
+                alert(
+                    "Access denied."
+                );
+
+
+                window.location.href =
+                    "dashboard.html";
+
+
+                return;
+
+            }
+
+
+            /*
+             * User validation succeeded.
+             */
+
+            console.log(
+                "Head Nurse access verified:",
+                user.uid
+            );
+
+
+            /*
+             * Load prescription records only
+             * after successful validation.
+             */
+
+            await loadPrescriptions();
+
+        }
+        catch (error) {
+
+            console.error(
+                "User validation failed:",
+                error
+            );
+
+
+            table.innerHTML = `
+
+                <tr>
+
+                    <td colspan="4">
+
+                        Unable to verify user permissions.
+
+                    </td>
+
+                </tr>
+
+            `;
+
+
+            alert(
+                "Unable to verify your account permissions."
+            );
+
+
+            window.location.href =
+                "dashboard.html";
+
+        }
+
+    }
 );
 
-let count=0;
 
-if(itemSnapshot.exists()){
+// =====================================================
+// GET TODAY'S LOCAL DATE
+// =====================================================
 
-itemSnapshot.forEach(item=>{
+function getTodayLocalDate() {
 
-if(
+    const now =
+        new Date();
 
-item.val().prescription_id===prescription.id
 
-){
+    const year =
+        now.getFullYear();
 
-count++;
 
-}
+    const month =
+        String(
+            now.getMonth() + 1
+        )
+        .padStart(
+            2,
+            "0"
+        );
 
-});
 
-}
+    const day =
+        String(
+            now.getDate()
+        )
+        .padStart(
+            2,
+            "0"
+        );
 
-const tr=document.createElement("tr");
 
-tr.innerHTML=`
-
-<td>${prescription.patient_name}</td>
-
-<td>${prescription.status}</td>
-
-<td>${count}</td>
-
-<td>
-
-<button class="viewBtn">
-
-View Details
-
-</button>
-
-<button class="deleteBtn">
-
-Delete
-
-</button>
-
-</td>
-
-`;
-
-tr.querySelector(".viewBtn").addEventListener("click", () => {
-
-    toggleDetails(tr, prescription.id);
-
-});
-
-tr.querySelector(".deleteBtn")
-
-.addEventListener("click",()=>{
-
-deletePrescription(
-
-prescription.id
-
-);
-
-});
-
-table.appendChild(tr);
+    return (
+        `${year}-${month}-${day}`
+    );
 
 }
 
+
+// =====================================================
+// NORMALIZE DATE
+// =====================================================
+
+function normalizeDate(
+    value
+) {
+
+    if (
+        !value
+    ) {
+
+        return null;
+
+    }
+
+
+    const date =
+        String(
+            value
+        )
+        .substring(
+            0,
+            10
+        );
+
+
+    /*
+     * Basic YYYY-MM-DD validation.
+     */
+
+    if (
+        !/^\d{4}-\d{2}-\d{2}$/.test(
+            date
+        )
+    ) {
+
+        return null;
+
+    }
+
+
+    return date;
+
 }
 
-async function toggleDetails(row, prescriptionId){
 
-    const next=row.nextElementSibling;
+// =====================================================
+// CHECK IF DATE IS PAST
+// =====================================================
 
-    if(
+function isPastDate(
+    date,
+    today
+) {
+
+    if (
+        !date
+    ) {
+
+        return false;
+
+    }
+
+
+    return (
+        date < today
+    );
+
+}
+
+
+// =====================================================
+// LOAD PRESCRIPTIONS
+// =====================================================
+
+async function loadPrescriptions() {
+
+    try {
+
+        table.innerHTML = `
+
+            <tr>
+
+                <td colspan="4">
+
+                    Loading prescriptions...
+
+                </td>
+
+            </tr>
+
+        `;
+
+
+        // =================================================
+        // LOAD PARENT PRESCRIPTIONS
+        // =================================================
+
+        const prescriptionSnapshot =
+            await get(
+                ref(
+                    database,
+                    "prescriptions"
+                )
+            );
+
+
+        // =================================================
+        // LOAD PRESCRIPTION ITEMS
+        // =================================================
+
+        const itemSnapshot =
+            await get(
+                ref(
+                    database,
+                    "prescription_items"
+                )
+            );
+
+
+        prescriptions = [];
+
+        prescriptionItems = {};
+
+
+        // =================================================
+        // STORE PARENT PRESCRIPTIONS
+        // =================================================
+
+        if (
+            prescriptionSnapshot.exists()
+        ) {
+
+            prescriptionSnapshot.forEach(
+                child => {
+
+                    prescriptions.push({
+
+                        id:
+                            child.key,
+
+                        ...child.val()
+
+                    });
+
+                }
+            );
+
+        }
+
+
+        // =================================================
+        // STORE PRESCRIPTION ITEMS
+        // =================================================
+
+        if (
+            itemSnapshot.exists()
+        ) {
+
+            itemSnapshot.forEach(
+                child => {
+
+                    const item =
+                        child.val();
+
+
+                    if (
+                        !item.prescription_id
+                    ) {
+
+                        return;
+
+                    }
+
+
+                    const prescriptionId =
+                        item.prescription_id;
+
+
+                    if (
+                        !prescriptionItems[
+                            prescriptionId
+                        ]
+                    ) {
+
+                        prescriptionItems[
+                            prescriptionId
+                        ] = [];
+
+                    }
+
+
+                    prescriptionItems[
+                        prescriptionId
+                    ].push({
+
+                        id:
+                            child.key,
+
+                        ...item
+
+                    });
+
+                }
+            );
+
+        }
+
+
+        // =================================================
+        // VALIDATE DATES
+        // =================================================
+
+        await validatePrescriptionDates();
+
+
+        // =================================================
+        // RESET PAGE
+        // =================================================
+
+        currentPage = 1;
+
+
+        // =================================================
+        // APPLY DEFAULT FILTERS
+        // =================================================
+
+        applyFilters();
+
+    }
+    catch (error) {
+
+        console.error(
+            "Failed to load prescriptions:",
+            error
+        );
+
+
+        table.innerHTML = `
+
+            <tr>
+
+                <td colspan="4">
+
+                    Failed to load prescriptions.
+
+                    <br><br>
+
+                    ${escapeHtml(
+                        error.message
+                    )}
+
+                </td>
+
+            </tr>
+
+        `;
+
+    }
+
+}
+
+
+// =====================================================
+// VALIDATE PRESCRIPTION START AND END DATES
+// =====================================================
+
+async function validatePrescriptionDates() {
+
+    const today =
+        getTodayLocalDate();
+
+
+    const statusUpdates = [];
+
+
+    /*
+     * Check every prescription.
+     */
+
+    for (
+        const prescription
+        of prescriptions
+    ) {
+
+        const items =
+            prescriptionItems[
+                prescription.id
+            ] || [];
+
+
+        /*
+         * No medication items means there are
+         * no item dates to validate.
+         */
+
+        if (
+            items.length === 0
+        ) {
+
+            continue;
+
+        }
+
+
+        // =================================================
+        // COLLECT START DATES
+        // =================================================
+
+        const startDates =
+            items
+                .map(
+                    item =>
+                        normalizeDate(
+                            item.start_date
+                        )
+                )
+                .filter(
+                    date =>
+                        date !== null
+                );
+
+
+        // =================================================
+        // COLLECT END DATES
+        // =================================================
+
+        const endDates =
+            items
+                .map(
+                    item =>
+                        normalizeDate(
+                            item.end_date
+                        )
+                )
+                .filter(
+                    date =>
+                        date !== null
+                );
+
+
+        // =================================================
+        // DETERMINE EFFECTIVE START DATE
+        // =================================================
+
+        let prescriptionStartDate =
+            null;
+
+
+        if (
+            startDates.length > 0
+        ) {
+
+            prescriptionStartDate =
+                startDates.reduce(
+                    (
+                        earliest,
+                        current
+                    ) => {
+
+                        return (
+                            current < earliest
+                                ? current
+                                : earliest
+                        );
+
+                    }
+                );
+
+        }
+
+
+        // =================================================
+        // DETERMINE EFFECTIVE END DATE
+        // =================================================
+
+        let prescriptionEndDate =
+            null;
+
+
+        if (
+            endDates.length > 0
+        ) {
+
+            /*
+             * Use the latest end date.
+             *
+             * The prescription remains active until
+             * the last medication has reached its end date.
+             */
+
+            prescriptionEndDate =
+                endDates.reduce(
+                    (
+                        latest,
+                        current
+                    ) => {
+
+                        return (
+                            current > latest
+                                ? current
+                                : latest
+                        );
+
+                    }
+                );
+
+        }
+
+
+        console.log(
+            "Prescription date validation:",
+            {
+
+                prescriptionId:
+                    prescription.id,
+
+                startDate:
+                    prescriptionStartDate,
+
+                endDate:
+                    prescriptionEndDate,
+
+                today:
+                    today
+
+            }
+        );
+
+
+        // =================================================
+        // END DATE VALIDATION
+        // =================================================
+
+        /*
+         * If the effective end date is before today,
+         * mark the parent prescription as Done.
+         *
+         * Example:
+         *
+         * Today:    2026-09-23
+         * End date: 2026-09-22
+         *
+         * Result:
+         * Done
+         */
+
+        if (
+            prescriptionEndDate &&
+            isPastDate(
+                prescriptionEndDate,
+                today
+            )
+        ) {
+
+            const currentStatus =
+                String(
+                    prescription.status ||
+                    ""
+                )
+                .trim();
+
+
+            if (
+                currentStatus !== "Done"
+            ) {
+
+                /*
+                 * Update the local object immediately
+                 * so the table displays Done.
+                 */
+
+                prescription.status =
+                    "Done";
+
+
+                /*
+                 * Queue the Firebase update.
+                 */
+
+                statusUpdates.push(
+
+                    set(
+                        ref(
+                            database,
+                            `prescriptions/${prescription.id}/status`
+                        ),
+                        "Done"
+                    )
+
+                );
+
+            }
+
+        }
+
+
+        // =================================================
+        // START DATE VALIDATION
+        // =================================================
+
+        /*
+         * A future start date does not mark the
+         * prescription as Done.
+         *
+         * Its existing status is preserved.
+         */
+
+        if (
+            prescriptionStartDate &&
+            prescriptionStartDate > today
+        ) {
+
+            console.log(
+                `Prescription ${prescription.id} has not started yet.`
+            );
+
+        }
+
+    }
+
+
+    // =================================================
+    // SAVE STATUS CHANGES
+    // =================================================
+
+    if (
+        statusUpdates.length > 0
+    ) {
+
+        await Promise.all(
+            statusUpdates
+        );
+
+    }
+
+}
+
+
+// =====================================================
+// APPLY SEARCH, STATUS FILTER, AND DATE SORT
+// =====================================================
+
+function applyFilters() {
+
+    const keyword =
+        document
+            .getElementById(
+                "search"
+            )
+            .value
+            .toLowerCase()
+            .trim();
+
+
+    const statusFilter =
+        document
+            .getElementById(
+                "statusSort"
+            )
+            .value;
+
+
+    const dateSort =
+        document
+            .getElementById(
+                "dateSort"
+            )
+            .value;
+
+
+    let filtered =
+        [
+            ...prescriptions
+        ];
+
+
+    // =================================================
+    // SEARCH
+    // =================================================
+
+    if (
+        keyword
+    ) {
+
+        filtered =
+            filtered.filter(
+                prescription => {
+
+                    const patient =
+                        String(
+                            prescription.patient_name ||
+                            ""
+                        )
+                        .toLowerCase();
+
+
+                    const physician =
+                        String(
+                            prescription.physician_name ||
+                            ""
+                        )
+                        .toLowerCase();
+
+
+                    return (
+
+                        patient.includes(
+                            keyword
+                        )
+
+                        ||
+
+                        physician.includes(
+                            keyword
+                        )
+
+                    );
+
+                }
+            );
+
+    }
+
+
+    // =================================================
+    // STATUS FILTER
+    // =================================================
+
+    if (
+        statusFilter !== "All"
+    ) {
+
+        filtered =
+            filtered.filter(
+                prescription => {
+
+                    const status =
+                        String(
+                            prescription.status ||
+                            "Active"
+                        )
+                        .trim()
+                        .toLowerCase();
+
+
+                    return (
+                        status ===
+                        statusFilter
+                            .toLowerCase()
+                    );
+
+                }
+            );
+
+    }
+
+
+    // =================================================
+    // DATE SORT
+    // =================================================
+
+    filtered.sort(
+        (
+            a,
+            b
+        ) => {
+
+            const dateA =
+                getPrescriptionDate(
+                    a
+                );
+
+
+            const dateB =
+                getPrescriptionDate(
+                    b
+                );
+
+
+            if (
+                dateSort === "oldest"
+            ) {
+
+                return (
+                    dateA - dateB
+                );
+
+            }
+
+
+            /*
+             * Default:
+             * Recent first.
+             */
+
+            return (
+                dateB - dateA
+            );
+
+        }
+    );
+
+
+    // =================================================
+    // RESET TO FIRST PAGE
+    // =================================================
+
+    currentPage = 1;
+
+
+    // =================================================
+    // SAVE FILTERED DATA
+    // =================================================
+
+    filteredPrescriptions =
+        filtered;
+
+
+    // =================================================
+    // RENDER
+    // =================================================
+
+    renderTable(
+        filteredPrescriptions
+    );
+
+}
+
+
+// =====================================================
+// GET PRESCRIPTION DATE
+// =====================================================
+
+function getPrescriptionDate(
+    prescription
+) {
+
+    /*
+     * Prefer created_at.
+     */
+
+    if (
+        prescription.created_at
+    ) {
+
+        const timestamp =
+            new Date(
+                prescription.created_at
+            ).getTime();
+
+
+        if (
+            !isNaN(timestamp)
+        ) {
+
+            return timestamp;
+
+        }
+
+    }
+
+
+    /*
+     * If created_at is unavailable,
+     * use the earliest medication start date.
+     */
+
+    const items =
+        prescriptionItems[
+            prescription.id
+        ] || [];
+
+
+    const startDates =
+        items
+            .map(
+                item =>
+                    normalizeDate(
+                        item.start_date
+                    )
+            )
+            .filter(
+                date =>
+                    date !== null
+            );
+
+
+    if (
+        startDates.length > 0
+    ) {
+
+        const earliestStart =
+            startDates.reduce(
+                (
+                    earliest,
+                    current
+                ) => {
+
+                    return (
+                        current < earliest
+                            ? current
+                            : earliest
+                    );
+
+                }
+            );
+
+
+        const timestamp =
+            new Date(
+                earliestStart
+            ).getTime();
+
+
+        if (
+            !isNaN(timestamp)
+        ) {
+
+            return timestamp;
+
+        }
+
+    }
+
+
+    /*
+     * No valid date.
+     */
+
+    return 0;
+
+}
+
+
+// =====================================================
+// RENDER PRESCRIPTION TABLE
+// =====================================================
+
+function renderTable(
+    data
+) {
+
+    table.innerHTML = "";
+
+
+    // =================================================
+    // NO RESULTS
+    // =================================================
+
+    if (
+        data.length === 0
+    ) {
+
+        table.innerHTML = `
+
+            <tr>
+
+                <td colspan="4">
+
+                    No prescriptions found.
+
+                </td>
+
+            </tr>
+
+        `;
+
+
+        renderPagination();
+
+        return;
+
+    }
+
+
+    // =================================================
+    // CALCULATE TOTAL PAGES
+    // =================================================
+
+    const totalPages =
+        Math.ceil(
+            data.length /
+            ITEMS_PER_PAGE
+        );
+
+
+    /*
+     * Make sure currentPage is valid.
+     */
+
+    if (
+        currentPage > totalPages
+    ) {
+
+        currentPage =
+            totalPages;
+
+    }
+
+
+    if (
+        currentPage < 1
+    ) {
+
+        currentPage = 1;
+
+    }
+
+
+    // =================================================
+    // GET CURRENT PAGE DATA
+    // =================================================
+
+    const startIndex =
+        (
+            currentPage - 1
+        ) *
+        ITEMS_PER_PAGE;
+
+
+    const endIndex =
+        startIndex +
+        ITEMS_PER_PAGE;
+
+
+    const pageData =
+        data.slice(
+            startIndex,
+            endIndex
+        );
+
+
+    // =================================================
+    // RENDER CURRENT PAGE
+    // =================================================
+
+    pageData.forEach(
+        prescription => {
+
+            const tr =
+                document.createElement(
+                    "tr"
+                );
+
+
+            const items =
+                prescriptionItems[
+                    prescription.id
+                ] || [];
+
+
+            const count =
+                items.length;
+
+
+            tr.innerHTML = `
+
+                <td>
+
+                    ${
+                        escapeHtml(
+                            prescription.patient_name ||
+                            "-"
+                        )
+                    }
+
+                </td>
+
+
+                <td>
+
+                    ${
+                        escapeHtml(
+                            prescription.status ||
+                            "-"
+                        )
+                    }
+
+                </td>
+
+
+                <td>
+
+                    ${count}
+
+                </td>
+
+
+                <td>
+
+                    <button
+                        class="viewBtn"
+                        type="button"
+                    >
+
+                        View Details
+
+                    </button>
+
+
+                    <button
+                        class="deleteBtn"
+                        type="button"
+                    >
+
+                        Delete
+
+                    </button>
+
+                </td>
+
+            `;
+
+
+            // =================================================
+            // VIEW DETAILS
+            // =================================================
+
+            tr.querySelector(
+                ".viewBtn"
+            )
+            .addEventListener(
+                "click",
+                () => {
+
+                    toggleDetails(
+                        tr,
+                        prescription.id
+                    );
+
+                }
+            );
+
+
+            // =================================================
+            // DELETE
+            // =================================================
+
+            tr.querySelector(
+                ".deleteBtn"
+            )
+            .addEventListener(
+                "click",
+                () => {
+
+                    deletePrescription(
+                        prescription.id
+                    );
+
+                }
+            );
+
+
+            table.appendChild(
+                tr
+            );
+
+        }
+    );
+
+
+    // =================================================
+    // RENDER PAGINATION
+    // =================================================
+
+    renderPagination();
+
+}
+
+
+// =====================================================
+// RENDER PAGINATION
+// =====================================================
+
+function renderPagination() {
+
+    pageNumbers.innerHTML = "";
+
+
+    const totalPages =
+        Math.ceil(
+            filteredPrescriptions.length /
+            ITEMS_PER_PAGE
+        );
+
+
+    // =================================================
+    // NO PAGINATION NEEDED
+    // =================================================
+
+    if (
+        totalPages <= 1
+    ) {
+
+        pagination.style.display =
+            "none";
+
+
+        previousPageButton.disabled =
+            true;
+
+
+        nextPageButton.disabled =
+            true;
+
+
+        return;
+
+    }
+
+
+    pagination.style.display =
+        "flex";
+
+
+    // =================================================
+    // PREVIOUS
+    // =================================================
+
+    previousPageButton.disabled =
+        currentPage === 1;
+
+
+    // =================================================
+    // NEXT
+    // =================================================
+
+    nextPageButton.disabled =
+        currentPage === totalPages;
+
+
+    // =================================================
+    // PAGE NUMBERS
+    // =================================================
+
+    for (
+        let page = 1;
+        page <= totalPages;
+        page++
+    ) {
+
+        const button =
+            document.createElement(
+                "button"
+            );
+
+
+        button.type =
+            "button";
+
+
+        button.textContent =
+            page;
+
+
+        if (
+            page === currentPage
+        ) {
+
+            button.classList.add(
+                "active"
+            );
+
+        }
+
+
+        button.addEventListener(
+            "click",
+            () => {
+
+                currentPage =
+                    page;
+
+
+                renderTable(
+                    filteredPrescriptions
+                );
+
+
+                window.scrollTo({
+
+                    top: 0,
+
+                    behavior: "smooth"
+
+                });
+
+            }
+        );
+
+
+        pageNumbers.appendChild(
+            button
+        );
+
+    }
+
+}
+
+
+// =====================================================
+// PREVIOUS PAGE
+// =====================================================
+
+previousPageButton
+    .addEventListener(
+        "click",
+        () => {
+
+            if (
+                currentPage > 1
+            ) {
+
+                currentPage--;
+
+
+                renderTable(
+                    filteredPrescriptions
+                );
+
+
+                window.scrollTo({
+
+                    top: 0,
+
+                    behavior: "smooth"
+
+                });
+
+            }
+
+        }
+    );
+
+
+// =====================================================
+// NEXT PAGE
+// =====================================================
+
+nextPageButton
+    .addEventListener(
+        "click",
+        () => {
+
+            const totalPages =
+                Math.ceil(
+                    filteredPrescriptions.length /
+                    ITEMS_PER_PAGE
+                );
+
+
+            if (
+                currentPage < totalPages
+            ) {
+
+                currentPage++;
+
+
+                renderTable(
+                    filteredPrescriptions
+                );
+
+
+                window.scrollTo({
+
+                    top: 0,
+
+                    behavior: "smooth"
+
+                });
+
+            }
+
+        }
+    );
+
+// =====================================================
+// FORMAT ADMINISTRATION TIME
+// Converts HH:MM to 12-hour format
+// =====================================================
+
+function formatAdministrationTime(time) {
+
+    if (!time) {
+        return "-";
+    }
+
+    const value = String(time).trim();
+
+    const match = value.match(/^(\d{1,2}):(\d{2})$/);
+
+    if (!match) {
+        return value;
+    }
+
+    let hours = parseInt(match[1], 10);
+    const minutes = match[2];
+
+    if (hours < 0 || hours > 23) {
+        return value;
+    }
+
+    const period = hours >= 12 ? "PM" : "AM";
+
+    const hour12 = hours % 12 || 12;
+
+    return `${hour12}:${minutes} ${period}`;
+}
+
+// =====================================================
+// VIEW PRESCRIPTION DETAILS
+// =====================================================
+
+function toggleDetails(
+    row,
+    prescriptionId
+) {
+
+    const next =
+        row.nextElementSibling;
+
+
+    // -------------------------------------------------
+    // CLOSE DETAILS
+    // -------------------------------------------------
+
+    if (
         next &&
-        next.classList.contains("detailsRow")
-    ){
+        next.classList.contains(
+            "detailsRow"
+        )
+    ) {
 
         next.remove();
 
@@ -236,119 +1901,241 @@ async function toggleDetails(row, prescriptionId){
 
     }
 
-    const snapshot=await get(
 
-        ref(database,"prescription_items")
+    const items =
+        prescriptionItems[
+            prescriptionId
+        ] || [];
 
-    );
 
-    let html=`
+    let html = `
 
-    <table border="1" width="100%">
+        <table
+            border="1"
+            width="100%"
+        >
 
-    <tr>
+            <tr>
 
-        <th>Medication</th>
+                <th>
+                    Medication
+                </th>
 
-        <th>Dosage</th>
+                <th>
+                    Dosage
+                </th>
 
-        <th>Route</th>
+                <th>
+                    Route
+                </th>
 
-        <th>Frequency</th>
+                <th>
+                    Frequency
+                </th>
 
-        <th>Administration Times</th>
+                <th>
+                    Administration Times
+                </th>
 
-        <th>Start</th>
+                <th>
+                    Start
+                </th>
 
-        <th>End</th>
+                <th>
+                    End
+                </th>
 
-        <th>Status</th>
+                <th>
+                    Status
+                </th>
 
-    </tr>
+            </tr>
 
     `;
 
-    if(snapshot.exists()){
 
-        snapshot.forEach(child=>{
+    // =================================================
+    // RENDER MEDICATION ITEMS
+    // =================================================
 
-            const item=child.val();
+    if (
+        items.length > 0
+    ) {
 
-            if(item.prescription_id===prescriptionId){
+        items.forEach(
+            item => {
 
-                html+=`
-
-                <tr>
-
-                    <td>${item.medication_name}</td>
-
-                    <td>${item.dosage}</td>
-
-                    <td>${item.route}</td>
-
-                    <td>${item.frequency}</td>
-
-                    <td>
-
-                    ${
-
+                const administrationTimes =
+                    Array.isArray(
                         item.administration_times
-
+                    )
                         ?
-
-                        item.administration_times.join("<br>")
-
+                        item.administration_times
+                            .map(
+                                time =>
+                                    escapeHtml(
+                                        formatAdministrationTime(time)
+                                    )
+                            )
+                            .join(
+                                "<br>"
+                            )
                         :
+                        "-";
 
-                        ""
 
-                    }
+                html += `
 
-                    </td>
+                    <tr>
 
-                    <td>
+                        <td>
 
-                    ${item.start_date}
+                            ${
+                                escapeHtml(
+                                    item.medication_name ||
+                                    "-"
+                                )
+                            }
 
-                    </td>
+                        </td>
 
-                    <td>
 
-                    ${item.end_date || "-"}
+                        <td>
 
-                    </td>
+                            ${
+                                escapeHtml(
+                                    item.dosage ||
+                                    "-"
+                                )
+                            }
 
-                    <td>
+                        </td>
 
-                    ${item.status}
 
-                    </td>
+                        <td>
 
-                </tr>
+                            ${
+                                escapeHtml(
+                                    item.route ||
+                                    "-"
+                                )
+                            }
+
+                        </td>
+
+
+                        <td>
+
+                            ${
+                                escapeHtml(
+                                    item.frequency ||
+                                    "-"
+                                )
+                            }
+
+                        </td>
+
+
+                        <td>
+
+                            ${administrationTimes}
+
+                        </td>
+
+
+                        <td>
+
+                            ${
+                                escapeHtml(
+                                    item.start_date ||
+                                    "-"
+                                )
+                            }
+
+                        </td>
+
+
+                        <td>
+
+                            ${
+                                escapeHtml(
+                                    item.end_date ||
+                                    "-"
+                                )
+                            }
+
+                        </td>
+
+
+                        <td>
+
+                            ${
+                                escapeHtml(
+                                    item.status ||
+                                    "-"
+                                )
+                            }
+
+                        </td>
+
+                    </tr>
 
                 `;
 
             }
+        );
 
-        });
+    }
+    else {
+
+        html += `
+
+            <tr>
+
+                <td colspan="8">
+
+                    No prescription items found.
+
+                </td>
+
+            </tr>
+
+        `;
 
     }
 
-    html+="</table>";
 
-    const detailRow=document.createElement("tr");
+    html += `
 
-    detailRow.className="detailsRow";
-
-    detailRow.innerHTML=`
-
-    <td colspan="6">
-
-    ${html}
-
-    </td>
+        </table>
 
     `;
+
+
+    // =================================================
+    // CREATE DETAILS ROW
+    // =================================================
+
+    const detailRow =
+        document.createElement(
+            "tr"
+        );
+
+
+    detailRow.className =
+        "detailsRow";
+
+
+    detailRow.innerHTML = `
+
+        <td colspan="4">
+
+            ${html}
+
+        </td>
+
+    `;
+
 
     row.parentNode.insertBefore(
 
@@ -360,139 +2147,203 @@ async function toggleDetails(row, prescriptionId){
 
 }
 
-async function deletePrescription(id){
 
-if(
+// =====================================================
+// DELETE PRESCRIPTION
+// =====================================================
 
-!confirm(
+async function deletePrescription(
+    id
+) {
 
-"Delete this prescription?"
+    if (
+        !confirm(
+            "Delete this prescription?"
+        )
+    ) {
 
-)
+        return;
 
-){
+    }
 
-return;
+
+    try {
+
+        // =================================================
+        // DELETE PRESCRIPTION ITEMS
+        // =================================================
+
+        const items =
+            prescriptionItems[id] || [];
+
+
+        const deletePromises =
+            items.map(
+                item => {
+
+                    return remove(
+                        ref(
+                            database,
+                            `prescription_items/${item.id}`
+                        )
+                    );
+
+                }
+            );
+
+
+        await Promise.all(
+            deletePromises
+        );
+
+
+        // =================================================
+        // DELETE PARENT PRESCRIPTION
+        // =================================================
+
+        await remove(
+            ref(
+                database,
+                `prescriptions/${id}`
+            )
+        );
+
+
+        alert(
+            "Prescription deleted."
+        );
+
+
+        // =================================================
+        // RELOAD DATA
+        // =================================================
+
+        await loadPrescriptions();
+
+    }
+    catch (error) {
+
+        console.error(
+            "Failed to delete prescription:",
+            error
+        );
+
+
+        alert(
+
+            "Failed to delete prescription:\n\n" +
+            error.message
+
+        );
+
+    }
 
 }
 
-const itemSnapshot=
 
-await get(
-
-ref(database,
-
-"prescription_items")
-
-);
-
-if(itemSnapshot.exists()){
-
-const promises=[];
-
-itemSnapshot.forEach(item=>{
-
-if(
-
-item.val().prescription_id===id
-
-){
-
-promises.push(
-
-remove(
-
-ref(
-
-database,
-
-"prescription_items/"+
-
-item.key
-
-)
-
-)
-
-);
-
-}
-
-});
-
-await Promise.all(promises);
-
-}
-
-await remove(
-
-ref(
-
-database,
-
-"prescriptions/"+id
-
-)
-
-);
-
-alert("Prescription deleted.");
-
-loadPrescriptions();
-
-}
+// =====================================================
+// SEARCH BUTTON
+// =====================================================
 
 document
+    .getElementById(
+        "searchBtn"
+    )
+    .addEventListener(
+        "click",
+        applyFilters
+    );
 
-.getElementById("searchBtn")
 
-.addEventListener("click",search);
-
-document
-
-.getElementById("search")
-
-.addEventListener("keyup",search);
-
-function search(){
-
-const keyword=
+// =====================================================
+// SEARCH INPUT
+// =====================================================
 
 document
+    .getElementById(
+        "search"
+    )
+    .addEventListener(
+        "keyup",
+        event => {
 
-.getElementById("search")
+            if (
+                event.key === "Enter"
+            ) {
 
-.value
+                applyFilters();
 
-.toLowerCase()
+            }
 
-.trim();
+        }
+    );
 
-const filtered=
 
-prescriptions.filter(p=>
+// =====================================================
+// STATUS FILTER
+// =====================================================
 
-p.patient_name
+document
+    .getElementById(
+        "statusSort"
+    )
+    .addEventListener(
+        "change",
+        applyFilters
+    );
 
-.toLowerCase()
 
-.includes(keyword)
+// =====================================================
+// DATE SORT
+// =====================================================
 
-||
+document
+    .getElementById(
+        "dateSort"
+    )
+    .addEventListener(
+        "change",
+        applyFilters
+    );
 
-p.physicianNname
 
-.toLowerCase()
+// =====================================================
+// ESCAPE HTML
+// =====================================================
 
-.includes(keyword)
+function escapeHtml(
+    value
+) {
 
-);
-
-renderTable(filtered);
+    return String(
+        value
+    )
+    .replace(
+        /&/g,
+        "&amp;"
+    )
+    .replace(
+        /</g,
+        "&lt;"
+    )
+    .replace(
+        />/g,
+        "&gt;"
+    )
+    .replace(
+        /"/g,
+        "&quot;"
+    )
+    .replace(
+        /'/g,
+        "&#039;"
+    );
 
 }
+
 
 </script>
 
 </body>
+
 </html>

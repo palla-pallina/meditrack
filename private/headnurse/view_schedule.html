@@ -1,96 +1,231 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>View Medication Schedule</title>
 
-<link rel="stylesheet" href="stylesheets/view_schedule.css">
+<head>
+
+<meta charset="UTF-8">
+
+<title>
+    View Medication Schedule
+</title>
+
+<link
+    rel="stylesheet"
+    href="stylesheets/view_schedule.css"
+>
+<link rel="icon" type="image/x-icon" href="../../draft.png">
+
 </head>
 
 <body>
 
-<h2>Medication Schedule Details</h2>
+<h2>
+    Medication Schedule Details
+</h2>
 
-<a href="view_schedules.html">← Back to Schedules</a>
+<a href="view_schedules.html">
+    ← Back to Schedules
+</a>
 
 <hr>
 
-<table border="1" cellpadding="8">
+
+<table
+    border="1"
+    cellpadding="8"
+>
 
 <tr>
-    <td><strong>Patient</strong></td>
-    <td id="patient">Loading...</td>
+
+    <td>
+        <strong>Patient</strong>
+    </td>
+
+    <td id="patient">
+        Loading...
+    </td>
+
 </tr>
 
-<tr>
-    <td><strong>Ward</strong></td>
-    <td id="assignedArea"></td>
-</tr>
 
 <tr>
-    <td><strong>Room</strong></td>
-    <td id="room"></td>
+
+    <td>
+        <strong>Ward</strong>
+    </td>
+
+    <td id="assignedArea">
+        -
+    </td>
+
 </tr>
 
-<tr>
-    <td><strong>Medication</strong></td>
-    <td id="medication"></td>
-</tr>
 
 <tr>
-    <td><strong>Dosage</strong></td>
-    <td id="dosage"></td>
+
+    <td>
+        <strong>Room</strong>
+    </td>
+
+    <td id="room">
+        -
+    </td>
+
 </tr>
 
-<tr>
-    <td><strong>Route</strong></td>
-    <td id="route"></td>
-</tr>
 
 <tr>
-    <td><strong>Assigned Nurse</strong></td>
-    <td id="nurse"></td>
+
+    <td>
+        <strong>Medication</strong>
+    </td>
+
+    <td id="medication">
+        -
+    </td>
+
 </tr>
 
-<tr>
-    <td><strong>Scheduled Time</strong></td>
-    <td id="scheduledTime"></td>
-</tr>
 
 <tr>
-    <td><strong>Status</strong></td>
-    <td id="status"></td>
+
+    <td>
+        <strong>Dosage</strong>
+    </td>
+
+    <td id="dosage">
+        -
+    </td>
+
 </tr>
 
+
 <tr>
-    <td><strong>Date Created</strong></td>
-    <td id="createdAt"></td>
+
+    <td>
+        <strong>Route</strong>
+    </td>
+
+    <td id="route">
+        -
+    </td>
+
+</tr>
+
+
+<tr>
+
+    <td>
+        <strong>Assigned Nurse</strong>
+    </td>
+
+    <td id="nurse">
+        -
+    </td>
+
+</tr>
+
+
+<!-- ======================================
+     SCHEDULED DATES
+======================================= -->
+
+<tr>
+
+    <td>
+        <strong>Scheduled Dates</strong>
+    </td>
+
+    <td id="scheduledDates">
+        -
+    </td>
+
+</tr>
+
+
+<!-- ======================================
+     SCHEDULED TIME
+======================================= -->
+
+<tr>
+
+    <td>
+        <strong>Scheduled Time</strong>
+    </td>
+
+    <td id="scheduledTime">
+        -
+    </td>
+
+</tr>
+
+
+<tr>
+
+    <td>
+        <strong>Status</strong>
+    </td>
+
+    <td id="status">
+        -
+    </td>
+
+</tr>
+
+
+<tr>
+
+    <td>
+        <strong>Date Created</strong>
+    </td>
+
+    <td id="createdAt">
+        -
+    </td>
+
 </tr>
 
 </table>
 
 <br>
 
+
 <button id="deleteBtn">
+
     Delete Schedule
+
 </button>
+
 
 <script type="module">
 
-import { initializeApp }
-from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+
+/* =====================================================
+   FIREBASE
+===================================================== */
 
 import {
-    getDatabase, 
-    ref, 
-    get, 
+    initializeApp
+}
+from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+
+
+import {
+    getDatabase,
+    ref,
+    get,
     remove
 }
 from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
 
-//--------------------------------------
-// Firebase Config
-//--------------------------------------
+import {
+    getAuth,
+    onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+
+/* =====================================================
+   FIREBASE CONFIG
+===================================================== */
 
 const firebaseConfig = {
     apiKey: "AIzaSyBRm3dUt3HreTquM_Ba9JfYmZD2CLVV0Gc",
@@ -104,115 +239,540 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
+const auth = getAuth(app);
 
-//--------------------------------------
-// Get Schedule ID
-//--------------------------------------
+/* =====================================================
+   HEAD NURSE ACCESS VALIDATION
+===================================================== */
 
-const params = new URLSearchParams(window.location.search);
-const scheduleId = params.get("id");
+document.body.style.visibility = "hidden";
+
+async function validateHeadNurseAccess() {
+    try {
+        const user = await new Promise((resolve, reject) => {
+            let unsubscribe = () => {};
+
+            unsubscribe = onAuthStateChanged(
+                auth,
+                (authenticatedUser) => {
+                    unsubscribe();
+                    resolve(authenticatedUser);
+                },
+                (error) => {
+                    unsubscribe();
+                    reject(error);
+                }
+            );
+        });
+
+        // Redirect if the user is not authenticated.
+        if (!user) {
+            window.location.replace("../../index.html");
+            return false;
+        }
+
+        // Retrieve the user's account information.
+        const userSnapshot = await get(
+            ref(db, `users/${user.uid}`)
+        );
+
+        // Redirect if the account does not exist.
+        if (!userSnapshot.exists()) {
+            window.location.replace("../../index.html");
+            return false;
+        }
+
+        const userData = userSnapshot.val();
+
+        // Allow Head Nurse accounts only.
+        if (userData.userType !== "Head Nurse") {
+            window.location.replace("../../index.html");
+            return false;
+        }
+
+        // Access granted.
+        document.body.style.visibility = "visible";
+
+        return true;
+
+    } catch (error) {
+        console.error(
+            "Head Nurse account validation failed:",
+            error
+        );
+
+        window.location.replace("../../index.html");
+        return false;
+    }
+}
+
+if (!(await validateHeadNurseAccess())) {
+    throw new Error("Unauthorized access.");
+}
+
+/* =====================================================
+   GET SCHEDULE ID
+===================================================== */
+
+const params =
+    new URLSearchParams(
+        window.location.search
+    );
+
+
+const scheduleId =
+    params.get("id");
+
 
 if(!scheduleId){
 
-    alert("No schedule selected.");
+    alert(
+        "No schedule selected."
+    );
 
-    window.location.href = "view_schedules.html";
+    window.location.href =
+        "view_schedules.html";
 
 }
 
-//--------------------------------------
-// Load Schedule
-//--------------------------------------
+
+/* =====================================================
+   FORMAT SCHEDULED DATES
+===================================================== */
+
+function formatScheduledDates(
+    dates
+){
+
+    if(
+        !dates
+    ){
+
+        return "-";
+
+    }
+
+
+    /*
+        Firebase may return the dates
+        as an array or an object.
+    */
+
+    let dateList = [];
+
+
+    if(
+        Array.isArray(dates)
+    ){
+
+        dateList =
+            dates.filter(
+                date =>
+                    date
+            );
+
+    }
+    else if(
+        typeof dates === "object"
+    ){
+
+        dateList =
+            Object.values(
+                dates
+            )
+            .filter(
+                date =>
+                    date
+            );
+
+    }
+
+
+    if(
+        dateList.length === 0
+    ){
+
+        return "-";
+
+    }
+
+
+    /*
+        Remove duplicates.
+    */
+
+    dateList =
+        [
+            ...new Set(
+                dateList
+            )
+        ];
+
+
+    /*
+        Sort chronologically.
+    */
+
+    dateList.sort(
+        (a, b) =>
+            new Date(a) -
+            new Date(b)
+    );
+
+
+    /*
+        Display the complete
+        generated date range.
+    */
+
+    if(
+        dateList.length === 1
+    ){
+
+        return dateList[0];
+
+    }
+
+
+    return `${dateList[0]} - ${
+        dateList[dateList.length - 1]
+    }`;
+
+}
+
+
+/* =====================================================
+   FORMAT ADMINISTRATION TIME
+===================================================== */
+
+function formatAdministrationTime(time){
+
+    if(!time){
+        return "-";
+    }
+
+    const value =
+        String(time).trim();
+
+    /*
+        Expected format:
+        HH:MM
+
+        Examples:
+        05:00 -> 5:00 AM
+        08:00 -> 8:00 AM
+        12:00 -> 12:00 PM
+        13:00 -> 1:00 PM
+        18:00 -> 6:00 PM
+        21:00 -> 9:00 PM
+    */
+
+    const match =
+        value.match(
+            /^(\d{1,2}):(\d{2})$/
+        );
+
+    if(!match){
+        return value;
+    }
+
+    let hours =
+        parseInt(
+            match[1],
+            10
+        );
+
+    const minutes =
+        match[2];
+
+    if(
+        hours < 0 ||
+        hours > 23
+    ){
+        return value;
+    }
+
+    const period =
+        hours >= 12
+            ? "PM"
+            : "AM";
+
+    const hour12 =
+        hours % 12 || 12;
+
+    return `${hour12}:${minutes} ${period}`;
+}
+
+/* =====================================================
+   LOAD SCHEDULE
+===================================================== */
 
 async function loadSchedule(){
 
     try{
 
         const snapshot =
-        await get(ref(db, "medication_schedule/" + scheduleId));
+            await get(
+                ref(
+                    db,
+                    "medication_schedule/" +
+                    scheduleId
+                )
+            );
 
-        if(!snapshot.exists()){
 
-            alert("Schedule not found.");
+        if(
+            !snapshot.exists()
+        ){
 
-            window.location.href = "view_schedules.html";
+            alert(
+                "Schedule not found."
+            );
+
+            window.location.href =
+                "view_schedules.html";
 
             return;
 
         }
 
-        const schedule = snapshot.val();
 
-        document.getElementById("patient").textContent =
-        schedule.patient_name || "";
+        const schedule =
+            snapshot.val();
 
-        document.getElementById("assignedArea").textContent =
-        schedule.assigned_area || "-";
 
-        document.getElementById("room").textContent =
-        schedule.room || "-";
+        /* =================================================
+           PATIENT
+        ================================================= */
 
-        document.getElementById("medication").textContent =
-        schedule.medication_name || "";
+        document
+            .getElementById(
+                "patient"
+            )
+            .textContent =
+                schedule.patient_name ||
+                "-";
 
-        document.getElementById("dosage").textContent =
-        schedule.dosage || "";
 
-        document.getElementById("route").textContent =
-        schedule.route || "";
+        /* =================================================
+           WARD
+        ================================================= */
 
-        document.getElementById("nurse").textContent =
-        schedule.nurse_name || "";
+        document
+            .getElementById(
+                "assignedArea"
+            )
+            .textContent =
+                schedule.assigned_area ||
+                "-";
 
-        document.getElementById("scheduledTime").textContent =
-        schedule.scheduled_time
-            ? (schedule.scheduled_time).toLocaleString()
-            : "";
 
-        document.getElementById("status").textContent =
-        schedule.status || "";
+        /* =================================================
+           ROOM
+        ================================================= */
 
-        document.getElementById("createdAt").textContent =
-        schedule.created_at
-            ? new Date(schedule.created_at).toLocaleString()
-            : "-";
+        document
+            .getElementById(
+                "room"
+            )
+            .textContent =
+                schedule.room ||
+                "-";
+
+
+        /* =================================================
+           MEDICATION
+        ================================================= */
+
+        document
+            .getElementById(
+                "medication"
+            )
+            .textContent =
+                schedule.medication_name ||
+                "-";
+
+
+        /* =================================================
+           DOSAGE
+        ================================================= */
+
+        document
+            .getElementById(
+                "dosage"
+            )
+            .textContent =
+                schedule.dosage ||
+                "-";
+
+
+        /* =================================================
+           ROUTE
+        ================================================= */
+
+        document
+            .getElementById(
+                "route"
+            )
+            .textContent =
+                schedule.route ||
+                "-";
+
+
+        /* =================================================
+           NURSE
+        ================================================= */
+
+        document
+            .getElementById(
+                "nurse"
+            )
+            .textContent =
+                schedule.nurse_name ||
+                "-";
+
+
+        /* =================================================
+           SCHEDULED DATES
+        ================================================= */
+
+        document
+            .getElementById(
+                "scheduledDates"
+            )
+            .textContent =
+                formatScheduledDates(
+                    schedule.scheduled_dates
+                );
+
+
+        /* =================================================*
+            SCHEDULED TIME
+        ================================================= */
+
+        document
+            .getElementById(
+                "scheduledTime"
+            )
+            .textContent =
+                formatAdministrationTime(
+                    schedule.scheduled_time
+                );
+
+
+        /* =================================================
+           STATUS
+        ================================================= */
+
+        document
+            .getElementById(
+                "status"
+            )
+            .textContent =
+                schedule.status ||
+                "-";
+
+
+        /* =================================================
+           CREATED AT
+        ================================================= */
+
+        document
+            .getElementById(
+                "createdAt"
+            )
+            .textContent =
+                schedule.created_at
+                    ? new Date(
+                        schedule.created_at
+                    ).toLocaleString()
+                    : "-";
 
     }
     catch(error){
 
-        alert(error.message);
+        console.error(
+            "Error loading schedule:",
+            error
+        );
+
+        alert(
+            error.message
+        );
 
     }
 
 }
 
+
+/* =====================================================
+   LOAD
+===================================================== */
+
 loadSchedule();
 
-//-------------------------------------- 
-// Delete Button 
-// -------------------------------------- 
 
-document.getElementById("deleteBtn") 
-.addEventListener("click", async function(){
+/* =====================================================
+   DELETE BUTTON
+===================================================== */
 
-    if(!confirm("Delete this schedule?")){ 
-        return; 
-    } 
-    
-    try{ await remove( 
-        ref(db, "medication_schedule/" + scheduleId) 
-    ); 
-    
-    alert("Schedule deleted successfully."); 
-    
-    window.location.href = "view_schedules.html"; 
-    } 
-    catch(error){ 
-        alert(error.message); 
-    } 
-});
+document
+    .getElementById(
+        "deleteBtn"
+    )
+    .addEventListener(
+        "click",
+        async function(){
+
+            if(
+                !confirm(
+                    "Delete this schedule?"
+                )
+            ){
+
+                return;
+
+            }
+
+
+            try{
+
+                await remove(
+                    ref(
+                        db,
+                        "medication_schedule/" +
+                        scheduleId
+                    )
+                );
+
+
+                alert(
+                    "Schedule deleted successfully."
+                );
+
+
+                window.location.href =
+                    "view_schedules.html";
+
+            }
+            catch(error){
+
+                console.error(
+                    "Error deleting schedule:",
+                    error
+                );
+
+                alert(
+                    error.message
+                );
+
+            }
+
+        }
+    );
 
 </script>
 
 </body>
+
 </html>

@@ -6,222 +6,12 @@
     <meta charset="UTF-8">
 
     <title>
-        MediTrack | Refill Dispenser
+        Refill Dispenser | MediTrack
     </title>
 
-    <link
-        rel="stylesheet"
-        href="stylesheets/refill_dispenser.css"
-    >
-
-    <style>
-
-        *{
-            box-sizing:border-box;
-        }
-
-        body{
-            margin:0;
-            padding:20px;
-            font-family:Arial,sans-serif;
-            background:#f4f7fb;
-            color:#333;
-        }
-
-        .container{
-            max-width:1200px;
-            margin:auto;
-        }
-
-        h1{
-            margin-bottom:5px;
-        }
-
-        .subtitle{
-            color:#666;
-            margin-bottom:20px;
-        }
-
-        fieldset{
-            background:white;
-            border:1px solid #ddd;
-            border-radius:8px;
-            padding:20px;
-            margin-bottom:20px;
-        }
-
-        legend{
-            padding:0 10px;
-        }
-
-        label{
-            font-weight:bold;
-        }
-
-        select,
-        input{
-            width:100%;
-            padding:10px;
-            margin-top:5px;
-            border:1px solid #ccc;
-            border-radius:5px;
-        }
-
-        input[readonly]{
-            background:#f1f3f5;
-        }
-
-        .grid{
-            display:grid;
-            grid-template-columns:
-                repeat(2,1fr);
-            gap:15px;
-        }
-
-        .info-card{
-            background:#f8f9fa;
-            border:1px solid #ddd;
-            border-radius:6px;
-            padding:15px;
-        }
-
-        .info-label{
-            font-size:13px;
-            color:#777;
-            margin-bottom:5px;
-        }
-
-        .info-value{
-            font-size:18px;
-            font-weight:bold;
-        }
-
-        .status{
-            display:inline-block;
-            padding:6px 12px;
-            border-radius:20px;
-            font-weight:bold;
-        }
-
-        .status-refill{
-            background:#fff3cd;
-            color:#856404;
-        }
-
-        .status-ready{
-            background:#d1e7dd;
-            color:#0f5132;
-        }
-
-        .status-empty{
-            background:#f8d7da;
-            color:#842029;
-        }
-
-        table{
-            width:100%;
-            border-collapse:collapse;
-            margin-top:15px;
-            background:white;
-        }
-
-        th,
-        td{
-            border:1px solid #ddd;
-            padding:10px;
-            text-align:left;
-            vertical-align:top;
-        }
-
-        th{
-            background:#f1f3f5;
-        }
-
-        .slot-number{
-            font-weight:bold;
-            font-size:18px;
-        }
-
-        .medicine{
-            padding:8px;
-            margin:4px 0;
-            background:#f8f9fa;
-            border-radius:5px;
-        }
-
-        .medicine-name{
-            font-weight:bold;
-        }
-
-        .warning{
-            background:#fff3cd;
-            border:1px solid #ffecb5;
-            color:#664d03;
-            padding:15px;
-            border-radius:6px;
-            margin-bottom:15px;
-        }
-
-        .success{
-            background:#d1e7dd;
-            border:1px solid #badbcc;
-            color:#0f5132;
-            padding:15px;
-            border-radius:6px;
-            margin-bottom:15px;
-        }
-
-        .empty{
-            padding:30px;
-            text-align:center;
-            color:#777;
-        }
-
-        button{
-            padding:11px 18px;
-            border:none;
-            border-radius:5px;
-            cursor:pointer;
-            margin-right:8px;
-        }
-
-        .primary{
-            background:#1976d2;
-            color:white;
-        }
-
-        .secondary{
-            background:#6c757d;
-            color:white;
-        }
-
-        .danger{
-            background:#dc3545;
-            color:white;
-        }
-
-        button:disabled{
-            opacity:.5;
-            cursor:not-allowed;
-        }
-
-        .hidden{
-            display:none;
-        }
-
-        @media(max-width:700px){
-
-            .grid{
-                grid-template-columns:1fr;
-            }
-
-            table{
-                font-size:13px;
-            }
-
-        }
-
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="stylesheets/refill_dispenser.css">
+    <link rel="icon" type="image/x-icon" href="../../draft.png">
 
 </head>
 
@@ -240,7 +30,8 @@
 <h1>
     Refill Dispenser
 </h1>
-
+<label>Required fields are marked with an asterisk &#x28;<span style="color:red;">*</span>&#41;</label>
+<br>
 
 <p class="subtitle">
     Load the next medication cycle into the assigned
@@ -250,29 +41,31 @@
 
 
 <!-- =====================================================
-     SELECT CAROUSEL
+     SELECTED CAROUSEL
 ===================================================== -->
 
 <fieldset>
 
     <legend>
-        <strong>1. Select Dispenser Carousel</strong>
+        <strong>1. Dispenser Carousel</strong>
     </legend>
 
 
-    <label>
-        Carousel *
-    </label>
+    <div class="info-card">
 
+        <div class="info-label">
+            Carousel
+        </div>
 
-    <select
-        id="carouselSelect">
+        <div
+            class="info-value"
+            id="selectedCarousel">
 
-        <option value="">
-            Loading dispensers...
-        </option>
+            Loading...
 
-    </select>
+        </div>
+
+    </div>
 
 
 </fieldset>
@@ -519,7 +312,22 @@
 
 </div>
 
+<!-- =====================================================
+     Carousel Layout
+===================================================== -->
 
+<fieldset>
+    <legend><strong>Carousel Layout</strong></legend>
+
+    <div class="carousel-layout">
+        <div class="carousel-side">
+            <div class="carousel-title" id="wheelName">-</div>
+            <div class="carousel-id" id="wheelId">-</div>
+            <div class="slot-detail" id="slotDetail" aria-live="polite"></div>
+        </div>
+        <div class="carousel-wheel" id="carouselWheel"></div>
+    </div>
+</fieldset>
 
 <!-- =====================================================
      SLOT LIST
@@ -575,7 +383,7 @@
 
         I confirm that all listed medicines have been
         physically loaded into the correct carousel slots.
-
+        <span style="color:red;">*</span>
     </label>
 
 
@@ -614,16 +422,19 @@
 
 <script type="module">
 
-
 /* =====================================================
    FIREBASE
 ===================================================== */
 
 import {
-    initializeApp
-}
-from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+    logDispenserRefilled
+} from "../../private/js/activity_log.js";
 
+import { createCarouselWheel } from "../js/carousel_wheel.js";
+
+import {
+    initializeApp
+} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
 
 import {
     getDatabase,
@@ -631,18 +442,17 @@ import {
     get,
     update,
     push
-}
-from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
+} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
 
+import {
+    getAuth
+} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
 
 import {
     requireRole
-}
-from "../../public/auth_guard.js";
+} from "../js/auth_guard.js";
 
-
-requireRole("Admin");
-
+requireRole("Head Nurse");
 
 const firebaseConfig = {
     apiKey: "AIzaSyBRm3dUt3HreTquM_Ba9JfYmZD2CLVV0Gc",
@@ -654,34 +464,59 @@ const firebaseConfig = {
     appId: "1:656003988692:web:badfe96b7d830837a4cf41"
 };
 
-
-
 const app =
     initializeApp(
         firebaseConfig
     );
 
-
 const db =
     getDatabase(app);
 
+const auth =
+    getAuth(app);
+
+
+/* =====================================================
+   URL PARAMETERS
+===================================================== */
+
+const urlParams =
+    new URLSearchParams(
+        window.location.search
+    );
+
+
+const requestedUnit =
+    urlParams.get("unit");
+
+
+const requestedCarouselId =
+    urlParams.get("id");
+
+
+const action =
+    urlParams.get("action");
+
+
+/* =====================================================
+   CONSTANTS
+===================================================== */
 
 const DISPENSER_UNIT =
+    requestedUnit ||
     "Main Dispenser";
-
 
 const MAX_SLOTS =
     21;
-
 
 
 /* =====================================================
    ELEMENTS
 ===================================================== */
 
-const carouselSelect =
+const selectedCarousel =
     document.getElementById(
-        "carouselSelect"
+        "selectedCarousel"
     );
 
 
@@ -780,7 +615,12 @@ const refillBtn =
         "refillBtn"
     );
 
-
+const wheel = createCarouselWheel({
+    wheel:   document.getElementById("carouselWheel"),
+    detail:  document.getElementById("slotDetail"),
+    nameEl:  document.getElementById("wheelName"),
+    idEl:    document.getElementById("wheelId")
+});
 
 /* =====================================================
    CURRENT DATA
@@ -791,22 +631,57 @@ let compartments = {};
 let selectedCompartment = null;
 
 
-
 /* =====================================================
-   LOAD DISPENSERS
+   LOAD SELECTED CAROUSEL
 ===================================================== */
 
 async function loadCompartments(){
 
-    carouselSelect.innerHTML =
-        `
-        <option value="">
-            Select carousel
-        </option>
-        `;
-
+    compartments = {};
 
     try{
+
+        /*
+         * A carousel ID is required when this page
+         * is opened from the dispenser dashboard.
+         */
+
+        if(
+            !requestedCarouselId
+        ){
+
+            selectedCarousel.textContent =
+                "No carousel selected";
+
+            patientSection.classList.add(
+                "hidden"
+            );
+
+            slotContainer.innerHTML =
+                `
+                <div class="empty">
+
+                    No dispenser carousel was specified.
+
+                    <br><br>
+
+                    Please return to the
+                    Dispenser Dashboard and select
+                    a carousel to refill.
+
+                </div>
+                `;
+
+            refillBtn.disabled =
+                true;
+
+            return;
+        }
+
+
+        /*
+         * Load the selected dispenser unit.
+         */
 
         const snapshot =
             await get(
@@ -822,87 +697,188 @@ async function loadCompartments(){
             !snapshot.exists()
         ){
 
-            carouselSelect.innerHTML =
-                `
-                <option value="">
-                    No dispenser carousels found
-                </option>
-                `;
+            selectedCarousel.textContent =
+                "Dispenser not found";
+
+            alert(
+                "The requested dispenser unit could not be found."
+            );
+
+            refillBtn.disabled =
+                true;
 
             return;
-
         }
 
 
-        snapshot.forEach(
-            carouselSnapshot => {
+        /*
+         * Get the carousel specified in
+         * the URL.
+         */
 
-                const c =
-                    carouselSnapshot.val();
-
-
-                /*
-                   Only show carousels that have
-                   a patient assigned.
-                */
-
-                if(
-                    !c.patient_id
-                ){
-
-                    return;
-
-                }
-
-
-                compartments[
-                    carouselSnapshot.key
-                ] = c;
-
-
-                const option =
-                    document.createElement(
-                        "option"
-                    );
-
-
-                option.value =
-                    carouselSnapshot.key;
-
-
-                option.textContent =
-                    `${c.compartment_name || carouselSnapshot.key}
-                     — ${c.patient_name || "Unknown Patient"}`;
-
-
-                carouselSelect.appendChild(
-                    option
-                );
-
-            }
-        );
+        const carouselSnapshot =
+            snapshot.child(
+                requestedCarouselId
+            );
 
 
         if(
-            carouselSelect.options.length === 1
+            !carouselSnapshot.exists()
         ){
 
-            carouselSelect.innerHTML =
+            selectedCarousel.textContent =
+                requestedCarouselId;
+
+            patientSection.classList.add(
+                "hidden"
+            );
+
+            slotContainer.innerHTML =
                 `
-                <option value="">
-                    No assigned carousels found
-                </option>
+                <div class="empty">
+
+                    Carousel
+
+                    <strong>
+                        ${escapeHTML(
+                            requestedCarouselId
+                        )}
+                    </strong>
+
+                    could not be found.
+
+                </div>
                 `;
 
+            refillBtn.disabled =
+                true;
+
+            alert(
+                "The requested carousel could not be found."
+            );
+
+            return;
         }
 
+
+        const c =
+            carouselSnapshot.val() || {};
+
+
+        /*
+         * Make sure this carousel has
+         * a patient assignment.
+         */
+
+        if(
+            !c.patient_id
+        ){
+
+            selectedCarousel.textContent =
+                c.compartment_name ||
+                requestedCarouselId;
+
+            patientSection.classList.add(
+                "hidden"
+            );
+
+            slotContainer.innerHTML =
+                `
+                <div class="empty">
+
+                    This carousel is not currently
+                    assigned to a patient.
+
+                </div>
+                `;
+
+            refillBtn.disabled =
+                true;
+
+            alert(
+                "This carousel is not currently assigned to a patient."
+            );
+
+            return;
+        }
+
+
+        /*
+         * Store the selected carousel.
+         */
+
+        selectedCompartment = {
+
+            ...c,
+
+            compartment_id:
+                requestedCarouselId,
+
+            dispenser_unit:
+                c.dispenser_unit ||
+                DISPENSER_UNIT
+        };
+
+
+        compartments[
+            requestedCarouselId
+        ] =
+            selectedCompartment;
+
+
+        /*
+         * Display carousel information.
+         */
+
+        selectedCarousel.textContent =
+            `${
+
+                c.compartment_name ||
+                requestedCarouselId
+
+            } (${requestedCarouselId})`;
+
+
+        displayCompartment(
+            selectedCompartment
+        );
+
     }
+
     catch(error){
 
-        console.error(error);
+        console.error(
+            "Failed to load carousel:",
+            error
+        );
+
+
+        selectedCarousel.textContent =
+            "Failed to load";
+
+
+        patientSection.classList.add(
+            "hidden"
+        );
+
+
+        slotContainer.innerHTML =
+            `
+            <div class="empty">
+
+                Failed to load carousel
+                information.
+
+            </div>
+            `;
+
+
+        refillBtn.disabled =
+            true;
+
 
         alert(
-            "Failed to load dispensers:\n\n" +
+            "Failed to load carousel:\n\n" +
             error.message
         );
 
@@ -911,50 +887,11 @@ async function loadCompartments(){
 }
 
 
-
-/* =====================================================
-   SELECT CAROUSEL
-===================================================== */
-
-carouselSelect.addEventListener(
-    "change",
-    () => {
-
-        selectedCompartment =
-            compartments[
-                carouselSelect.value
-            ] || null;
-
-
-        if(
-            !selectedCompartment
-        ){
-
-            patientSection.classList.add(
-                "hidden"
-            );
-
-            return;
-
-        }
-
-
-        displayCompartment(
-            selectedCompartment
-        );
-
-    }
-);
-
-
-
 /* =====================================================
    DISPLAY COMPARTMENT
 ===================================================== */
 
-function displayCompartment(
-    c
-){
+function displayCompartment(c){
 
     patientSection.classList.remove(
         "hidden"
@@ -1048,10 +985,19 @@ function displayCompartment(
     );
 
 
+    const cyc = Number(c.current_cycle || 1);
+    wheel.render({
+        name:  c.compartment_name || c.compartment_id,
+        id:    c.compartment_id,
+        cycle: cyc,
+        slots: Object.values(c.slots || {})
+                     .filter(s => Number(s.cycle_number || 1) === cyc)
+    });
+
     /*
-       Reset confirmation every time a
-       different carousel is selected.
-    */
+     * Reset confirmation every time
+     * the carousel is loaded.
+     */
 
     confirmCheckbox.checked =
         false;
@@ -1062,19 +1008,14 @@ function displayCompartment(
 }
 
 
-
 /* =====================================================
    REFILL STATUS
 ===================================================== */
 
-function displayRefillStatus(
-    c
-){
+function displayRefillStatus(c){
 
     const required =
-        Boolean(
-            c.refill_required
-        );
+        c.refill_required === true;
 
 
     const currentCycleValue =
@@ -1090,10 +1031,30 @@ function displayRefillStatus(
 
 
     /*
-       A newly created carousel that has not
-       been refilled yet is considered ready
-       for its initial loading.
-    */
+     * If the carousel currently requires
+     * a refill, show that first.
+     */
+
+    if(
+        required
+    ){
+
+        refillStatus.textContent =
+            "Refill Required";
+
+
+        refillStatus.className =
+            "status status-refill";
+
+
+        return;
+    }
+
+
+    /*
+     * Newly assigned carousel that has never
+     * been refilled.
+     */
 
     if(
         !c.last_refill_at
@@ -1108,12 +1069,15 @@ function displayRefillStatus(
 
 
         return;
-
     }
 
 
+    /*
+     * Check whether the current cycle is
+     * newer than the last completed refill.
+     */
+
     if(
-        required &&
         currentCycleValue >
         lastRefillCycle
     ){
@@ -1127,7 +1091,6 @@ function displayRefillStatus(
 
 
         return;
-
     }
 
 
@@ -1141,14 +1104,11 @@ function displayRefillStatus(
 }
 
 
-
 /* =====================================================
    WARNING
 ===================================================== */
 
-function displayWarning(
-    c
-){
+function displayWarning(c){
 
     const required =
         Number(
@@ -1165,7 +1125,6 @@ function displayWarning(
         );
 
         return;
-
     }
 
 
@@ -1182,7 +1141,6 @@ function displayWarning(
 
     warningBox.innerHTML =
         `
-
         <strong>
             Scheduled Refill
         </strong>
@@ -1197,9 +1155,11 @@ function displayWarning(
         </strong>
 
         but the carousel can only hold
+
         <strong>
             ${MAX_SLOTS} slots
-        </strong> at one time.
+        </strong>
+        at one time.
 
         <br><br>
 
@@ -1208,25 +1168,25 @@ function displayWarning(
         ${
             interval > 0
             ?
-            `The estimated refill interval is
-             <strong>${interval} day(s)</strong>.`
+            `
+            The estimated refill interval is
+            <strong>
+                ${interval} day(s)
+            </strong>.
+            `
             :
             ""
         }
-
         `;
 
 }
-
 
 
 /* =====================================================
    DISPLAY SLOTS
 ===================================================== */
 
-function displaySlots(
-    c
-){
+function displaySlots(c){
 
     slotContainer.innerHTML =
         "";
@@ -1247,7 +1207,6 @@ function displaySlots(
             `;
 
         return;
-
     }
 
 
@@ -1260,10 +1219,13 @@ function displaySlots(
                 a,
                 b
             ) =>
+
                 Number(
                     a.slot_number || 0
                 )
+
                 -
+
                 Number(
                     b.slot_number || 0
                 )
@@ -1271,8 +1233,8 @@ function displaySlots(
 
 
     /*
-       Determine which cycle should be shown.
-    */
+     * Determine which cycle should be shown.
+     */
 
     const cycle =
         Number(
@@ -1281,13 +1243,13 @@ function displaySlots(
 
 
     /*
-       Slots saved during creation currently
-       belong to cycle 1.
-
-       After a refill, the page can display
-       the next cycle when cycle-specific
-       schedules are added.
-    */
+     * Slots saved during creation currently
+     * belong to cycle 1.
+     *
+     * After a refill, the page can display
+     * the next cycle when cycle-specific
+     * schedules are added.
+     */
 
     const visibleSlots =
         slots.filter(
@@ -1318,7 +1280,6 @@ function displaySlots(
             `;
 
         return;
-
     }
 
 
@@ -1330,7 +1291,6 @@ function displaySlots(
 
     table.innerHTML =
         `
-
         <thead>
 
             <tr>
@@ -1360,7 +1320,6 @@ function displaySlots(
         </thead>
 
         <tbody></tbody>
-
         `;
 
 
@@ -1382,13 +1341,10 @@ function displaySlots(
             const medicines =
                 slot.medicines
                 ?
-
                 Object.values(
                     slot.medicines
                 )
-
                 :
-
                 [];
 
 
@@ -1401,7 +1357,6 @@ function displaySlots(
 
                     medicineHTML +=
                         `
-
                         <div class="medicine">
 
                             <div class="medicine-name">
@@ -1454,7 +1409,6 @@ function displaySlots(
                             }
 
                         </div>
-
                         `;
 
                 }
@@ -1463,11 +1417,9 @@ function displaySlots(
 
             row.innerHTML =
                 `
-
                 <td>
 
-                    <span
-                        class="slot-number">
+                    <span class="slot-number">
 
                         Slot
                         ${slot.slot_number}
@@ -1477,11 +1429,15 @@ function displaySlots(
                 </td>
 
                 <td>
+
                     ${slot.date || "-"}
+
                 </td>
 
                 <td>
+
                     ${slot.administration_time || "-"}
+
                 </td>
 
                 <td>
@@ -1503,7 +1459,6 @@ function displaySlots(
                     / 4
 
                 </td>
-
                 `;
 
 
@@ -1520,8 +1475,6 @@ function displaySlots(
     );
 
 }
-
-
 
 /* =====================================================
    CONFIRM BUTTON
@@ -1542,7 +1495,6 @@ function updateButton(){
 }
 
 
-
 /* =====================================================
    CONFIRM REFILL
 ===================================================== */
@@ -1560,7 +1512,6 @@ refillBtn.addEventListener(
             );
 
             return;
-
         }
 
 
@@ -1573,7 +1524,6 @@ refillBtn.addEventListener(
             );
 
             return;
-
         }
 
 
@@ -1588,7 +1538,6 @@ refillBtn.addEventListener(
         ){
 
             return;
-
         }
 
 
@@ -1626,9 +1575,22 @@ refillBtn.addEventListener(
                 );
 
 
-            /*
-               Calculate next refill date.
-            */
+            /* =================================================
+               GET AUTHENTICATED USER
+            ================================================= */
+
+            const currentUser =
+                auth.currentUser;
+
+
+            const performedBy =
+                currentUser?.email ||
+                "Head Nurse";
+
+
+            /* =================================================
+               CALCULATE NEXT REFILL DATE
+            ================================================= */
 
             let nextRefillDate =
                 "";
@@ -1656,14 +1618,14 @@ refillBtn.addEventListener(
             }
 
 
-
-            /* =========================================
+            /* =================================================
                REFILL HISTORY
-            ========================================= */
+            ================================================= */
 
             const historyRef =
                 ref(
                     db,
+
                     "dispenser_unit/" +
                     DISPENSER_UNIT +
                     "/" +
@@ -1694,26 +1656,22 @@ refillBtn.addEventListener(
                         ),
 
                     patient_id:
-                        c.patient_id ||
-                        "",
+                        c.patient_id || "",
 
                     patient_name:
-                        c.patient_name ||
-                        "",
+                        c.patient_name || "",
 
                     ward:
-                        c.ward ||
-                        "",
+                        c.ward || "",
 
                     room:
-                        c.room ||
-                        "",
+                        c.room || "",
 
                     performed_at:
                         nowISO,
 
                     performed_by:
-                        "Admin",
+                        performedBy,
 
                     next_refill_at:
                         nextRefillDate
@@ -1722,108 +1680,299 @@ refillBtn.addEventListener(
             );
 
 
+            /* =================================================
+                UPDATE CAROUSEL
+            ================================================= */
 
-            /* =========================================
-               UPDATE CAROUSEL
-            ========================================= */
-
-            await update(
-
+            const carouselRef =
                 ref(
-
                     db,
 
                     "dispenser_unit/" +
-
                     DISPENSER_UNIT +
-
                     "/" +
-
                     c.compartment_id
+                );
 
-                ),
 
+            await update(
+                carouselRef,
                 {
 
-                    /*
-                       Advance cycle
-                    */
+                    /* -----------------------------
+                    CYCLE INFORMATION
+                    ----------------------------- */
 
                     current_cycle:
                         nextCycle,
 
-
                     last_refill_cycle:
                         currentCycleValue,
 
-
                     last_refill_at:
                         nowISO,
-
 
                     next_refill_at:
                         nextRefillDate,
 
 
-                    /*
-                       Reset inventory to the
-                       number of loaded slots.
-                    */
+                    /* -----------------------------
+                    INVENTORY / STATUS
+                    ----------------------------- */
 
                     inventory_amount:
                         Number(
                             c.slots_used || 0
                         ),
 
-
                     status:
                         "Normal",
 
+
+                    /* -----------------------------
+                    REFILL STATE
+                    ----------------------------- */
+
+                    refill_required:
+                        false,
+
+                    refill_notification_status:
+                        "Completed",
+
+                    refill_notification_sent:
+                        false,
+
+                    refill_notification_id:
+                        "",
+
+                    refill_notification_sent_at:
+                        "",
+
+
+                    /* -----------------------------
+                    TIMESTAMP
+                    ----------------------------- */
 
                     updated_at:
                         nowISO
 
                 }
-
             );
 
+
+            /* =================================================
+            UPDATE REFILL NOTIFICATION
+            ================================================= */
+
+            /*
+            * If this carousel has an associated refill
+            * notification, mark that notification as
+            * completed so it no longer appears as an
+            * active/unread refill notification.
+            */
+
+            const notificationId =
+                c.refill_notification_id;
+
+
+            if(
+                notificationId
+            ){
+
+                /*
+                * The notification recipient UID is stored
+                * in the notification itself.
+                *
+                * Since the carousel stores the notification ID
+                * but not necessarily the recipient UID, find
+                * the notification under the notifications node.
+                */
+
+                const notificationsSnapshot =
+                    await get(
+                        ref(
+                            db,
+                            "notifications"
+                        )
+                    );
+
+
+                if(
+                    notificationsSnapshot.exists()
+                ){
+
+                    const allNotifications =
+                        notificationsSnapshot.val() || {};
+
+
+                    let notificationPath =
+                        null;
+
+
+                    /*
+                    * Find the matching notification ID.
+                    */
+
+                    for(
+                        const recipientUid
+                        of Object.keys(allNotifications)
+                    ){
+
+                        const recipientNotifications =
+                            allNotifications[
+                                recipientUid
+                            ] || {};
+
+
+                        if(
+                            recipientNotifications[
+                                notificationId
+                            ]
+                        ){
+
+                            notificationPath =
+                                "notifications/" +
+                                recipientUid +
+                                "/" +
+                                notificationId;
+
+                            break;
+                        }
+
+                    }
+
+
+                    /*
+                    * Update the notification if found.
+                    */
+
+                    if(
+                        notificationPath
+                    ){
+
+                        await update(
+                            ref(
+                                db,
+                                notificationPath
+                            ),
+                            {
+
+                                status:
+                                    "Completed",
+
+                                completed_at:
+                                    nowISO,
+
+                                updated_at:
+                                    nowISO
+
+                            }
+                        );
+
+
+                        console.log(
+                            "Refill notification marked as completed:",
+                            notificationId
+                        );
+
+                    }
+
+                    else{
+
+                        console.warn(
+                            "Refill notification was not found:",
+                            notificationId
+                        );
+
+                    }
+
+                }
+
+            }
+
+
+            /* =================================================
+               ACTIVITY LOG
+            ================================================= */
+
+            try{
+
+                await logDispenserRefilled(
+                    db,
+                    auth,
+                    {
+
+                        dispenserId:
+                            c.compartment_id,
+
+                        dispenserName:
+                            c.compartment_name ||
+                            c.compartment_id,
+
+                        cycle:
+                            currentCycleValue,
+
+                        slotsLoaded:
+                            Number(
+                                c.slots_used || 0
+                            ),
+
+                        patientId:
+                            c.patient_id || "",
+
+                        patientName:
+                            c.patient_name || "",
+
+                        ward:
+                            c.ward || "",
+
+                        room:
+                            c.room || "",
+
+                        nextRefillAt:
+                            nextRefillDate,
+
+                        refillIntervalDays:
+                            interval
+
+                    }
+                );
+
+
+                console.log(
+                    "Dispenser refill activity logged."
+                );
+
+            }
+
+            catch(logError){
+
+                console.error(
+                    "Activity logging failed:",
+                    logError
+                );
+
+            }
+
+
+            /* =================================================
+               SUCCESS
+            ================================================= */
 
             alert(
                 "Dispenser refill recorded successfully."
             );
 
 
-            /*
-               Reload page data.
-            */
-
-            await loadCompartments();
-
-
-            carouselSelect.value =
-                c.compartment_id;
-
-
-            selectedCompartment =
-                compartments[
-                    c.compartment_id
-                ];
-
-
-            if(
-                selectedCompartment
-            ){
-
-                displayCompartment(
-                    selectedCompartment
-                );
-
-            }
+            window.location.href =
+                "dispenser_dashboard.html";
 
         }
+
         catch(error){
 
             console.error(
+                "Failed to record refill:",
                 error
             );
 
@@ -1843,21 +1992,17 @@ refillBtn.addEventListener(
 );
 
 
-
 /* =====================================================
    FORMAT DATE
 ===================================================== */
 
-function formatDateTime(
-    value
-){
+function formatDateTime(value){
 
     if(
         !value
     ){
 
         return "Never";
-
     }
 
 
@@ -1874,7 +2019,6 @@ function formatDateTime(
     ){
 
         return value;
-
     }
 
 
@@ -1883,34 +2027,36 @@ function formatDateTime(
 }
 
 
-
 /* =====================================================
    ESCAPE HTML
 ===================================================== */
 
-function escapeHTML(
-    value
-){
+function escapeHTML(value){
 
     return String(
         value
     )
+
     .replace(
         /&/g,
         "&amp;"
     )
+
     .replace(
         /</g,
         "&lt;"
     )
+
     .replace(
         />/g,
         "&gt;"
     )
+
     .replace(
         /"/g,
         "&quot;"
     )
+
     .replace(
         /'/g,
         "&#039;"
@@ -1919,13 +2065,11 @@ function escapeHTML(
 }
 
 
-
 /* =====================================================
    INITIALIZE
 ===================================================== */
 
 loadCompartments();
-
 
 </script>
 

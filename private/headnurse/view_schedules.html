@@ -5,6 +5,84 @@
 <title>MediTrack | Medication Schedule Dashboard</title>
 
 <link rel="stylesheet" href="stylesheets/view_schedules.css">
+<link rel="icon" type="image/x-icon" href="../../draft.png">
+
+<style>
+/* =====================================================
+   PAGINATION
+===================================================== */
+
+.pagination-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 20px;
+    padding: 16px 4px;
+    flex-wrap: wrap;
+}
+
+.pagination-info {
+    color: #64748b;
+    font-size: 14px;
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.pagination button {
+    min-width: 36px;
+    height: 36px;
+    padding: 0 10px;
+
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+
+    background: #ffffff;
+    color: #374151;
+
+    font-size: 14px;
+    font-weight: 500;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.pagination button:hover:not(:disabled) {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+}
+
+.pagination button.active {
+    background: #2563eb;
+    border-color: #2563eb;
+    color: #ffffff;
+}
+
+.pagination button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.pagination .ellipsis {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 30px;
+    height: 36px;
+
+    color: #64748b;
+    font-size: 14px;
+}
+</style>
 
 </head>
 
@@ -18,6 +96,7 @@
     </div>
 
     <div class="actions">
+
         <a href="dashboard.html" class="btn btn-secondary">
             Dashboard
         </a>
@@ -25,6 +104,7 @@
         <a href="assign_schedule.html" class="btn btn-primary">
             + Assign Schedule
         </a>
+
     </div>
 
 </header>
@@ -39,19 +119,51 @@
             placeholder="Search patient, medication, nurse, ward, or room">
 
         <select id="statusFilter">
-            <option value="">All Status</option>
-            <option value="Scheduled">Scheduled</option>
-            <option value="Given">Given</option>
-            <option value="Missed">Missed</option>
-            <option value="Delayed">Delayed</option>
-            <option value="Refused">Refused</option>
+
+            <option value="">
+                All Status
+            </option>
+
+            <option value="Scheduled">
+                Scheduled
+            </option>
+
+            <option value="Given">
+                Given
+            </option>
+
+            <option value="Missed">
+                Missed
+            </option>
+
+            <option value="Delayed">
+                Delayed
+            </option>
+
+            <option value="Refused">
+                Refused
+            </option>
+
         </select>
 
         <select id="sortFilter">
-            <option value="today">Today</option>
-            <option value="upcoming">Upcoming</option>
-            <option value="past">Past</option>
-            <option value="recent" selected>Recent</option>
+
+            <option value="today">
+                Today
+            </option>
+
+            <option value="upcoming">
+                Upcoming
+            </option>
+
+            <option value="past">
+                Past
+            </option>
+
+            <option value="recent" selected>
+                Recent
+            </option>
+
         </select>
 
         <button id="refreshBtn" class="btn btn-primary">
@@ -65,6 +177,7 @@
         <table>
 
             <thead>
+
                 <tr>
                     <th>Patient</th>
                     <th>Location</th>
@@ -76,23 +189,57 @@
                     <th>Status</th>
                     <th>Actions</th>
                 </tr>
+
             </thead>
 
             <tbody id="table">
+
                 <tr>
+
                     <td colspan="9" class="empty">
                         Loading schedules...
                     </td>
+
                 </tr>
+
             </tbody>
 
         </table>
 
     </div>
 
+    <!-- =====================================================
+         PAGINATION
+    ====================================================== -->
+
+    <div
+        id="paginationContainer"
+        class="pagination-container"
+        style="display: none;"
+    >
+
+        <div
+            id="paginationInfo"
+            class="pagination-info"
+        >
+            Showing 0–0 of 0 schedules
+        </div>
+
+        <div
+            id="pagination"
+            class="pagination"
+        ></div>
+
+    </div>
+
 </div>
 
+
 <script type="module">
+
+/* =====================================================
+   FIREBASE
+===================================================== */
 
 import { initializeApp }
 from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
@@ -105,6 +252,13 @@ import {
 }
 from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
 
+import {
+    getAuth,
+    onAuthStateChanged
+}
+from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+
+
 const firebaseConfig = {
     apiKey: "AIzaSyBRm3dUt3HreTquM_Ba9JfYmZD2CLVV0Gc",
     authDomain: "meditrack-59cca.firebaseapp.com",
@@ -115,16 +269,165 @@ const firebaseConfig = {
     appId: "1:656003988692:web:badfe96b7d830837a4cf41"
 };
 
+
 const app = initializeApp(firebaseConfig);
+
 const db = getDatabase(app);
 
-const table = document.getElementById("table");
+const auth = getAuth(app);
+
+
+/* =====================================================
+   HEAD NURSE ACCESS VALIDATION
+===================================================== */
+
+// Hide the page until access is verified.
+document.body.style.visibility = "hidden";
+
+
+async function validateHeadNurseAccess() {
+
+    try {
+
+        const user = await new Promise((resolve, reject) => {
+
+            let unsubscribe = () => {};
+
+            unsubscribe = onAuthStateChanged(
+                auth,
+
+                (authenticatedUser) => {
+
+                    unsubscribe();
+
+                    resolve(authenticatedUser);
+
+                },
+
+                (error) => {
+
+                    unsubscribe();
+
+                    reject(error);
+
+                }
+            );
+
+        });
+
+
+        // Redirect if the user is not authenticated.
+        if (!user) {
+
+            window.location.replace("../../index.html");
+
+            return false;
+
+        }
+
+
+        // Retrieve the authenticated user's account.
+        const userSnapshot = await get(
+            ref(db, `users/${user.uid}`)
+        );
+
+
+        // Redirect if the account does not exist.
+        if (!userSnapshot.exists()) {
+
+            window.location.replace("../../index.html");
+
+            return false;
+
+        }
+
+
+        const userData = userSnapshot.val();
+
+
+        // Allow Head Nurse accounts only.
+        if (userData.userType !== "Head Nurse") {
+
+            window.location.replace("../../index.html");
+
+            return false;
+
+        }
+
+
+        // Access granted.
+        document.body.style.visibility = "visible";
+
+        return true;
+
+    }
+    catch (error) {
+
+        console.error(
+            "Head Nurse account validation failed:",
+            error
+        );
+
+        window.location.replace("../../index.html");
+
+        return false;
+
+    }
+
+}
+
+
+// Stop execution if access is denied.
+if (!(await validateHeadNurseAccess())) {
+
+    throw new Error("Unauthorized access.");
+
+}
+
+
+/* =====================================================
+   ELEMENTS
+===================================================== */
+
+const table =
+    document.getElementById("table");
+
+const paginationContainer =
+    document.getElementById("paginationContainer");
+
+const paginationInfo =
+    document.getElementById("paginationInfo");
+
+const pagination =
+    document.getElementById("pagination");
+
+
+/* =====================================================
+   PAGINATION SETTINGS
+===================================================== */
+
+const ITEMS_PER_PAGE = 10;
+
+let currentPage = 1;
+
+let filteredSchedules = [];
+
+
+/* =====================================================
+   DATA
+===================================================== */
 
 let schedules = [];
 
+
+/* =====================================================
+   LOAD SCHEDULES
+===================================================== */
+
 await loadSchedules();
 
-async function loadSchedules(){
+
+async function loadSchedules() {
 
     table.innerHTML = `
         <tr>
@@ -134,48 +437,82 @@ async function loadSchedules(){
         </tr>
     `;
 
+
     const snapshot =
-    await get(ref(db,"medication_schedule"));
+        await get(
+            ref(db, "medication_schedule")
+        );
+
 
     schedules = [];
 
-    if(snapshot.exists()){
 
-        snapshot.forEach(child=>{
+    if (snapshot.exists()) {
+
+        snapshot.forEach(child => {
 
             schedules.push({
-                id:child.key,
+
+                id: child.key,
+
                 ...child.val()
+
             });
 
         });
 
     }
 
+
+    // Reset to the first page after loading data.
+    currentPage = 1;
+
     applyFilters();
 
 }
 
-function badgeClass(status){
 
-    switch(status){
+/* =====================================================
+   STATUS BADGE
+===================================================== */
 
-        case "Scheduled": return "scheduled";
-        case "Given": return "given";
-        case "Missed": return "missed";
-        case "Delayed": return "delayed";
-        case "Refused": return "refused";
-        default: return "scheduled";
+function badgeClass(status) {
+
+    switch (status) {
+
+        case "Scheduled":
+            return "scheduled";
+
+        case "Given":
+            return "given";
+
+        case "Missed":
+            return "missed";
+
+        case "Delayed":
+            return "delayed";
+
+        case "Refused":
+            return "refused";
+
+        default:
+            return "scheduled";
 
     }
 
 }
 
-function renderTable(data){
+
+/* =====================================================
+   RENDER TABLE
+===================================================== */
+
+function renderTable(data) {
 
     table.innerHTML = "";
 
-    if(data.length === 0){
+
+    if (data.length === 0) {
 
         table.innerHTML = `
             <tr>
@@ -189,71 +526,128 @@ function renderTable(data){
 
     }
 
-    data.forEach(schedule=>{
 
-        const tr = document.createElement("tr");
+    data.forEach(schedule => {
+
+        const tr =
+            document.createElement("tr");
+
 
         tr.innerHTML = `
-            <td>
-                <strong>${schedule.patient_name || ""}</strong>
-            </td>
 
             <td>
+                <strong>
+                    ${schedule.patient_name || ""}
+                </strong>
+            </td>
+
+
+            <td>
+
                 ${schedule.assigned_area || "-"}
+
                 <br>
-                <small>Room ${schedule.room || "-"}</small>
+
+                <small>
+                    Room ${schedule.room || "-"}
+                </small>
+
             </td>
 
+
             <td>
-                <strong>${schedule.medication_name || ""}</strong>
+
+                <strong>
+                    ${schedule.medication_name || ""}
+                </strong>
+
             </td>
 
-            <td>${schedule.dosage || "-"}</td>
-
-            <td>${schedule.route || "-"}</td>
-
-            <td>${schedule.nurse_name || "-"}</td>
 
             <td>
-                ${formatDateTime(schedule.scheduled_time)}
+                ${schedule.dosage || "-"}
             </td>
 
+
             <td>
-                <span class="badge ${badgeClass(schedule.status)}">
+                ${schedule.route || "-"}
+            </td>
+
+
+            <td>
+                ${schedule.nurse_name || "-"}
+            </td>
+
+
+            <td>
+
+                ${formatAdministrationTime(
+                    schedule.scheduled_time
+                )}
+
+            </td>
+
+
+            <td>
+
+                <span
+                    class="badge ${badgeClass(schedule.status)}"
+                >
                     ${schedule.status}
                 </span>
+
             </td>
 
+
             <td>
+
                 <div class="action-group">
 
-                    <button class="action-btn view">
+                    <button
+                        class="action-btn view"
+                    >
                         View
                     </button>
 
-                    <button class="action-btn delete">
+
+                    <button
+                        class="action-btn delete"
+                    >
                         Delete
                     </button>
 
                 </div>
+
             </td>
+
         `;
 
+
         tr.querySelector(".view")
-        .addEventListener("click",()=>{
+            .addEventListener(
+                "click",
+                () => {
 
-            location.href =
-            "view_schedule.html?id=" +
-            encodeURIComponent(schedule.id);
+                    location.href =
+                        "view_schedule.html?id=" +
+                        encodeURIComponent(schedule.id);
 
-        });
+                }
+            );
+
 
         tr.querySelector(".delete")
-        .addEventListener("click",()=>{
+            .addEventListener(
+                "click",
+                () => {
 
-            deleteSchedule(schedule.id);
+                    deleteSchedule(
+                        schedule.id
+                    );
 
-        });
+                }
+            );
+
 
         table.appendChild(tr);
 
@@ -261,161 +655,723 @@ function renderTable(data){
 
 }
 
-function formatDateTime(value){
 
-    if(!value) return "-";
+/* =====================================================
+   FORMAT ADMINISTRATION TIME
+===================================================== */
 
-    // If value is only a time (HH:MM)
-    if(/^\\d{2}:\\d{2}$/.test(value)){
+function formatAdministrationTime(value) {
 
-        const [h, m] = value.split(":").map(Number);
+    if (!value) {
 
-        const period = h >= 12 ? "PM" : "AM";
-        const hour12 = h % 12 || 12;
-
-        return `${hour12}:${String(m).padStart(2,"0")} ${period}`;
+        return "-";
 
     }
 
-    // If value is a full datetime
-    const d = new Date(value);
 
-    if(isNaN(d.getTime())){
+    /*
+        Administration time is stored as HH:MM
 
-        return value;
+        Example:
+
+        05:00 -> 5:00 AM
+        13:00 -> 1:00 PM
+        18:00 -> 6:00 PM
+        21:00 -> 9:00 PM
+    */
+
+    if (/^\d{2}:\d{2}$/.test(value)) {
+
+        const [hours, minutes] =
+            value.split(":").map(Number);
+
+
+        if (
+            Number.isNaN(hours) ||
+            Number.isNaN(minutes)
+        ) {
+
+            return value;
+
+        }
+
+
+        const period =
+            hours >= 12
+                ? "PM"
+                : "AM";
+
+
+        const hour12 =
+            hours % 12 || 12;
+
+
+        return `${hour12}:${String(minutes).padStart(2, "0")} ${period}`;
 
     }
 
-    return d.toLocaleString([],{
-        year:"numeric",
-        month:"short",
-        day:"numeric",
-        hour:"numeric",
-        minute:"2-digit"
-    });
+
+    return value;
 
 }
 
-async function deleteSchedule(id){
 
-    if(!confirm("Delete this schedule?")){
+/* =====================================================
+   DELETE SCHEDULE
+===================================================== */
+
+async function deleteSchedule(id) {
+
+    if (!confirm("Delete this schedule?")) {
+
         return;
+
     }
 
-    await remove(ref(db,"medication_schedule/"+id));
+
+    await remove(
+        ref(
+            db,
+            "medication_schedule/" + id
+        )
+    );
+
 
     await loadSchedules();
 
 }
 
-function applyFilters(){
+
+/* =====================================================
+   APPLY FILTERS
+===================================================== */
+
+function applyFilters() {
 
     const keyword =
-    document.getElementById("search")
-    .value.toLowerCase().trim();
+        document
+            .getElementById("search")
+            .value
+            .toLowerCase()
+            .trim();
+
 
     const status =
-    document.getElementById("statusFilter").value;
+        document
+            .getElementById("statusFilter")
+            .value;
+
 
     const sort =
-    document.getElementById("sortFilter").value;
+        document
+            .getElementById("sortFilter")
+            .value;
 
-    let filtered = schedules.filter(schedule=>{
 
-        const text = [
-            schedule.patient_name,
-            schedule.medication_name,
-            schedule.nurse_name,
-            schedule.assigned_area,
-            schedule.room
-        ]
-        .join(" ")
-        .toLowerCase();
+    let filtered =
+        schedules.filter(schedule => {
 
-        const matchText =
-        text.includes(keyword);
+            const text = [
 
-        const matchStatus =
-        !status || schedule.status === status;
+                schedule.patient_name,
 
-        return matchText && matchStatus;
+                schedule.medication_name,
 
-    });
+                schedule.nurse_name,
 
-    const now = new Date();
+                schedule.assigned_area,
 
-    if(sort === "today"){
+                schedule.room
 
-        filtered = filtered.filter(s=>{
+            ]
+            .join(" ")
+            .toLowerCase();
 
-            const d = new Date(s.scheduled_time);
 
-            return d.toDateString() === now.toDateString();
+            const matchText =
+                text.includes(keyword);
+
+
+            const matchStatus =
+                !status ||
+                schedule.status === status;
+
+
+            return (
+                matchText &&
+                matchStatus
+            );
 
         });
 
-        filtered.sort(
-            (a,b)=>
-            new Date(a.scheduled_time) -
-            new Date(b.scheduled_time)
-        );
 
-    }
-    else if(sort === "upcoming"){
+    const now =
+        new Date();
 
-        filtered = filtered.filter(
-            s=>new Date(s.scheduled_time) >= now
-        );
 
-        filtered.sort(
-            (a,b)=>
-            new Date(a.scheduled_time) -
-            new Date(b.scheduled_time)
-        );
+    if (sort === "today") {
 
-    }
-    else if(sort === "past"){
+        filtered =
+            filtered.filter(s => {
 
-        filtered = filtered.filter(
-            s=>new Date(s.scheduled_time) < now
-        );
+                const d =
+                    new Date(
+                        s.scheduled_time
+                    );
+
+
+                return (
+                    d.toDateString() ===
+                    now.toDateString()
+                );
+
+            });
+
 
         filtered.sort(
-            (a,b)=>
-            new Date(b.scheduled_time) -
-            new Date(a.scheduled_time)
-        );
-
-    }
-    else if(sort === "recent"){
-
-        filtered.sort(
-            (a,b)=>
-            new Date(b.created_at || b.scheduled_time) -
-            new Date(a.created_at || a.scheduled_time)
+            (a, b) =>
+                new Date(a.scheduled_time) -
+                new Date(b.scheduled_time)
         );
 
     }
 
-    renderTable(filtered);
+
+    else if (sort === "upcoming") {
+
+        filtered =
+            filtered.filter(
+                s =>
+                    new Date(
+                        s.scheduled_time
+                    ) >= now
+            );
+
+
+        filtered.sort(
+            (a, b) =>
+                new Date(a.scheduled_time) -
+                new Date(b.scheduled_time)
+        );
+
+    }
+
+
+    else if (sort === "past") {
+
+        filtered =
+            filtered.filter(
+                s =>
+                    new Date(
+                        s.scheduled_time
+                    ) < now
+            );
+
+
+        filtered.sort(
+            (a, b) =>
+                new Date(b.scheduled_time) -
+                new Date(a.scheduled_time)
+        );
+
+    }
+
+
+    else if (sort === "recent") {
+
+        filtered.sort(
+            (a, b) =>
+                new Date(
+                    b.created_at ||
+                    b.scheduled_time
+                ) -
+
+                new Date(
+                    a.created_at ||
+                    a.scheduled_time
+                )
+        );
+
+    }
+
+
+    filteredSchedules = filtered;
+
+
+    /*
+        Make sure the current page is still valid.
+
+        Example:
+        If page 5 is currently selected and
+        filtering leaves only 2 pages, automatically
+        move the user to page 2.
+    */
+
+    const totalPages =
+        Math.ceil(
+            filteredSchedules.length /
+            ITEMS_PER_PAGE
+        );
+
+
+    if (
+        totalPages > 0 &&
+        currentPage > totalPages
+    ) {
+
+        currentPage = totalPages;
+
+    }
+
+
+    if (totalPages === 0) {
+
+        currentPage = 1;
+
+    }
+
+
+    renderCurrentPage();
 
 }
 
-document
-.getElementById("search")
-.addEventListener("input",applyFilters);
+
+/* =====================================================
+   RENDER CURRENT PAGE
+===================================================== */
+
+function renderCurrentPage() {
+
+    const totalItems =
+        filteredSchedules.length;
+
+
+    const totalPages =
+        Math.ceil(
+            totalItems /
+            ITEMS_PER_PAGE
+        );
+
+
+    /*
+        If there are no results.
+    */
+
+    if (totalItems === 0) {
+
+        renderTable([]);
+
+        paginationContainer.style.display =
+            "none";
+
+        return;
+
+    }
+
+
+    /*
+        Calculate the range of items
+        shown on the current page.
+    */
+
+    const startIndex =
+        (currentPage - 1) *
+        ITEMS_PER_PAGE;
+
+
+    const endIndex =
+        Math.min(
+            startIndex + ITEMS_PER_PAGE,
+            totalItems
+        );
+
+
+    const pageData =
+        filteredSchedules.slice(
+            startIndex,
+            endIndex
+        );
+
+
+    renderTable(pageData);
+
+
+    /*
+        Example:
+
+        Showing 1–10 of 37 schedules
+        Showing 11–20 of 37 schedules
+        Showing 31–37 of 37 schedules
+    */
+
+    paginationInfo.textContent =
+        `Showing ${startIndex + 1}–${endIndex} of ${totalItems} schedules`;
+
+
+    paginationContainer.style.display =
+        totalPages > 1
+            ? "flex"
+            : "none";
+
+
+    renderPagination(totalPages);
+
+}
+
+
+/* =====================================================
+   RENDER PAGINATION BUTTONS
+===================================================== */
+
+function renderPagination(totalPages) {
+
+    pagination.innerHTML = "";
+
+
+    if (totalPages <= 1) {
+
+        return;
+
+    }
+
+
+    /*
+        Previous button
+    */
+
+    const previousButton =
+        document.createElement("button");
+
+
+    previousButton.type = "button";
+
+    previousButton.textContent = "‹";
+
+    previousButton.title = "Previous page";
+
+    previousButton.disabled =
+        currentPage === 1;
+
+
+    previousButton.addEventListener(
+        "click",
+        () => {
+
+            if (currentPage > 1) {
+
+                currentPage--;
+
+                renderCurrentPage();
+
+                window.scrollTo({
+                    top: 0,
+                    behavior: "smooth"
+                });
+
+            }
+
+        }
+    );
+
+
+    pagination.appendChild(
+        previousButton
+    );
+
+
+    /*
+        Page numbers
+    */
+
+    const pages =
+        getPageNumbers(
+            currentPage,
+            totalPages
+        );
+
+
+    pages.forEach(page => {
+
+        if (page === "...") {
+
+            const ellipsis =
+                document.createElement("span");
+
+            ellipsis.className =
+                "ellipsis";
+
+            ellipsis.textContent =
+                "…";
+
+            pagination.appendChild(
+                ellipsis
+            );
+
+            return;
+
+        }
+
+
+        const pageButton =
+            document.createElement("button");
+
+
+        pageButton.type = "button";
+
+        pageButton.textContent =
+            page;
+
+
+        if (page === currentPage) {
+
+            pageButton.classList.add(
+                "active"
+            );
+
+            pageButton.setAttribute(
+                "aria-current",
+                "page"
+            );
+
+        }
+
+
+        pageButton.addEventListener(
+            "click",
+            () => {
+
+                currentPage = page;
+
+                renderCurrentPage();
+
+                window.scrollTo({
+                    top: 0,
+                    behavior: "smooth"
+                });
+
+            }
+        );
+
+
+        pagination.appendChild(
+            pageButton
+        );
+
+    });
+
+
+    /*
+        Next button
+    */
+
+    const nextButton =
+        document.createElement("button");
+
+
+    nextButton.type = "button";
+
+    nextButton.textContent = "›";
+
+    nextButton.title = "Next page";
+
+    nextButton.disabled =
+        currentPage === totalPages;
+
+
+    nextButton.addEventListener(
+        "click",
+        () => {
+
+            if (
+                currentPage <
+                totalPages
+            ) {
+
+                currentPage++;
+
+                renderCurrentPage();
+
+                window.scrollTo({
+                    top: 0,
+                    behavior: "smooth"
+                });
+
+            }
+
+        }
+    );
+
+
+    pagination.appendChild(
+        nextButton
+    );
+
+}
+
+
+/* =====================================================
+   PAGE NUMBER GENERATOR
+===================================================== */
+
+function getPageNumbers(
+    current,
+    total
+) {
+
+    /*
+        For a small number of pages,
+        display every page.
+
+        Example:
+
+        1 2 3 4 5
+    */
+
+    if (total <= 7) {
+
+        return Array.from(
+            { length: total },
+            (_, i) => i + 1
+        );
+
+    }
+
+
+    /*
+        Always show:
+
+        First page
+        Last page
+
+        Then pages around current page.
+    */
+
+    const pages = [];
+
+
+    pages.push(1);
+
+
+    /*
+        Left ellipsis
+    */
+
+    if (current > 4) {
+
+        pages.push("...");
+
+    }
+
+
+    /*
+        Pages around current page
+    */
+
+    const start =
+        Math.max(
+            2,
+            current - 1
+        );
+
+
+    const end =
+        Math.min(
+            total - 1,
+            current + 1
+        );
+
+
+    for (
+        let i = start;
+        i <= end;
+        i++
+    ) {
+
+        pages.push(i);
+
+    }
+
+
+    /*
+        Right ellipsis
+    */
+
+    if (current < total - 3) {
+
+        pages.push("...");
+
+    }
+
+
+    pages.push(total);
+
+
+    return pages;
+
+}
+
+
+/* =====================================================
+   FILTER EVENTS
+===================================================== */
 
 document
-.getElementById("statusFilter")
-.addEventListener("change",applyFilters);
+    .getElementById("search")
+    .addEventListener(
+        "input",
+        () => {
+
+            /*
+                Return to page 1 whenever
+                the search results change.
+            */
+
+            currentPage = 1;
+
+            applyFilters();
+
+        }
+    );
+
 
 document
-.getElementById("sortFilter")
-.addEventListener("change",applyFilters);
+    .getElementById("statusFilter")
+    .addEventListener(
+        "change",
+        () => {
+
+            currentPage = 1;
+
+            applyFilters();
+
+        }
+    );
+
 
 document
-.getElementById("refreshBtn")
-.addEventListener("click",loadSchedules);
+    .getElementById("sortFilter")
+    .addEventListener(
+        "change",
+        () => {
+
+            currentPage = 1;
+
+            applyFilters();
+
+        }
+    );
+
+
+/* =====================================================
+   REFRESH
+===================================================== */
+
+document
+    .getElementById("refreshBtn")
+    .addEventListener(
+        "click",
+        loadSchedules
+    );
 
 </script>
 

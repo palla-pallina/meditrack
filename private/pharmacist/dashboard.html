@@ -2,165 +2,1837 @@
 <html lang="en">
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="MediTrack User Dashboard.">
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediTrack | User Dashboard</title>
+    <link rel="icon" type="image/x-icon" href="../../draft.png">
 
-<title>MediTrack | Pharmacist Dashboard</title>
+    <!-- ======================================================
+         GOOGLE FONT
+    ======================================================= -->
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-<link rel="stylesheet" href="stylesheets/dashboard.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <!-- ======================================================
+         DASHBOARD CSS
+    ======================================================= -->
+
+    <link rel="stylesheet" href="stylesheets/dashboard.css">
+
+    <!-- ======================================================
+         LUCIDE ICONS
+    ======================================================= -->
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+
 </head>
 
 <body>
 
-<header>
+<!-- ==========================================================
+     HEADER
+=========================================================== -->
 
-    <div class="logo">
+<header class="topbar">
 
-        <h2>MediTrack</h2>
+    <div class="topbar__inner">
 
-        <span>Pharmacist Dashboard</span>
+        <!-- BRAND -->
+
+        <div class="brand" aria-label="MediTrack Dashboard">
+
+            <img
+                src="../../draft.png"
+                alt="MediTrack Logo"
+                class="actual-logo"
+                style="height: 50px;"
+            >
+
+            <span class="brand__text">
+
+                <strong>
+                    MediTrack
+                </strong>
+
+                <span id="brandRole">
+                    User Dashboard
+                </span>
+
+            </span>
+
+        </div>
+
+
+        <!-- LOGOUT -->
+
+        <button
+            id="logoutBtn"
+            class="logout-btn"
+            type="button"
+        >
+
+            <i
+                data-lucide="log-out"
+                aria-hidden="true"
+            ></i>
+
+            <span>
+                Log out
+            </span>
+
+        </button>
 
     </div>
-
-    <button id="logoutBtn" class="logout-btn">
-
-        Log Out
-
-    </button>
 
 </header>
 
-<main>
 
-    <div class="page-title">
+<!-- ==========================================================
+     MAIN DASHBOARD
+=========================================================== -->
 
-        <h1>Welcome, Pharmacist</h1>
+<main class="dashboard">
 
-        <p>
 
-            Manage medications, monitor inventory, and support medication dispensing operations.
+    <!-- ======================================================
+         PAGE HEADING
+    ======================================================= -->
 
-        </p>
+    <section
+        class="page-heading"
+        aria-labelledby="page-title"
+    >
 
-    </div>
+        <div class="page-heading__content">
 
-    <div class="dashboard-grid">
-
-        <div class="card">
-
-            <div class="icon">
-                💊
-            </div>
-
-            <h3>Medication List</h3>
-
-            <p>
-
-                View and manage the master list of medications available in the MediTrack system.
-
+            <p
+                class="page-heading__eyebrow"
+                id="roleLabel"
+            >
+                User
             </p>
 
-            <a href="view_medication.html">
+            <h1 id="page-title">
+                Welcome
+            </h1>
 
-                Open Module
-
-            </a>
+            <p id="page-description">
+                Manage medications, monitor inventory, and support medication dispensing operations. 
+            </p>
 
         </div>
 
-        <div class="card">
 
-            <div class="icon">
-                📦
+        <!-- ==================================================
+             LIVE CLOCK
+        =================================================== -->
+
+        <div
+            class="dashboard-clock"
+            aria-label="Current time"
+        >
+
+            <div
+                class="dashboard-clock__icon"
+                aria-hidden="true"
+            >
+                <i data-lucide="clock-3"></i>
             </div>
 
-            <h3>Medicine Inventory</h3>
+            <div class="dashboard-clock__content">
 
-            <p>
+                <span
+                    id="currentDate"
+                    class="dashboard-clock__date"
+                >
+                    Loading date...
+                </span>
 
-                Monitor stock levels, inventory movements, batch information, and medicine availability.
+                <strong
+                    id="currentTime"
+                    class="dashboard-clock__time"
+                >
+                    --:--:--
+                </strong>
 
-            </p>
-
-            <a href="view_inventory.html">
-
-                Open Module
-
-            </a>
+            </div>
 
         </div>
 
-                <div class="card">
+    </section>
 
-            <div class="icon">
-                🗄️
+
+    <!-- ======================================================
+         DASHBOARD MODULES
+         
+         Module cards are generated by JavaScript.
+         Modify the MODULES array below for each role.
+    ======================================================= -->
+
+    <section
+        class="module-grid"
+        aria-label="Dashboard modules"
+        id="moduleGrid"
+    >
+        <!-- Module cards generated by JavaScript -->
+    </section>
+
+
+    <!-- ======================================================
+        MEDICATION ACTIVITY LOGS
+    ======================================================= -->
+
+    <section
+        class="activity-preview"
+        aria-labelledby="activity-title"
+    >
+
+        <div class="activity-preview__header">
+
+            <div>
+
+                <p class="page-heading__eyebrow">
+                    Medication Monitoring
+                </p>
+
+                <h2 id="activity-title">
+                    Medication Logs
+                </h2>
+
             </div>
-
-            <h3>MediTrack Dispenser</h3>
-
-            <p>
-
-                Access and refill the dispensing unit.
-
-            </p>
-
-            <a href="dispenser_dashboard.html">
-
-                Open Module
-
-            </a>
 
         </div>
 
-    </div>
+
+        <!-- LOADING -->
+
+        <div
+            id="activityPreviewLoading"
+            class="activity-preview__empty"
+        >
+            Loading medication logs...
+        </div>
+
+
+        <!-- EMPTY / ERROR -->
+
+        <div
+            id="activityPreviewEmpty"
+            class="activity-preview__empty"
+            style="display: none;"
+        >
+        </div>
+
+
+        <!-- ACTIVITY RECORDS -->
+
+        <div
+            id="activityPreviewList"
+            class="activity-preview__list"
+        >
+        </div>
+
+
+        <!-- PAGINATION -->
+
+        <div
+            class="pagination"
+            id="activityPagination"
+        >
+
+            <button
+                type="button"
+                class="pagination-btn"
+                id="activityPrevPage"
+            >
+
+                <i
+                    data-lucide="chevron-left"
+                    aria-hidden="true"
+                ></i>
+
+                <span>
+                    Previous
+                </span>
+
+            </button>
+
+
+            <div
+                class="pagination-info"
+                id="activityPaginationInfo"
+            >
+                Page 0 of 0
+            </div>
+
+
+            <button
+                type="button"
+                class="pagination-btn"
+                id="activityNextPage"
+            >
+
+                <span>
+                    Next
+                </span>
+
+                <i
+                    data-lucide="chevron-right"
+                    aria-hidden="true"
+                ></i>
+
+            </button>
+
+        </div>
+
+    </section>
+
+    <!-- ======================================================
+         FOOTER
+    ======================================================= -->
+
+    <footer class="footer">
+
+        <span>
+            MediTrack Smart Medicine Dispensing System
+        </span>
+
+        <span id="footerRole">
+            User Console
+        </span>
+
+    </footer>
 
 </main>
 
-<footer>
 
-    MediTrack Smart Medicine Dispensing System
-
-</footer>
+<!-- ==========================================================
+     JAVASCRIPT
+=========================================================== -->
 
 <script type="module">
 
-import { requireRole }
-from "../../public/auth_guard.js";
+    // ========================================================
+    // FIREBASE IMPORTS
+    // ========================================================
 
-requireRole("Pharmacist");
+    import {
+        initializeApp
+    } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
 
-import {
-    getAuth,
-    signOut
-}
-from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
 
-const auth = getAuth();
+    import {
+        getDatabase,
+        ref,
+        get
+    } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
 
-document.getElementById("logoutBtn")
-.addEventListener("click", async () => {
 
-    try{
+    import {
+        getAuth,
+        signOut
+    } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
 
-        await signOut(auth);
 
-        window.location.href =
-            "../../public/login.html";
+    import {
+        requireRole
+    } from "../js/auth_guard.js";
+
+
+    // ========================================================
+    // USER ROLE
+    // ========================================================
+
+    const USER_ROLE = "Pharmacist";
+
+
+    // ========================================================
+    // MEDICATION LOG SETTINGS
+    // ========================================================
+
+    const LOGS_PER_PAGE = 10;
+
+    let currentLogPage = 1;
+
+    let medicationLogs = [];
+
+
+    // ========================================================
+    // MEDICATION-RELATED ACTIVITY TYPES
+    // ========================================================
+
+    const MEDICATION_LOG_ACTIONS = new Set([
+
+        "MEDICINE_CREATED",
+
+        "INVENTORY_ADDED",
+
+        "INVENTORY_DEDUCTED",
+
+        "INVENTORY_ADJUSTED",
+
+        "PRESCRIPTION_CREATED",
+
+        "DISPENSER_ASSIGNED",
+
+        "DISPENSER_REFILLED"
+
+    ]);
+
+
+    // ========================================================
+    // MODULE CONFIGURATION
+    // ========================================================
+
+    const MODULES = [
+
+        {
+            title: "Medicine Management",
+
+            description:
+                "Manage medicines and medication information.",
+
+            icon: "pill",
+
+            link: "view_medication.html"
+        },
+
+
+        {
+            title: "Medicine Inventory",
+
+            description:
+                "Monitor medicine stock and inventory records.",
+
+            icon: "package",
+
+            link: "view_inventory.html"
+        }
+
+    ];
+
+
+    // ========================================================
+    // LIVE CLOCK
+    // ========================================================
+
+    const currentDate =
+        document.getElementById(
+            "currentDate"
+        );
+
+
+    const currentTime =
+        document.getElementById(
+            "currentTime"
+        );
+
+
+    function updateClock() {
+
+        const now =
+            new Date();
+
+
+        if (currentTime) {
+
+            currentTime.textContent =
+                now.toLocaleTimeString(
+                    "en-PH",
+                    {
+                        hour: "numeric",
+                        minute: "2-digit",
+                        second: "2-digit",
+                        hour12: true
+                    }
+                );
+
+        }
+
+
+        if (currentDate) {
+
+            currentDate.textContent =
+                now.toLocaleDateString(
+                    "en-PH",
+                    {
+                        weekday: "short",
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric"
+                    }
+                );
+
+        }
 
     }
-    catch(error){
 
-        alert(error.message);
+
+    updateClock();
+
+
+    setInterval(
+        updateClock,
+        1000
+    );
+
+
+    // ========================================================
+    // TIME-BASED GREETING
+    // ========================================================
+
+    function getTimeGreeting() {
+
+        const hour =
+            new Date().getHours();
+
+
+        if (hour < 12) {
+
+            return "Good morning";
+
+        }
+
+
+        if (hour < 18) {
+
+            return "Good afternoon";
+
+        }
+
+
+        return "Good evening";
 
     }
 
-});
+
+    // ========================================================
+    // DASHBOARD INFORMATION
+    // ========================================================
+
+    const DASHBOARD_CONFIG = {
+
+        role:
+            USER_ROLE,
+
+        title:
+            `${getTimeGreeting()}, ${USER_ROLE}`,
+
+        description:
+            "Manage medications, monitor medication schedules, and review prescription activity.",
+
+        brandSubtitle:
+            `${USER_ROLE} Dashboard`,
+
+        footerLabel:
+            `${USER_ROLE} Console`
+
+    };
+
+
+    // ========================================================
+    // USER ACCESS
+    // ========================================================
+
+    requireRole(
+        USER_ROLE
+    );
+
+
+    // ========================================================
+    // FIREBASE CONFIGURATION
+    // ========================================================
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBRm3dUt3HreTquM_Ba9JfYmZD2CLVV0Gc",
+        authDomain: "meditrack-59cca.firebaseapp.com",
+        databaseURL: "https://meditrack-59cca-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "meditrack-59cca",
+        storageBucket: "meditrack-59cca.firebasestorage.app",
+        messagingSenderId: "656003988692",
+        appId: "1:656003988692:web:badfe96b7d830837a4cf41"
+    };
+
+
+    // ========================================================
+    // INITIALIZE FIREBASE
+    // ========================================================
+
+    const app =
+        initializeApp(
+            firebaseConfig
+        );
+
+
+    const auth =
+        getAuth(
+            app
+        );
+
+
+    const database =
+        getDatabase(
+            app
+        );
+
+
+    // ========================================================
+    // DOM ELEMENTS
+    // ========================================================
+
+    const logoutButton =
+        document.getElementById(
+            "logoutBtn"
+        );
+
+
+    const brandRole =
+        document.getElementById(
+            "brandRole"
+        );
+
+
+    const roleLabel =
+        document.getElementById(
+            "roleLabel"
+        );
+
+
+    const pageTitle =
+        document.getElementById(
+            "page-title"
+        );
+
+
+    const pageDescription =
+        document.getElementById(
+            "page-description"
+        );
+
+
+    const footerRole =
+        document.getElementById(
+            "footerRole"
+        );
+
+
+    const moduleGrid =
+        document.getElementById(
+            "moduleGrid"
+        );
+
+
+    // ========================================================
+    // MEDICATION LOG DOM ELEMENTS
+    // ========================================================
+
+    const activityPreviewList =
+        document.getElementById(
+            "activityPreviewList"
+        );
+
+
+    const activityPreviewLoading =
+        document.getElementById(
+            "activityPreviewLoading"
+        );
+
+
+    const activityPreviewEmpty =
+        document.getElementById(
+            "activityPreviewEmpty"
+        );
+
+
+    const activityPagination =
+        document.getElementById(
+            "activityPagination"
+        );
+
+
+    const activityPrevPage =
+        document.getElementById(
+            "activityPrevPage"
+        );
+
+
+    const activityNextPage =
+        document.getElementById(
+            "activityNextPage"
+        );
+
+
+    const activityPaginationInfo =
+        document.getElementById(
+            "activityPaginationInfo"
+        );
+
+
+    // ========================================================
+    // RENDER DASHBOARD MODULES
+    // ========================================================
+
+    function renderModules() {
+
+        if (!moduleGrid) {
+
+            return;
+
+        }
+
+
+        moduleGrid.innerHTML =
+            "";
+
+
+        MODULES.forEach(
+            module => {
+
+                const card =
+                    document.createElement(
+                        "a"
+                    );
+
+
+                card.className =
+                    "module-card";
+
+
+                card.href =
+                    module.link;
+
+
+                card.innerHTML = `
+
+                    <div class="module-card__top">
+
+                        <span
+                            class="module-card__icon"
+                            aria-hidden="true"
+                        >
+
+                            <i
+                                data-lucide="${module.icon}"
+                            ></i>
+
+                        </span>
+
+                    </div>
+
+
+                    <div class="module-card__content">
+
+                        <h2>
+                            ${module.title}
+                        </h2>
+
+                        <p>
+                            ${module.description}
+                        </p>
+
+                    </div>
+
+
+                    <div class="module-card__link">
+
+                        <span>
+                            Open module
+                        </span>
+
+                        <i
+                            data-lucide="chevron-right"
+                            class="module-card__arrow"
+                            aria-hidden="true"
+                        ></i>
+
+                    </div>
+
+                `;
+
+
+                moduleGrid.appendChild(
+                    card
+                );
+
+            }
+        );
+
+
+        if (
+            typeof lucide !== "undefined"
+        ) {
+
+            lucide.createIcons();
+
+        }
+
+    }
+
+
+    // ========================================================
+    // APPLY DASHBOARD CONFIGURATION
+    // ========================================================
+
+    if (brandRole) {
+
+        brandRole.textContent =
+            DASHBOARD_CONFIG.brandSubtitle;
+
+    }
+
+
+    if (roleLabel) {
+
+        roleLabel.textContent =
+            DASHBOARD_CONFIG.role;
+
+    }
+
+
+    if (pageTitle) {
+
+        pageTitle.textContent =
+            DASHBOARD_CONFIG.title;
+
+    }
+
+
+    if (pageDescription) {
+
+        pageDescription.textContent =
+            DASHBOARD_CONFIG.description;
+
+    }
+
+
+    if (footerRole) {
+
+        footerRole.textContent =
+            DASHBOARD_CONFIG.footerLabel;
+
+    }
+
+
+    // ========================================================
+    // LOGOUT
+    // ========================================================
+
+    if (logoutButton) {
+
+        logoutButton.addEventListener(
+            "click",
+            async () => {
+
+                try {
+
+                    await signOut(
+                        auth
+                    );
+
+
+                    window.location.href =
+                        "../../index.html";
+
+                }
+
+                catch (error) {
+
+                    console.error(
+                        "Logout error:",
+                        error
+                    );
+
+
+                    alert(
+                        error.message
+                    );
+
+                }
+
+            }
+        );
+
+    }
+
+
+    // ========================================================
+    // LOAD MEDICATION LOGS
+    // ========================================================
+
+    async function loadMedicationLogs() {
+
+        if (!activityPreviewList) {
+
+            return;
+
+        }
+
+
+        currentLogPage =
+            1;
+
+
+        activityPreviewLoading.style.display =
+            "block";
+
+
+        activityPreviewEmpty.style.display =
+            "none";
+
+
+        activityPreviewList.innerHTML =
+            "";
+
+
+        updateLogPagination(
+            0
+        );
+
+
+        try {
+
+            console.log(
+                "Loading medication activity logs..."
+            );
+
+
+            const snapshot =
+                await get(
+                    ref(
+                        database,
+                        "activity_logs"
+                    )
+                );
+
+
+            medicationLogs =
+                [];
+
+
+            // =================================================
+            // CHECK DATABASE
+            // =================================================
+
+            if (
+                !snapshot.exists()
+            ) {
+
+                console.log(
+                    "No activity logs found."
+                );
+
+
+                showEmptyMedicationLogs(
+                    "No medication logs found."
+                );
+
+
+                return;
+
+            }
+
+
+            // =================================================
+            // READ ONLY MEDICATION LOGS
+            // =================================================
+
+            snapshot.forEach(
+                child => {
+
+                    const data =
+                        child.val();
+
+
+                    if (
+                        !data ||
+                        typeof data !== "object"
+                    ) {
+
+                        return;
+
+                    }
+
+
+                    const action =
+                        String(
+                            data.action || ""
+                        )
+                        .trim()
+                        .toUpperCase();
+
+
+                    // -----------------------------------------
+                    // ONLY MEDICATION-RELATED LOGS
+                    // -----------------------------------------
+
+                    if (
+                        MEDICATION_LOG_ACTIONS.has(
+                            action
+                        )
+                    ) {
+
+                        medicationLogs.push({
+
+                            id:
+                                child.key,
+
+                            ...data,
+
+                            action:
+                                action
+
+                        });
+
+                    }
+
+                }
+            );
+
+
+            // =================================================
+            // SORT NEWEST FIRST
+            // =================================================
+
+            medicationLogs.sort(
+                (a, b) => {
+
+                    return (
+                        getTimestamp(
+                            b.timestamp
+                        ) -
+
+                        getTimestamp(
+                            a.timestamp
+                        )
+                    );
+
+                }
+            );
+
+
+            console.log(
+                `Loaded ${medicationLogs.length} medication log(s).`
+            );
+
+
+            activityPreviewLoading.style.display =
+                "none";
+
+
+            // =================================================
+            // NO MEDICATION LOGS
+            // =================================================
+
+            if (
+                medicationLogs.length === 0
+            ) {
+
+                showEmptyMedicationLogs(
+                    "No medication logs found."
+                );
+
+
+                return;
+
+            }
+
+
+            // =================================================
+            // DISPLAY PAGINATED LOGS
+            // =================================================
+
+            renderMedicationLogs();
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Failed to load medication logs:",
+                error
+            );
+
+
+            activityPreviewLoading.style.display =
+                "none";
+
+
+            showEmptyMedicationLogs(
+                "Unable to load medication logs."
+            );
+
+        }
+
+    }
+
+
+    // ========================================================
+    // RENDER MEDICATION LOGS
+    // ========================================================
+
+    function renderMedicationLogs() {
+
+        if (!activityPreviewList) {
+
+            return;
+
+        }
+
+
+        activityPreviewList.innerHTML =
+            "";
+
+
+        const totalLogs =
+            medicationLogs.length;
+
+
+        const totalPages =
+            Math.ceil(
+                totalLogs /
+                LOGS_PER_PAGE
+            );
+
+
+        // ====================================================
+        // VALIDATE PAGE
+        // ====================================================
+
+        if (
+            currentLogPage < 1
+        ) {
+
+            currentLogPage =
+                1;
+
+        }
+
+
+        if (
+            currentLogPage > totalPages
+        ) {
+
+            currentLogPage =
+                totalPages;
+
+        }
+
+
+        // ====================================================
+        // CALCULATE PAGE RANGE
+        // ====================================================
+
+        const startIndex =
+            (
+                currentLogPage - 1
+            ) *
+            LOGS_PER_PAGE;
+
+
+        const endIndex =
+            startIndex +
+            LOGS_PER_PAGE;
+
+
+        const pageLogs =
+            medicationLogs.slice(
+                startIndex,
+                endIndex
+            );
+
+
+        // ====================================================
+        // RENDER CURRENT PAGE
+        // ====================================================
+
+        pageLogs.forEach(
+            log => {
+
+                renderActivity(
+                    log
+                );
+
+            }
+        );
+
+
+        // ====================================================
+        // UPDATE PAGINATION
+        // ====================================================
+
+        updateLogPagination(
+            totalPages
+        );
+
+
+        // ====================================================
+        // REFRESH ICONS
+        // ====================================================
+
+        if (
+            typeof lucide !== "undefined"
+        ) {
+
+            lucide.createIcons();
+
+        }
+
+    }
+
+
+    // ========================================================
+    // RENDER EMPTY STATE
+    // ========================================================
+
+    function showEmptyMedicationLogs(
+        message
+    ) {
+
+        if (
+            activityPreviewEmpty
+        ) {
+
+            activityPreviewEmpty.textContent =
+                message;
+
+
+            activityPreviewEmpty.style.display =
+                "block";
+
+        }
+
+
+        if (
+            activityPreviewList
+        ) {
+
+            activityPreviewList.innerHTML =
+                "";
+
+        }
+
+
+        updateLogPagination(
+            0
+        );
+
+    }
+
+
+    // ========================================================
+    // UPDATE LOG PAGINATION
+    // ========================================================
+
+    function updateLogPagination(
+        totalPages
+    ) {
+
+        if (
+            !activityPaginationInfo ||
+            !activityPrevPage ||
+            !activityNextPage
+        ) {
+
+            return;
+
+        }
+
+
+        // ====================================================
+        // NO LOGS
+        // ====================================================
+
+        if (
+            totalPages === 0
+        ) {
+
+            activityPaginationInfo.textContent =
+                "Page 0 of 0";
+
+
+            activityPrevPage.disabled =
+                true;
+
+
+            activityNextPage.disabled =
+                true;
+
+
+            if (
+                activityPagination
+            ) {
+
+                activityPagination.style.display =
+                    "none";
+
+            }
+
+
+            return;
+
+        }
+
+
+        // ====================================================
+        // DISPLAY PAGINATION
+        // ====================================================
+
+        if (
+            activityPagination
+        ) {
+
+            activityPagination.style.display =
+                "flex";
+
+        }
+
+
+        activityPaginationInfo.textContent =
+            `Page ${currentLogPage} of ${totalPages}`;
+
+
+        activityPrevPage.disabled =
+            currentLogPage <= 1;
+
+
+        activityNextPage.disabled =
+            currentLogPage >= totalPages;
+
+    }
+
+
+    // ========================================================
+    // PREVIOUS LOG PAGE
+    // ========================================================
+
+    if (
+        activityPrevPage
+    ) {
+
+        activityPrevPage.addEventListener(
+            "click",
+            () => {
+
+                if (
+                    currentLogPage <= 1
+                ) {
+
+                    return;
+
+                }
+
+
+                currentLogPage--;
+
+
+                renderMedicationLogs();
+
+
+                // Scroll to the top of the logs.
+
+                if (
+                    activityPreviewList
+                ) {
+
+                    activityPreviewList.scrollIntoView({
+                        behavior: "smooth",
+                        block: "start"
+                    });
+
+                }
+
+            }
+        );
+
+    }
+
+
+    // ========================================================
+    // NEXT LOG PAGE
+    // ========================================================
+
+    if (
+        activityNextPage
+    ) {
+
+        activityNextPage.addEventListener(
+            "click",
+            () => {
+
+                const totalPages =
+                    Math.ceil(
+                        medicationLogs.length /
+                        LOGS_PER_PAGE
+                    );
+
+
+                if (
+                    currentLogPage >= totalPages
+                ) {
+
+                    return;
+
+                }
+
+
+                currentLogPage++;
+
+
+                renderMedicationLogs();
+
+
+                // Scroll to the top of the logs.
+
+                if (
+                    activityPreviewList
+                ) {
+
+                    activityPreviewList.scrollIntoView({
+                        behavior: "smooth",
+                        block: "start"
+                    });
+
+                }
+
+            }
+        );
+
+    }
+
+
+    // ========================================================
+    // RENDER ACTIVITY ITEM
+    //
+    // Activity icons intentionally remain text/symbol based.
+    // ========================================================
+
+    function renderActivity(
+        log
+    ) {
+
+        const item =
+            document.createElement(
+                "article"
+            );
+
+
+        item.className =
+            "activity-preview__item";
+
+
+        // ====================================================
+        // ACTIVITY ICON
+        // ====================================================
+
+        const icon =
+            document.createElement(
+                "div"
+            );
+
+
+        icon.className =
+            "activity-preview__icon";
+
+
+        icon.textContent =
+            getActivityIcon(
+                log.action
+            );
+
+
+        // ====================================================
+        // ACTIVITY CONTENT
+        // ====================================================
+
+        const content =
+            document.createElement(
+                "div"
+            );
+
+
+        content.className =
+            "activity-preview__content";
+
+
+        // ====================================================
+        // ACTION
+        // ====================================================
+
+        const action =
+            document.createElement(
+                "div"
+            );
+
+
+        action.className =
+            "activity-preview__action";
+
+
+        action.textContent =
+            formatAction(
+                log.action
+            );
+
+
+        // ====================================================
+        // DESCRIPTION
+        // ====================================================
+
+        const description =
+            document.createElement(
+                "div"
+            );
+
+
+        description.className =
+            "activity-preview__description";
+
+
+        description.textContent =
+            log.description ||
+            "-";
+
+
+        // ====================================================
+        // META
+        // ====================================================
+
+        const meta =
+            document.createElement(
+                "div"
+            );
+
+
+        meta.className =
+            "activity-preview__meta";
+
+
+        const userName =
+            log.userName ||
+            "Unknown User";
+
+
+        const userType =
+            log.userType ||
+            "";
+
+
+        const date =
+            formatDateTime(
+                log.timestamp
+            );
+
+
+        meta.textContent =
+            userType
+                ? `${userName} · ${userType} · ${date}`
+                : `${userName} · ${date}`;
+
+
+        // ====================================================
+        // STATUS
+        // ====================================================
+
+        const status =
+            document.createElement(
+                "span"
+            );
+
+
+        status.className =
+            "activity-preview__status";
+
+
+        status.classList.add(
+            getStatusClass(
+                log.status
+            )
+        );
+
+
+        status.textContent =
+            log.status ||
+            "UNKNOWN";
+
+
+        // ====================================================
+        // BUILD ITEM
+        // ====================================================
+
+        content.appendChild(
+            action
+        );
+
+
+        content.appendChild(
+            description
+        );
+
+
+        content.appendChild(
+            meta
+        );
+
+
+        item.appendChild(
+            icon
+        );
+
+
+        item.appendChild(
+            content
+        );
+
+
+        item.appendChild(
+            status
+        );
+
+
+        activityPreviewList.appendChild(
+            item
+        );
+
+    }
+
+
+    // ========================================================
+    // FORMAT ACTION
+    // ========================================================
+
+    function formatAction(
+        action
+    ) {
+
+        if (!action) {
+
+            return "Medication Activity";
+
+        }
+
+
+        return action
+
+            .replace(
+                /_/g,
+                " "
+            )
+
+            .replace(
+                /\b\w/g,
+                letter =>
+                    letter.toUpperCase()
+            );
+
+    }
+
+
+    // ========================================================
+    // ACTIVITY ICON
+    // ========================================================
+
+    function getActivityIcon(
+        action
+    ) {
+
+        switch (action) {
+
+            case "MEDICINE_CREATED":
+                return "✚";
+
+
+            case "INVENTORY_ADDED":
+                return "+";
+
+
+            case "INVENTORY_DEDUCTED":
+                return "−";
+
+
+            case "INVENTORY_ADJUSTED":
+                return "↕";
+
+
+            case "PRESCRIPTION_CREATED":
+                return "Rx";
+
+
+            case "DISPENSER_ASSIGNED":
+                return "◉";
+
+
+            case "DISPENSER_REFILLED":
+                return "↻";
+
+
+            default:
+                return "•";
+
+        }
+
+    }
+
+
+    // ========================================================
+    // STATUS CLASS
+    // ========================================================
+
+    function getStatusClass(
+        status
+    ) {
+
+        const value =
+            String(
+                status || ""
+            )
+            .trim()
+            .toLowerCase();
+
+
+        if (
+            value === "success"
+        ) {
+
+            return "is-success";
+
+        }
+
+
+        if (
+            value === "failed"
+        ) {
+
+            return "is-failed";
+
+        }
+
+
+        if (
+            value === "warning"
+        ) {
+
+            return "is-warning";
+
+        }
+
+
+        return "is-neutral";
+
+    }
+
+
+    // ========================================================
+    // GET TIMESTAMP
+    // ========================================================
+
+    function getTimestamp(
+        timestamp
+    ) {
+
+        if (
+            typeof timestamp === "number"
+        ) {
+
+            return timestamp;
+
+        }
+
+
+        if (
+            !timestamp
+        ) {
+
+            return 0;
+
+        }
+
+
+        const parsed =
+            new Date(
+                timestamp
+            ).getTime();
+
+
+        return Number.isNaN(
+            parsed
+        )
+            ? 0
+            : parsed;
+
+    }
+
+
+    // ========================================================
+    // FORMAT DATE/TIME
+    // ========================================================
+
+    function formatDateTime(
+        timestamp
+    ) {
+
+        const time =
+            getTimestamp(
+                timestamp
+            );
+
+
+        if (
+            !time
+        ) {
+
+            return "-";
+
+        }
+
+
+        return new Date(
+            time
+        ).toLocaleString(
+            "en-PH",
+            {
+                dateStyle: "medium",
+                timeStyle: "short"
+            }
+        );
+
+    }
+
+
+    // ========================================================
+    // INITIALIZE LUCIDE
+    // ========================================================
+
+    if (
+        typeof lucide !== "undefined"
+    ) {
+
+        lucide.createIcons();
+
+    }
+
+
+    // ========================================================
+    // INITIALIZE DASHBOARD MODULES
+    // ========================================================
+
+    renderModules();
+
+
+    // ========================================================
+    // LOAD MEDICATION LOGS
+    // ========================================================
+
+    loadMedicationLogs();
 
 </script>
 
 </body>
-
 </html>

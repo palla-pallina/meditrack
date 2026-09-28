@@ -2,144 +2,720 @@
 <html lang="en">
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="MediTrack User Dashboard.">
+    <link rel="icon" type="image/x-icon" href="../../draft.png">
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediTrack | User Dashboard</title>
 
-<title>MediTrack | Doctor Dashboard</title>
+    <!-- ======================================================
+         GOOGLE FONT
+    ======================================================= -->
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="stylesheets/dashboard.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <!-- ======================================================
+         DASHBOARD CSS
+    ======================================================= -->
+
+    <link rel="stylesheet" href="stylesheets/dashboard.css">
+
+    <!-- ======================================================
+         LUCIDE ICONS
+    ======================================================= -->
+
+    <script src="https://unpkg.com/lucide@latest"></script>
 
 </head>
 
 <body>
 
-<header>
+<!-- ==========================================================
+     HEADER
+=========================================================== -->
 
-    <div class="logo">
+<header class="topbar">
 
-        <h2>MediTrack</h2>
+    <div class="topbar__inner">
 
-        <span>Doctor Dashboard</span>
+        <!-- BRAND -->
 
-    </div>
+        <div class="brand" aria-label="MediTrack Dashboard">
 
-    <a href="../logout.php">
+            <img
+                src="../../draft.png"
+                alt="MediTrack Logo"
+                class="actual-logo"
+                style="height: 50px;"
+            >
 
-        <button class="logout-btn" id="logoutBtn">
+            <span class="brand__text">
 
-            Log Out
+                <strong>
+                    MediTrack
+                </strong>
+
+                <span id="brandRole">
+                    User Dashboard
+                </span>
+
+            </span>
+
+        </div>
+
+
+        <!-- LOGOUT -->
+
+        <button
+            id="logoutBtn"
+            class="logout-btn"
+            type="button"
+        >
+
+            <i
+                data-lucide="log-out"
+                aria-hidden="true"
+            ></i>
+
+            <span>
+                Log out
+            </span>
 
         </button>
 
-    </a>
+    </div>
 
 </header>
 
-<main>
 
-    <div class="page-title">
+<!-- ==========================================================
+     MAIN DASHBOARD
+=========================================================== -->
 
-        <h1>Welcome, Doctor</h1>
+<main class="dashboard">
 
-        <p>
 
-            Manage digital prescriptions and Doctors Orders.
+    <!-- ======================================================
+         PAGE HEADING
+    ======================================================= -->
 
-        </p>
+    <section
+        class="page-heading"
+        aria-labelledby="page-title"
+    >
 
-    </div>
+        <div class="page-heading__content">
 
-    <div class="dashboard-grid">
-        
-        <div class="card">
-
-            <div class="icon">
-                📝
-            </div>
-
-            <h3>Create Prescription</h3>
-
-            <p>
-
-                Create digital prescriptions for admitted patients.
-
+            <p
+                class="page-heading__eyebrow"
+                id="roleLabel"
+            >
+                User
             </p>
 
-            <a href="add_prescription.html">
+            <h1 id="page-title">
+                Welcome
+            </h1>
 
-                Open Module
-
-            </a>
+            <p id="page-description">
+                Manage and create digital prescriptions. 
+            </p>
 
         </div>
 
-        <div class="card">
 
-            <div class="icon">
-                💊
+        <!-- ==================================================
+             LIVE CLOCK
+        =================================================== -->
+
+        <div
+            class="dashboard-clock"
+            aria-label="Current time"
+        >
+
+            <div
+                class="dashboard-clock__icon"
+                aria-hidden="true"
+            >
+                <i data-lucide="clock-3"></i>
             </div>
 
-            <h3>Prescription Records</h3>
+            <div class="dashboard-clock__content">
 
-            <p>
+                <span
+                    id="currentDate"
+                    class="dashboard-clock__date"
+                >
+                    Loading date...
+                </span>
 
-                View, review, and manage all patient prescriptions stored in the MediTrack system.
+                <strong
+                    id="currentTime"
+                    class="dashboard-clock__time"
+                >
+                    --:--:--
+                </strong>
 
-            </p>
-
-            <a href="view_prescriptions.html">
-
-                Open Module
-
-            </a>
+            </div>
 
         </div>
 
-    </div>
+    </section>
+
+
+    <!-- ======================================================
+         DASHBOARD MODULES
+         
+         Module cards are generated by JavaScript.
+         Modify the MODULES array below for each role.
+    ======================================================= -->
+
+    <section
+        class="module-grid"
+        aria-label="Dashboard modules"
+        id="moduleGrid"
+    >
+        <!-- Module cards generated by JavaScript -->
+    </section>
+
+
+    <!-- ======================================================
+         FOOTER
+    ======================================================= -->
+
+    <footer class="footer">
+
+        <span>
+            MediTrack Smart Medicine Dispensing System
+        </span>
+
+        <span id="footerRole">
+            User Console
+        </span>
+
+    </footer>
 
 </main>
 
-<footer>
 
-    MediTrack Smart Medicine Dispensing System
-
-</footer>
+<!-- ==========================================================
+     JAVASCRIPT
+=========================================================== -->
 
 <script type="module">
 
-import { requireRole }
-from "../../public/auth_guard.js";
+    // ========================================================
+    // FIREBASE IMPORTS
+    // ========================================================
 
-requireRole("Doctor");
+    import {
+        initializeApp
+    } from
+        "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
 
-import {
-    getAuth,
-    signOut
-} from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
 
-const auth = getAuth();
+    import {
+        getDatabase,
+        ref,
+        get
+    } from
+        "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
 
-document.getElementById("logoutBtn")
-.addEventListener("click", async () => {
 
-    try {
+    import {
+        getAuth,
+        signOut
+    } from
+        "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
 
-        await signOut(auth);
 
-        window.location.href = "../../public/login.html";
+    import {
+        requireRole
+    } from
+        "../js/auth_guard.js";
+
+
+    // ========================================================
+    // USER ROLE
+    // ========================================================
+
+    const USER_ROLE = "Doctor";
+
+
+    // ========================================================
+    // MODULE CONFIGURATION
+    //
+    // Modify this list depending on the user's role.
+    //
+    // "icon" uses Lucide icon names.
+    // ========================================================
+
+    const MODULES = [
+
+        {
+            title: "Create Prescription",
+
+            description:
+                " Create digital prescriptions for admitted patients.",
+
+            icon: "file-pen-line",
+
+            link: "add_prescription.html"
+        },
+
+
+        {
+            title: "Prescription Records",
+
+            description:
+                " View, review, and manage all patient prescriptions stored in the MediTrack system.",
+
+            icon: "pill",
+
+            link: "view_prescriptions.html"
+        },
+    ];
+
+
+    // ========================================================
+    // LIVE CLOCK
+    // ========================================================
+
+    const currentDate =
+        document.getElementById("currentDate");
+
+    const currentTime =
+        document.getElementById("currentTime");
+
+
+    function updateClock() {
+
+        const now = new Date();
+
+
+        // ----------------------------------------------------
+        // TIME
+        // ----------------------------------------------------
+
+        currentTime.textContent =
+            now.toLocaleTimeString(
+                "en-PH",
+                {
+                    hour: "numeric",
+                    minute: "2-digit",
+                    second: "2-digit",
+                    hour12: true
+                }
+            );
+
+
+        // ----------------------------------------------------
+        // DATE
+        // ----------------------------------------------------
+
+        currentDate.textContent =
+            now.toLocaleDateString(
+                "en-PH",
+                {
+                    weekday: "short",
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric"
+                }
+            );
 
     }
-    catch(error) {
 
-        alert(error.message);
+
+    // Start clock immediately
+
+    updateClock();
+
+
+    // Update clock every second
+
+    setInterval(
+        updateClock,
+        1000
+    );
+
+
+    // ========================================================
+    // TIME-BASED GREETING
+    // ========================================================
+
+    function getTimeGreeting() {
+
+        const hour =
+            new Date().getHours();
+
+
+        if (hour < 12) {
+
+            return "Good morning";
+
+        }
+
+
+        if (hour < 18) {
+
+            return "Good afternoon";
+
+        }
+
+
+        return "Good evening";
 
     }
 
-});
+
+    // ========================================================
+    // DASHBOARD INFORMATION
+    // ========================================================
+
+    const DASHBOARD_CONFIG = {
+
+        role:
+            USER_ROLE,
+
+        title:
+            `${getTimeGreeting()}, ${USER_ROLE}`,
+
+        description:
+            "Manage and create digital prescriptions. ",
+
+        brandSubtitle:
+            `${USER_ROLE} Dashboard`,
+
+        footerLabel:
+            `${USER_ROLE} Console`
+
+    };
+
+
+    // ========================================================
+    // USER ACCESS
+    // ========================================================
+
+    requireRole(
+        USER_ROLE
+    );
+
+
+    // ========================================================
+    // FIREBASE CONFIGURATION
+    // ========================================================
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBRm3dUt3HreTquM_Ba9JfYmZD2CLVV0Gc",
+        authDomain: "meditrack-59cca.firebaseapp.com",
+        databaseURL: "https://meditrack-59cca-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "meditrack-59cca",
+        storageBucket: "meditrack-59cca.firebasestorage.app",
+        messagingSenderId: "656003988692",
+        appId: "1:656003988692:web:badfe96b7d830837a4cf41"
+    };
+
+
+    // ========================================================
+    // INITIALIZE FIREBASE
+    // ========================================================
+
+    const app =
+        initializeApp(
+            firebaseConfig
+        );
+
+
+    const auth =
+        getAuth(
+            app
+        );
+
+
+    const database =
+        getDatabase(
+            app
+        );
+
+
+    // ========================================================
+    // DOM ELEMENTS
+    // ========================================================
+
+    const logoutButton =
+        document.getElementById(
+            "logoutBtn"
+        );
+
+
+    const brandRole =
+        document.getElementById(
+            "brandRole"
+        );
+
+
+    const roleLabel =
+        document.getElementById(
+            "roleLabel"
+        );
+
+
+    const pageTitle =
+        document.getElementById(
+            "page-title"
+        );
+
+
+    const pageDescription =
+        document.getElementById(
+            "page-description"
+        );
+
+
+    const footerRole =
+        document.getElementById(
+            "footerRole"
+        );
+
+
+    const moduleGrid =
+        document.getElementById(
+            "moduleGrid"
+        );
+
+
+    const activityPreviewList =
+        document.getElementById(
+            "activityPreviewList"
+        );
+
+
+    const activityPreviewLoading =
+        document.getElementById(
+            "activityPreviewLoading"
+        );
+
+
+    const activityPreviewEmpty =
+        document.getElementById(
+            "activityPreviewEmpty"
+        );
+
+
+    // ========================================================
+    // RENDER DASHBOARD MODULES
+    // ========================================================
+
+    function renderModules() {
+
+        moduleGrid.innerHTML = "";
+
+
+        MODULES.forEach(
+            module => {
+
+                const card =
+                    document.createElement(
+                        "a"
+                    );
+
+
+                card.className =
+                    "module-card";
+
+
+                card.href =
+                    module.link;
+
+
+                card.innerHTML = `
+
+                    <div
+                        class="module-card__top"
+                    >
+
+                        <span
+                            class="module-card__icon"
+                            aria-hidden="true"
+                        >
+
+                            <i
+                                data-lucide="${module.icon}"
+                            ></i>
+
+                        </span>
+
+                    </div>
+
+
+                    <div
+                        class="module-card__content"
+                    >
+
+                        <h2>
+                            ${module.title}
+                        </h2>
+
+                        <p>
+                            ${module.description}
+                        </p>
+
+                    </div>
+
+
+                    <div
+                        class="module-card__link"
+                    >
+
+                        <span>
+                            Open module
+                        </span>
+
+                        <i
+                            data-lucide="chevron-right"
+                            class="module-card__arrow"
+                            aria-hidden="true"
+                        ></i>
+
+                    </div>
+
+                `;
+
+
+                moduleGrid.appendChild(
+                    card
+                );
+
+            }
+        );
+
+
+        // Convert all data-lucide elements
+        // into SVG icons.
+
+        lucide.createIcons();
+
+    }
+
+
+    // ========================================================
+    // APPLY DASHBOARD CONFIGURATION
+    // ========================================================
+
+    brandRole.textContent =
+        DASHBOARD_CONFIG.brandSubtitle;
+
+
+    roleLabel.textContent =
+        DASHBOARD_CONFIG.role;
+
+
+    pageTitle.textContent =
+        DASHBOARD_CONFIG.title;
+
+
+    pageDescription.textContent =
+        DASHBOARD_CONFIG.description;
+
+
+    footerRole.textContent =
+        DASHBOARD_CONFIG.footerLabel;
+
+
+    // ========================================================
+    // LOGOUT
+    // ========================================================
+
+    logoutButton.addEventListener(
+        "click",
+        async () => {
+
+            try {
+
+                await signOut(
+                    auth
+                );
+
+
+                window.location.href =
+                    "../../index.html";
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Logout error:",
+                    error
+                );
+
+
+                alert(
+                    error.message
+                );
+
+            }
+
+        }
+    );
+
+    // ========================================================
+    // FORMAT DATE/TIME
+    // ========================================================
+
+    function formatDateTime(
+        timestamp
+    ) {
+
+        const time =
+            getTimestamp(
+                timestamp
+            );
+
+
+        if (!time) {
+
+            return "-";
+
+        }
+
+
+        return new Date(
+            time
+        ).toLocaleString(
+            "en-PH",
+            {
+                dateStyle: "medium",
+                timeStyle: "short"
+            }
+        );
+
+    }
+
+
+    // ========================================================
+    // INITIALIZE DASHBOARD
+    // ========================================================
+
+    // Initialize static Lucide icons:
+    // brand, logout, and clock.
+
+    lucide.createIcons();
+
+
+    // Generate dashboard module cards.
+
+    renderModules();
+
 </script>
 
 </body>
-
 </html>

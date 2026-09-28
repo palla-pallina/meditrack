@@ -1,0 +1,368 @@
+/* MediTrack | Refill Dispenser
+   Shares design tokens with view_compartment.css and add_dispenser_compartment.css.
+   Save as stylesheets/refill_dispenser.css and link it in <head>. */
+
+:root {
+  --ink: #12283f;
+  --ink-soft: #4d6379;
+  --ink-faint: #7c8ea1;
+  --brand: #0f4fa3;
+  --brand-bright: #1976d2;
+  --brand-tint: #eaf3fd;
+  --page: #f3f7fb;
+  --card: #ffffff;
+  --line: #dbe6f1;
+  --line-strong: #c3d3e4;
+  --ok: #17794f;      --ok-bg: #e6f5ee;
+  --warn: #9a5b00;    --warn-bg: #fff4dc;  --warn-line: #f0c96b;
+  --bad: #c62828;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 1px 2px rgba(18, 40, 63, .05), 0 6px 20px rgba(18, 40, 63, .06);
+  --font: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { background: var(--page); }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font);
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--ink);
+  background: var(--page);
+}
+
+button, input { font: inherit; }
+
+:focus-visible {
+  outline: 3px solid rgba(25, 118, 210, .35);
+  outline-offset: 2px;
+}
+
+.hidden { display: none !important; }
+
+/* ---------- Page frame ---------- */
+
+.container {
+  width: min(100% - 32px, 960px);
+  margin: 0 auto;
+  padding: 32px 0 64px;
+}
+
+.container > a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 38px;
+  padding: 0 14px;
+  margin-bottom: 20px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  color: var(--brand);
+  font-size: .875rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 150ms, color 150ms, border-color 150ms;
+}
+.container > a:hover {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: #fff;
+}
+
+h1 {
+  margin: 0 0 6px;
+  font-size: clamp(1.6rem, 3.4vw, 2.1rem);
+  font-weight: 700;
+  letter-spacing: -.02em;
+  line-height: 1.2;
+}
+
+/* "Required fields are marked…" note */
+h1 + label {
+  display: block;
+  margin: 0 0 4px;
+  color: var(--ink-soft);
+  font-size: .82rem;
+  font-weight: 500;
+}
+h1 + label + br { display: none; }
+
+.subtitle {
+  max-width: 62ch;
+  margin: 0 0 24px;
+  color: var(--ink-soft);
+}
+
+/* ---------- Sections ---------- */
+
+fieldset {
+  min-width: 0;
+  margin: 0 0 20px;
+  padding: 22px 24px 24px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--card);
+  box-shadow: var(--shadow);
+}
+
+/* float trick so the legend sits inside the card as its heading */
+legend {
+  float: left;
+  width: 100%;
+  margin: 0 0 18px;
+  padding: 0 0 14px;
+  border-bottom: 1px solid var(--line);
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+legend + * { clear: both; }
+
+fieldset > p { margin: 0 0 16px; color: var(--ink-soft); }
+
+/* spacing comes from the elements, not stray <br>s */
+fieldset > br { display: none; }
+
+/* ---------- Info cards ---------- */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px;
+}
+
+.info-card {
+  padding: 12px 16px;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--brand-bright);
+  border-radius: var(--radius-sm);
+  background: var(--page);
+}
+
+.info-label {
+  margin-bottom: 2px;
+  color: var(--ink-soft);
+  font-size: .8rem;
+  font-weight: 600;
+}
+
+.info-value {
+  font-size: 1.05rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+/* ---------- Status pill ---------- */
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 2px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--brand-tint);
+  color: var(--brand);
+  font-size: .85rem;
+  font-weight: 600;
+}
+.status::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.status-refill { background: var(--warn-bg); color: var(--warn); }
+.status-ready  { background: var(--ok-bg);   color: var(--ok); }
+
+/* ---------- Fields ---------- */
+
+label {
+  display: block;
+  margin: 18px 0 6px;
+  color: var(--ink-soft);
+  font-size: .8rem;
+  font-weight: 600;
+}
+
+input[type="text"] {
+  display: block;
+  width: 100%;
+  min-height: 42px;
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--page);
+  color: var(--ink-soft);
+  font-size: .92rem;
+  font-variant-numeric: tabular-nums;
+  cursor: default;
+}
+input[type="text"]:focus { outline: none; border-color: var(--line); }
+
+/* ---------- Warning ---------- */
+
+.warning {
+  margin: 0 0 20px;
+  padding: 16px 20px;
+  border: 1px solid var(--warn-line);
+  border-left: 5px solid #e0a020;
+  border-radius: var(--radius);
+  background: var(--warn-bg);
+  color: #5e3a00;
+  line-height: 1.65;
+}
+.warning > strong:first-child { color: var(--warn); font-size: 1rem; }
+
+/* ---------- Slot table ---------- */
+
+#slotContainer {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+}
+
+table {
+  width: 100%;
+  min-width: 680px;
+  border-collapse: collapse;
+  font-size: .9rem;
+}
+
+th {
+  position: sticky;
+  top: 0;
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--line-strong);
+  background: var(--brand-tint);
+  font-size: .8rem;
+  font-weight: 600;
+  text-align: left;
+  white-space: nowrap;
+}
+
+td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+  font-variant-numeric: tabular-nums;
+}
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:hover { background: #f8fbfe; }
+
+.slot-number {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 8px;
+  background: var(--brand);
+  color: #fff;
+  font-size: .82rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.medicine {
+  color: var(--ink-soft);
+  font-size: .82rem;
+  line-height: 1.6;
+}
+.medicine + .medicine {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--line);
+}
+.medicine-name {
+  color: var(--ink);
+  font-size: .92rem;
+  font-weight: 600;
+}
+
+.empty {
+  padding: 22px 20px;
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--page);
+  color: var(--ink-soft);
+  text-align: center;
+}
+#slotContainer:has(> .empty) { border: 0; }
+
+/* ---------- Confirmation ---------- */
+
+/* the confirm checkbox lives inside a <label> */
+label:has(> input[type="checkbox"]) {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 0 0 20px;
+  padding: 14px 16px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--brand-tint);
+  color: var(--ink);
+  font-size: .92rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+input[type="checkbox"] {
+  flex: none;
+  width: 20px !important;
+  height: 20px;
+  margin: 2px 0 0;
+  accent-color: var(--brand);
+  cursor: pointer;
+}
+
+fieldset > br + br { display: none; }
+
+.primary, .secondary {
+  min-height: 44px;
+  padding: 0 24px;
+  margin: 0 10px 0 0;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 150ms, color 150ms, border-color 150ms;
+}
+
+.primary {
+  border: 1px solid var(--brand);
+  background: var(--brand);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(15, 79, 163, .22);
+}
+.primary:hover:not(:disabled) { background: var(--brand-bright); border-color: var(--brand-bright); }
+.primary:disabled {
+  border-color: var(--line);
+  background: #e3ebf3;
+  color: var(--ink-faint);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.secondary {
+  border: 1px solid var(--line-strong);
+  background: var(--card);
+  color: var(--brand);
+}
+.secondary:hover { background: var(--brand-tint); border-color: var(--brand-bright); }
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 560px) {
+  .container { width: min(100% - 24px, 960px); padding-top: 20px; }
+  fieldset { padding: 18px 16px 20px; }
+  .grid { grid-template-columns: 1fr 1fr; }
+  .primary, .secondary { width: 100%; margin: 0 0 10px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}

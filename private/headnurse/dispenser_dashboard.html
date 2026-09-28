@@ -5,313 +5,77 @@
 
 <meta charset="UTF-8">
 
-<title>MediTrack | Dispenser Dashboard</title>
+<title>Dispenser Dashboard | MediTrack</title>
 
 <link rel="stylesheet"
       href="stylesheets/dispenser_dashboard.css">
-
-<style>
-
-*{
-    box-sizing:border-box;
-}
-
-.container{
-    max-width:1400px;
-    margin:auto;
-}
-
-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center; 
-    margin-bottom:20px;
-}
-
-header h1{
-    margin:0;
-}
-
-.dashboard-button{
-    display:inline-block;
-    padding:10px 16px;
-    background:#1976d2;
-    color:white;
-    text-decoration:none;
-    border-radius:5px;
-}
-
-.toolbar{
-    display:flex;
-    gap:10px;
-    align-items:center;
-    margin-bottom:20px;
-    flex-wrap:wrap;
-}
-
-.create-button{
-    padding:11px 18px;
-    border:none;
-    border-radius:5px;
-    background:#1976d2;
-    color:white;
-    cursor:pointer;
-    font-size:14px;
-}
-
-.search-container{
-    display:flex;
-    gap:8px;
-    flex:1;
-    min-width:300px;
-}
-
-.search-container input{
-    flex:1;
-    padding:11px;
-    border:1px solid #ccc;
-    border-radius:5px;
-    font-size:14px;
-}
-
-.search-container button{
-    padding:11px 18px;
-    border:none;
-    border-radius:5px;
-    background:#555;
-    color:white;
-    cursor:pointer;
-}
-
-.summary{
-    display:grid;
-    grid-template-columns:
-        repeat(5,1fr);
-    gap:15px;
-    margin-bottom:20px;
-}
-
-.summary-card{
-    background:white;
-    border:1px solid #ddd;
-    border-radius:8px;
-    padding:18px;
-}
-
-.summary-card strong{
-    display:block;
-    font-size:12px;
-    color:#666;
-    margin-bottom:7px;
-}
-
-.summary-value{
-    font-size:25px;
-    font-weight:bold;
-}
-
-.table-container{
-    background:white;
-    border-radius:8px;
-    overflow-x:auto;
-    border:1px solid #ddd;
-}
-
-table{
-    width:100%;
-    border-collapse:collapse;
-    min-width:1200px;
-}
-
-thead{
-    background:#1976d2;
-    color:white;
-}
-
-th,
-td{
-    padding:12px;
-    border-bottom:1px solid #ddd;
-    text-align:left;
-    vertical-align:middle;
-}
-
-tbody tr:hover{
-    background:#f8f9fa;
-}
-
-.patient-name{
-    font-weight:bold;
-}
-
-.medication-list{
-    margin:0;
-    padding-left:18px;
-}
-
-.medication-list li{
-    margin-bottom:3px;
-}
-
-.badge{
-    display:inline-block;
-    padding:5px 9px;
-    border-radius:12px;
-    font-size:12px;
-    font-weight:bold;
-}
-
-.badge-empty{
-    background:#f8d7da;
-    color:#842029;
-}
-
-.badge-normal{
-    background:#d1e7dd;
-    color:#0f5132;
-}
-
-.badge-low{
-    background:#fff3cd;
-    color:#664d03;
-}
-
-.badge-refill{
-    background:#ffe5b4;
-    color:#8a4b00;
-}
-
-.badge-full{
-    background:#cfe2ff;
-    color:#084298;
-}
-
-.action-button{
-    padding:7px 10px;
-    border:none;
-    border-radius:4px;
-    cursor:pointer;
-    margin:2px;
-    color:white;
-}
-
-.view-button{
-    background:#1976d2;
-}
-
-.edit-button{
-    background:#198754;
-}
-
-.delete-button{
-    background:#dc3545;
-}
-
-.refill-button{
-    background:#fd7e14;
-}
-
-.message{
-    padding:15px;
-    margin-bottom:15px;
-    border-radius:6px;
-    background:#eef4ff;
-}
-
-.warning{
-    background:#fff3cd;
-    color:#664d03;
-}
-
-.error{
-    background:#f8d7da;
-    color:#842029;
-}
-
-.success{
-    background:#d1e7dd;
-    color:#0f5132;
-}
-
-.slot-progress{
-    width:100%;
-    min-width:100px;
-    height:8px;
-    background:#e9ecef;
-    border-radius:5px;
-    overflow:hidden;
-    margin-top:5px;
-}
-
-.slot-progress-bar{
-    height:100%;
-    background:#1976d2;
-}
-
-@media(max-width:900px){
-
-    .summary{
-        grid-template-columns:
-            repeat(2,1fr);
-    }
-
-}
-
-@media(max-width:600px){
-
-    .summary{
-        grid-template-columns:1fr;
-    }
-
-}
-
-</style>
+<link rel="icon" type="image/x-icon" href="../../draft.png">
 
 </head>
 
 
 <body>
 
-<div class="container">
+<header class="topbar">
+
+    <div class="topbar-left">
+        <div class="brand" aria-label="MediTrack Dashboard">
+
+            <img
+                src="../../draft.png"
+                alt="MediTrack Logo"
+                class="actual-logo"
+                style="height: 50px;"
+            >
+
+            <span class="brand__text">
+
+                <strong>
+                    MediTrack
+                </strong>
+
+                <span id="brandRole">
+                    Activity Logs
+                </span>
+
+            </span>
+        </div>
+    </div>
 
 
-<header>
+    <div class="topbar-right">
 
-    <div>
-
-        <a href="home.html"
-           class="dashboard-button">
-
+        <a href="dashboard.html">
             Dashboard
-
         </a>
 
     </div>
 
-    <h1>
-        Medicine Dispenser Dashboard
-    </h1>
-
-    <div></div>
-
 </header>
+        
+<div class="container">
 
+        <section class="page-header">
+
+            <div>
+
+                <h2>
+                    Medicine Dispenser Dashboard
+                </h2>
+
+                <p>
+                    Manage and review the MediTrack Dispenser.
+                </p>
+
+            </div>
+
+        </section>
 
 <!-- ================================================= -->
 <!-- TOOLBAR -->
 <!-- ================================================= -->
 
 <div class="toolbar">
-
-
-    <button
-        class="create-button"
-        onclick="location.href='add_dispenser_compartment.html'">
-
-        + Assign Dispenser
-
-    </button>
-
 
     <div class="search-container">
 
@@ -326,6 +90,7 @@ tbody tr:hover{
             Search
 
         </button>
+
 
     </div>
 
@@ -449,60 +214,23 @@ tbody tr:hover{
 <div class="table-container">
 
 <table>
+    <thead>
+        <tr>
+            <th>Dispenser Unit</th>
+            <th>Carousel</th>
+            <th>Assigned Patient</th>
+            <th>Ward / Room</th>
+            <th>Medications</th>
+            <th>Slots</th>
+            <th>Refill</th>
+            <th>Inventory</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
 
-<thead>
-
-<tr>
-
-    <th>
-        Dispenser Unit
-    </th>
-
-    <th>
-        Carousel
-    </th>
-
-    <th>
-        Assigned Patient
-    </th>
-
-    <th>
-        Ward / Room
-    </th>
-
-    <th>
-        Medications
-    </th>
-
-    <th>
-        Slots
-    </th>
-
-    <th>
-        Refill
-    </th>
-
-    <th>
-        Inventory
-    </th>
-
-    <th>
-        Status
-    </th>
-
-    <th>
-        Actions
-    </th>
-
-</tr>
-
-</thead>
-
-
-<tbody id="compartmentTable">
-
-</tbody>
-
+    <tbody id="compartmentTable">
+    </tbody>
 </table>
 
 </div>
@@ -529,6 +257,7 @@ import {
     getDatabase,
     ref,
     get,
+    update,
     remove
 }
 from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
@@ -537,10 +266,10 @@ from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
 import {
     requireRole
 }
-from "../../public/auth_guard.js";
+from "../js/auth_guard.js";
 
 
-requireRole("Admin");
+requireRole("Head Nurse");
 
 
 const firebaseConfig = {
@@ -574,7 +303,7 @@ const DISPENSER_UNIT =
     "Main Dispenser";
 
 const MAX_CAROUSELS =
-    3;
+    5;
 
 const MAX_SLOTS =
     21;
@@ -682,6 +411,286 @@ function escapeHtml(
 
 }
 
+
+/* =====================================================
+   SEND REFILL NOTIFICATION TO HEAD NURSE
+===================================================== */
+
+async function sendRefillNotification(
+    compartment
+){
+
+    if(
+        !compartment ||
+        !compartment.refill_required
+    ){
+
+        throw new Error(
+            "This dispenser does not currently require a refill."
+        );
+
+    }
+
+
+    /* =================================================
+       LOAD HEAD NURSES
+    ================================================= */
+
+    const usersSnapshot =
+        await get(
+            ref(
+                db,
+                "users"
+            )
+        );
+
+
+    if(
+        !usersSnapshot.exists()
+    ){
+
+        throw new Error(
+            "No users were found."
+        );
+
+    }
+
+
+    const headNurses = [];
+
+
+    usersSnapshot.forEach(
+        userSnapshot => {
+
+            const user =
+                userSnapshot.val() || {};
+
+
+            const userType =
+                String(
+                    user.userType || ""
+                )
+                .trim()
+                .toLowerCase();
+
+
+            const accountStatus =
+                String(
+                    user.accountStatus || ""
+                )
+                .trim()
+                .toLowerCase();
+
+
+            /*
+               Only notify active Head Nurse accounts.
+            */
+
+            if(
+                userType === "head nurse" &&
+                (
+                    !accountStatus ||
+                    accountStatus === "active"
+                )
+            ){
+
+                headNurses.push({
+
+                    uid:
+                        userSnapshot.key,
+
+                    name:
+                        [
+                            user.firstName || "",
+                            user.lastName || ""
+                        ]
+                        .join(" ")
+                        .trim() ||
+                        user.name ||
+                        "Head Nurse"
+
+                });
+
+            }
+
+        }
+    );
+
+
+    if(
+        headNurses.length === 0
+    ){
+
+        throw new Error(
+            "No active Head Nurse accounts were found."
+        );
+
+    }
+
+
+    /* =================================================
+       CREATE NOTIFICATION
+    ================================================= */
+
+    const notificationId =
+        "REFILL-" +
+        compartment.compartment_id +
+        "-" +
+        Date.now();
+
+
+    const now =
+        new Date().toISOString();
+
+
+    const requiredSlots =
+        Number(
+            compartment.required_slots || 0
+        );
+
+
+    const slotsUsed =
+        Number(
+            compartment.slots_used || 0
+        );
+
+
+    const refillInterval =
+        Number(
+            compartment.refill_interval_days || 0
+        );
+
+
+    const notification = {
+
+        notification_id:
+            notificationId,
+
+        type:
+            "dispenser_refill",
+
+        title:
+            "Dispenser Refill Required",
+
+        message:
+            `${compartment.compartment_name || compartment.compartment_id} requires a refill for ${compartment.patient_name || "the assigned patient"}.`,
+
+        dispenser_unit:
+            compartment.dispenser_unit ||
+            DISPENSER_UNIT,
+
+        compartment_id:
+            compartment.compartment_id,
+
+        compartment_name:
+            compartment.compartment_name ||
+            compartment.compartment_id,
+
+        patient_id:
+            compartment.patient_id ||
+            "",
+
+        patient_name:
+            compartment.patient_name ||
+            "",
+
+        ward:
+            compartment.ward ||
+            "",
+
+        room:
+            compartment.room ||
+            "",
+
+        required_slots:
+            requiredSlots,
+
+        slots_used:
+            slotsUsed,
+
+        refill_interval_days:
+            refillInterval,
+
+        status:
+            "Unread",
+
+        created_at:
+            now,
+
+        updated_at:
+            now
+
+    };
+
+
+    /* =================================================
+       SAVE NOTIFICATION FOR EACH HEAD NURSE
+    ================================================= */
+
+    const updates = {};
+
+
+    headNurses.forEach(
+        headNurse => {
+
+            updates[
+                `notifications/${headNurse.uid}/${notificationId}`
+            ] = {
+
+                ...notification,
+
+                recipient_uid:
+                    headNurse.uid,
+
+                recipient_name:
+                    headNurse.name
+
+            };
+
+        }
+    );
+
+
+    await update(
+        ref(db),
+        updates
+    );
+
+
+    /* =================================================
+       MARK REFILL REQUEST
+       ON THE CAROUSEL
+    ================================================= */
+
+    await update(
+        ref(
+            db,
+            "dispenser_unit/" +
+            DISPENSER_UNIT +
+            "/" +
+            compartment.compartment_id
+        ),
+        {
+
+            refill_notification_sent:
+                true,
+
+            refill_notification_id:
+                notificationId,
+
+            refill_notification_status:
+                "Pending",
+
+            refill_notification_sent_at:
+                now
+
+        }
+    );
+
+
+    return notificationId;
+
+}
 
 
 /* =====================================================
@@ -1225,8 +1234,6 @@ function getSlotProgress(
 
 }
 
-
-
 /* =====================================================
    REFILL INFORMATION
 ===================================================== */
@@ -1235,8 +1242,12 @@ function getRefillHtml(
     compartment
 ){
 
+    const refillRequired =
+        compartment.refill_required === true;
+
+
     if(
-        !compartment.refill_required
+        !refillRequired
     ){
 
         return `
@@ -1264,46 +1275,72 @@ function getRefillHtml(
 
         <span class="badge badge-refill">
 
-            Every ${escapeHtml(
-                interval
-            )} day(s)
+            Required
 
         </span>
 
 
         ${
-            nextDate
+            interval
             ?
-            `<br>
-            <small>
-                Next:
-                ${escapeHtml(
-                    nextDate
-                )}
-            </small>`
+
+            `
+
+                <br>
+
+                <small>
+
+                    Every
+                    ${escapeHtml(interval)}
+                    day(s)
+
+                </small>
+
+            `
+
             :
+
             ""
+
+        }
+
+
+        ${
+            nextDate
+
+            ?
+
+            `
+
+                <br>
+
+                <small>
+
+                    Next:
+                    ${escapeHtml(nextDate)}
+
+                </small>
+
+            `
+
+            :
+
+            ""
+
         }
 
     `;
 
 }
-
-
-
 /* =====================================================
    LOAD CAROUSELS
 ===================================================== */
 
 async function loadCompartments(){
 
-    table.innerHTML =
-        "";
+    table.innerHTML = "";
 
-
-    carouselData =
-        [];
-
+    carouselData = [];
 
     try{
 
@@ -1318,7 +1355,7 @@ async function loadCompartments(){
 
 
         /*
-           Always display Carousel 1-3.
+           Always display Carousel 1-5.
         */
 
         for(
@@ -1397,42 +1434,78 @@ async function loadCompartments(){
         }
 
 
-        updateSummary();
+        /*
+           Display the current dispenser
+           information first.
+        */
 
+        updateSummary();
 
         renderTable(
             carouselData
         );
 
 
-        message.className =
-            "message success";
+        /*
+           Automatically send refill requests
+           for any carousel that requires a refill.
+           
+           This function will NOT send another
+           notification if the carousel already
+           has a Pending refill request.
+        */
+
+        await autoRequestRefills();
 
 
-        message.textContent =
-            "Dispenser information loaded successfully.";
+        /*
+           Refresh the table after automatic
+           refill requests have been sent.
+        */
+
+        await loadCompartmentsWithoutAutoRefill();
+
+
+        /*
+           Only update the message element if
+           it exists.
+        */
+
+        if(message){
+
+            message.className =
+                "message success";
+
+
+            message.textContent =
+                "Dispenser information loaded successfully.";
+
+        }
 
     }
     catch(error){
 
         console.error(
+            "Error loading dispenser information:",
             error
         );
 
 
-        message.className =
-            "message error";
+        if(message){
+
+            message.className =
+                "message error";
 
 
-        message.textContent =
-            "Failed to load dispenser information: " +
-            error.message;
+            message.textContent =
+                "Failed to load dispenser information: " +
+                error.message;
+
+        }
 
     }
 
 }
-
-
 
 /* =====================================================
    SUMMARY
@@ -1796,9 +1869,10 @@ function renderTable(
                 </td>
 
 
-                <td>
+                <td class="actions-cell">
 
                     <button
+                        type="button"
                         class="action-button view-button"
                         onclick="viewCompartment(
                             '${escapeHtml(
@@ -1815,61 +1889,14 @@ function renderTable(
 
 
                     ${
-                        assigned
+                        compartment.refill_required === true
 
                         ?
 
                         `
 
                             <button
-                                class="action-button edit-button"
-                                onclick="editCompartment(
-                                    '${escapeHtml(
-                                        compartment.dispenser_unit
-                                    )}',
-                                    '${escapeHtml(
-                                        compartment.compartment_id
-                                    )}'
-                                )">
-
-                                Edit
-
-                            </button>
-
-                        `
-
-                        :
-
-                        ""
-
-                    }
-
-
-                    <button
-                        class="action-button delete-button"
-                        onclick="deleteCompartment(
-                            '${escapeHtml(
-                                compartment.dispenser_unit
-                            )}',
-                            '${escapeHtml(
-                                compartment.compartment_id
-                            )}'
-                        )">
-
-                        Delete
-
-                    </button>
-
-                    
-                    ${
-                        assigned &&
-                        compartment.refill_required
-
-                        ?
-
-                        `
-                            
-                            <button
+                                type="button"
                                 class="action-button refill-button"
                                 onclick="viewRefill(
                                     '${escapeHtml(
@@ -1891,6 +1918,23 @@ function renderTable(
                         ""
 
                     }
+
+
+                    <button
+                        type="button"
+                        class="action-button delete-button"
+                        onclick="deleteCompartment(
+                            '${escapeHtml(
+                                compartment.dispenser_unit
+                            )}',
+                            '${escapeHtml(
+                                compartment.compartment_id
+                            )}'
+                        )">
+
+                        Delete
+
+                    </button>
 
                 </td>
 
@@ -1965,7 +2009,6 @@ searchBtn.addEventListener(
     applySearch
 );
 
-
 searchInput.addEventListener(
     "input",
     applySearch
@@ -2012,31 +2055,6 @@ function(
 };
 
 
-
-/* =====================================================
-   EDIT
-===================================================== */
-
-window.editCompartment =
-function(
-    unit,
-    id
-){
-
-    window.location.href =
-
-        "edit_compartment.html" +
-
-        "?unit=" +
-        encodeURIComponent(unit) +
-
-        "&id=" +
-        encodeURIComponent(id);
-
-};
-
-
-
 /* =====================================================
    REFILL
 ===================================================== */
@@ -2061,6 +2079,143 @@ function(
 
 };
 
+/* =====================================================
+   REQUEST REFILL
+===================================================== */
+
+async function autoRequestRefills() {
+
+    const requiredCarousels = carouselData.filter(compartment =>
+        compartment.refill_required === true &&
+        compartment.refill_notification_status !== "Pending"
+    );
+
+    if (requiredCarousels.length === 0) {
+        return;
+    }
+
+    console.log(
+        `Found ${requiredCarousels.length} dispenser carousel(s) requiring refill.`
+    );
+
+    for (const compartment of requiredCarousels) {
+
+        try {
+
+            console.log(
+                `Automatically requesting refill for ${compartment.compartment_id}...`
+            );
+
+            await sendRefillNotification(compartment);
+
+            console.log(
+                `Refill notification sent for ${compartment.compartment_id}.`
+            );
+
+        } catch (error) {
+
+            console.error(
+                `Failed to automatically request refill for ${compartment.compartment_id}:`,
+                error
+            );
+
+        }
+    }
+
+}
+
+async function loadCompartmentsWithoutAutoRefill(){
+
+    try{
+
+        const snapshot =
+            await get(
+                ref(
+                    db,
+                    `dispenser_unit/${DISPENSER_UNIT}`
+                )
+            );
+
+
+        const data =
+            snapshot.exists()
+                ? snapshot.val()
+                : {};
+
+
+        carouselData = [];
+
+
+        for(
+            let i = 1;
+            i <= MAX_CAROUSELS;
+            i++
+        ){
+
+            const carouselId =
+                `MD-C0${i}`;
+
+
+            const stored =
+                data[carouselId] || {};
+
+
+            carouselData.push({
+
+                dispenser_unit:
+                    DISPENSER_UNIT,
+
+                compartment_id:
+                    carouselId,
+
+                compartment_name:
+                    `Carousel ${i}`,
+
+                patient_id:
+                    null,
+
+                patient_name:
+                    null,
+
+                inventory_amount:
+                    0,
+
+                maximum_capacity:
+                    MAX_SLOTS,
+
+                status:
+                    "Empty",
+
+                ...stored
+
+            });
+
+        }
+
+
+        updateSummary();
+
+
+        /*
+           IMPORTANT:
+           Pass carouselData to renderTable().
+        */
+
+        renderTable(
+            carouselData
+        );
+
+    }
+    catch(error){
+
+        console.error(
+            "Error refreshing dispenser information:",
+            error
+        );
+
+    }
+
+}
 
 
 /* =====================================================
@@ -2232,13 +2387,6 @@ async function(
                    use undefined. null removes
                    the values.
                 */
-
-                const {
-                    update
-                } =
-                    await import(
-                        "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js"
-                    );
 
 
                 await update(

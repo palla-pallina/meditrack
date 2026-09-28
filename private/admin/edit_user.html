@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>Edit User</title>
     <link rel="stylesheet" href="stylesheets/edit_user.css">
+    <link rel="icon" type="image/x-icon" href="../../draft.png">
 </head>
 
 <body>
@@ -108,6 +109,11 @@ import {
 }
 from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
 
+import {
+    getAuth,
+    onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+
 //------------------------------------
 // Firebase Configuration
 //------------------------------------
@@ -127,6 +133,111 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 const database = getDatabase(app);
+const auth = getAuth(app);
+
+// =====================================================
+// ADMIN ACCESS VALIDATION
+// =====================================================
+
+document.body.style.visibility = "hidden";
+
+async function validateAdminAccess() {
+
+    try {
+
+        // Wait for Firebase to determine the authentication state
+        const user = await new Promise((resolve, reject) => {
+
+            let unsubscribe = () => {};
+
+            unsubscribe = onAuthStateChanged(
+                auth,
+
+                (authenticatedUser) => {
+                    unsubscribe();
+                    resolve(authenticatedUser);
+                },
+
+                (error) => {
+                    unsubscribe();
+                    reject(error);
+                }
+            );
+
+        });
+
+
+        // Redirect if the user is not authenticated
+        if (!user) {
+
+            window.location.replace("../../index.html");
+            return false;
+
+        }
+
+
+        // Retrieve the authenticated user's account record
+        const userSnapshot = await get(
+            ref(
+                database,
+                `users/${user.uid}`
+            )
+        );
+
+
+        // Redirect if the account record does not exist
+        if (!userSnapshot.exists()) {
+
+            window.location.replace("../../index.html");
+            return false;
+
+        }
+
+
+        const userData = userSnapshot.val();
+
+
+        // Verify the user's role
+        if (
+            String(userData.userType ?? "")
+                .trim()
+                .toLowerCase() !== "admin"
+        ) {
+
+            window.location.replace("../../index.html");
+            return false;
+
+        }
+
+
+        // Display the page only after successful validation
+        document.body.style.visibility = "visible";
+
+        return true;
+
+    }
+    catch (error) {
+
+        console.error(
+            "Admin account validation failed:",
+            error
+        );
+
+        window.location.replace("../../index.html");
+
+        return false;
+
+    }
+
+}
+
+
+// Stop execution if access is denied
+if (!(await validateAdminAccess())) {
+
+    throw new Error("Unauthorized access.");
+
+}
 
 const status = document.getElementById("status");
 

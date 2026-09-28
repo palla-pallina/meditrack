@@ -1,0 +1,105 @@
+
+/* Top navigation */
+.topbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: rgba(255, 255, 255, 0.94);
+    border-bottom: 1px solid var(--border);
+    box-shadow: 0 7px 22px rgba(19, 76, 130, 0.08);
+    backdrop-filter: blur(12px);
+}
+
+.topbar__inner {
+    width: min(1180px, calc(100% - 40px));
+    margin: 0 auto;
+    min-height: 78px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 13px;
+}
+
+.brand__icon {
+    width: 46px;
+    height: 46px;
+    display: grid;
+    place-items: center;
+    border-radius: 14px;
+    color: var(--white);
+    background: linear-gradient(135deg, var(--blue-700), var(--blue-500));
+    box-shadow: 0 8px 18px rgba(25, 118, 210, 0.26);
+}
+
+.brand__icon svg {
+    width: 25px;
+    height: 25px;
+    fill: currentColor;
+}
+
+.brand__text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+}
+
+.brand__text strong {
+    color: var(--blue-900);
+    font-size: 1.08rem;
+    letter-spacing: -0.01em;
+}
+
+.brand__text span {
+    margin-top: 4px;
+    color: var(--muted);
+    font-size: 0.78rem;
+    font-weight: 500;
+}
+
+.logout-btn {
+    appearance: none;
+    border: 1px solid #bcd8f2;
+    background: var(--white);
+    color: var(--blue-700);
+    min-height: 42px;
+    padding: 0 16px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 160ms ease;
+}
+
+.logout-btn svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.9;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.logout-btn:hover {
+    color: var(--white);
+    background: var(--blue-700);
+    border-color: var(--blue-700);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px rgba(20, 103, 200, 0.18);
+}
+
+.logout-btn:focus-visible,
+.module-card__link:focus-visible {
+    outline: 3px solid rgba(25, 118, 210, 0.28);
+    outline-offset: 3px;
+}
