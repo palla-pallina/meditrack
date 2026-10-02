@@ -371,6 +371,21 @@
 
             </div>
 
+            <div class="summary-card">
+
+                <span class="summary-label">
+                    Warnings
+                </span>
+
+                <strong
+                    id="warningLogs"
+                    class="summary-value warning-text"
+                >
+                    0
+                </strong>
+
+            </div>
+
         </section>
 
 
@@ -601,6 +616,9 @@ const successLogs =
 
 const failedLogs =
     document.getElementById("failedLogs");
+
+const warningLogs =
+    document.getElementById("warningLogs");
 
 const detailsModal =
     document.getElementById("detailsModal");
@@ -1484,7 +1502,7 @@ function renderLogs() {
         filteredLogs.length;
 
 
-    successLogs.textContent =
+    const successfulCount =
         filteredLogs.filter(
             log =>
                 normalizeStatus(log) ===
@@ -1492,13 +1510,40 @@ function renderLogs() {
         ).length;
 
 
-    failedLogs.textContent =
+    const failedCount =
         filteredLogs.filter(
             log =>
                 normalizeStatus(log) ===
                 "FAILED"
         ).length;
 
+
+    const warningCount =
+        filteredLogs.filter(
+            log =>
+                normalizeStatus(log) ===
+                "WARNING"
+        ).length;
+
+
+    const unknownCount =
+        filteredLogs.filter(
+            log =>
+                normalizeStatus(log) ===
+                "UNKNOWN"
+        ).length;
+
+
+    successLogs.textContent =
+        successfulCount;
+
+
+    failedLogs.textContent =
+        failedCount;
+
+
+    warningLogs.textContent =
+        warningCount;
 
     // ========================================================
     // ROW LIMIT
@@ -1973,64 +2018,100 @@ function buildMedicationDescription(
 // This converts them for the dashboard summary/filter.
 // ============================================================
 
-function normalizeStatus(
-    log
-) {
+function normalizeStatus(log) {
 
-    if (
-        log.logType ===
-        "medication"
-    ) {
+    // ========================================================
+    // MEDICATION LOGS
+    // ========================================================
+
+    if (log.logType === "medication") {
 
         const value =
             String(
-                log.status ||
-                ""
+                log.status || ""
             )
+            .trim()
             .toLowerCase();
 
 
-        if (
-            value === "given"
-        ) {
-
+        if (value === "given") {
             return "SUCCESS";
-
         }
 
 
         if (
-            value === "missed"
-        ) {
-
-            return "FAILED";
-
-        }
-
-        if (
+            value === "missed" ||
             value === "refused"
         ) {
-
             return "FAILED";
-
         }
 
 
-        return (
-            log.status ||
-            "UNKNOWN"
-        );
-
+        return "WARNING";
     }
 
 
-    return (
-        log.status ||
-        "UNKNOWN"
-    );
+    // ========================================================
+    // DISPENSE LOGS
+    // ========================================================
 
+    if (log.logType === "dispense") {
+
+        const value =
+            String(
+                log.status || ""
+            )
+            .trim()
+            .toUpperCase();
+
+
+        if (value === "SUCCESS") {
+            return "SUCCESS";
+        }
+
+
+        if (value === "FAILED") {
+            return "FAILED";
+        }
+
+
+        return "WARNING";
+    }
+
+
+    // ========================================================
+    // STANDARD ACTIVITY LOGS
+    // ========================================================
+
+    const value =
+        String(
+            log.status || ""
+        )
+        .trim()
+        .toUpperCase();
+
+
+    if (value === "SUCCESS") {
+        return "SUCCESS";
+    }
+
+
+    if (value === "FAILED") {
+        return "FAILED";
+    }
+
+
+    if (value === "WARNING") {
+        return "WARNING";
+    }
+
+
+    // Any old/missing/unrecognized status
+    // is treated as a warning rather than
+    // disappearing from the summary.
+
+    return "WARNING";
 }
-
 
 // ============================================================
 // TIMESTAMP NORMALIZATION

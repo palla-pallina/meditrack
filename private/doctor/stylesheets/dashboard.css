@@ -594,10 +594,9 @@ body {
 }
 
 
-.activity-preview__item:last-child {
+.activity-preview__item:not(.activity-preview__item--refill):last-child {
     border-bottom: none;
 }
-
 
 .activity-preview__icon {
     width: 42px;
@@ -669,6 +668,320 @@ body {
     text-transform: uppercase;
 }
 
+/* ============================================================
+   REFILL NOTIFICATION
+============================================================ */
+
+.activity-preview__item--refill {
+    position: relative;
+
+    display: grid;
+    grid-template-columns: 42px minmax(0, 1fr) auto;
+    grid-template-areas:
+        "icon content status"
+        "priority content status";
+
+    column-gap: 14px;
+    row-gap: 4px;
+
+    align-items: center;
+
+    padding: 16px 14px;
+
+    border: 1px solid #d9e8f7;
+    border-radius: 12px;
+
+    background: #f8fbff;
+
+    cursor: pointer;
+
+    transition:
+        background 160ms ease,
+        border-color 160ms ease,
+        box-shadow 160ms ease,
+        transform 160ms ease;
+}
+
+
+/* ============================================================
+   REFILL HOVER
+============================================================ */
+
+.activity-preview__item--refill:hover {
+    background: #f1f8ff;
+    border-color: #bcd8f2;
+
+    box-shadow:
+        0 6px 18px rgba(28, 86, 143, 0.09);
+
+    transform: translateY(-1px);
+}
+
+
+/* ============================================================
+   REFILL KEYBOARD FOCUS
+============================================================ */
+
+.activity-preview__item--refill:focus-visible {
+    outline: 3px solid rgba(25, 118, 210, 0.22);
+    outline-offset: 2px;
+}
+
+
+/* ============================================================
+   REFILL ICON
+============================================================ */
+
+.activity-preview__item--refill
+.activity-preview__icon--refill {
+    grid-area: icon;
+
+    width: 42px;
+    height: 42px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 10px;
+
+    background: #fff4e5;
+    color: #d97706;
+
+    flex-shrink: 0;
+}
+
+
+.activity-preview__icon--refill svg {
+    width: 21px;
+    height: 21px;
+
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+
+/* ============================================================
+   REFILL PRIORITY LABEL
+============================================================ */
+
+.activity-preview__priority {
+    grid-area: priority;
+
+    justify-self: center;
+
+    white-space: nowrap;
+
+    font-size: 8px;
+    line-height: 1;
+
+    font-weight: 800;
+
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+
+    color: #c26105;
+}
+
+
+/* ============================================================
+   REFILL CONTENT
+============================================================ */
+
+.activity-preview__item--refill
+.activity-preview__content {
+    grid-area: content;
+
+    min-width: 0;
+}
+
+
+/* ============================================================
+   REFILL TITLE
+============================================================ */
+
+.activity-preview__item--refill
+.activity-preview__action {
+    color: #17324d;
+
+    font-size: 14px;
+    font-weight: 750;
+
+    line-height: 1.35;
+}
+
+
+/* ============================================================
+   REFILL DESCRIPTION
+============================================================ */
+
+.activity-preview__item--refill
+.activity-preview__description {
+    margin-top: 4px;
+
+    color: #4b5563;
+
+    font-size: 13px;
+    line-height: 1.45;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+
+/* ============================================================
+   REFILL META
+============================================================ */
+
+.activity-preview__item--refill
+.activity-preview__meta {
+    margin-top: 5px;
+
+    color: #8a94a3;
+
+    font-size: 11px;
+    line-height: 1.35;
+}
+
+
+/* ============================================================
+   REFILL STATUS
+============================================================ */
+
+.activity-preview__status--refill {
+    grid-area: status;
+
+    min-width: 76px;
+
+    padding: 6px 10px;
+
+    border-radius: 999px;
+
+    background: #fff4e5;
+    color: #c26105;
+
+    border: 1px solid #f5d7ad;
+
+    font-size: 10px;
+    font-weight: 800;
+
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+
+    white-space: nowrap;
+
+    align-self: center;
+}
+
+
+/* ============================================================
+   REFILL ITEM SEPARATOR
+============================================================ */
+
+/*
+   Refill notifications already have their own card-like
+   appearance, so remove the normal activity divider.
+*/
+
+.activity-preview__item--refill {
+    border-bottom: 1px solid #d9e8f7;
+}
+
+
+/*
+   Keep spacing between multiple refill notifications.
+*/
+
+.activity-preview__item--refill
++ .activity-preview__item--refill {
+    margin-top: 10px;
+}
+
+
+/*
+   Add separation between the final refill notification
+   and the first medication log.
+*/
+
+.activity-preview__item--refill
++ .activity-preview__item:not(.activity-preview__item--refill) {
+    margin-top: 10px;
+
+    border-top: 1px solid #edf0f3;
+}
+
+
+/* ============================================================
+   MOBILE REFILL NOTIFICATION
+============================================================ */
+
+@media (max-width: 700px) {
+
+    .activity-preview__item--refill {
+        grid-template-columns: 36px minmax(0, 1fr);
+        grid-template-areas:
+            "icon content"
+            "priority content"
+            "status status";
+
+        column-gap: 12px;
+        row-gap: 5px;
+
+        padding: 14px;
+    }
+
+
+    .activity-preview__item--refill
+    .activity-preview__icon--refill {
+        width: 36px;
+        height: 36px;
+    }
+
+
+    .activity-preview__item--refill
+    .activity-preview__priority {
+        justify-self: center;
+        font-size: 7px;
+    }
+
+
+    .activity-preview__status--refill {
+        justify-self: start;
+
+        margin-top: 3px;
+    }
+
+}
+
+
+/* ============================================================
+   SMALL MOBILE
+============================================================ */
+
+@media (max-width: 430px) {
+
+    .activity-preview__item--refill {
+        padding: 13px 12px;
+    }
+
+
+    .activity-preview__item--refill
+    .activity-preview__description {
+        white-space: normal;
+    }
+
+
+    .activity-preview__item--refill
+    .activity-preview__meta {
+        font-size: 10px;
+    }
+
+}
 
 .activity-preview__status.is-success {
     background: #e8f5e9;
@@ -776,4 +1089,562 @@ body {
     display: inline-flex;
     align-items: center;
     gap: 8px;
+}
+
+/* =========================
+   PAGINATION
+========================= */
+
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px 18px;
+    border-top: 1px solid var(--border);
+    background: #fff;
+}
+
+.pagination-info {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    text-align: center;
+}
+
+.pagination-btn {
+    min-height: 40px;
+    padding: 0 14px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--text);
+
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.pagination-btn:hover:not(:disabled) {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+}
+
+.pagination-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.pagination-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* Mobile */
+@media (max-width: 560px) {
+    .pagination {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .pagination-btn {
+        width: 100%;
+    }
+
+    .pagination-info {
+        order: -1;
+    }
+}
+
+
+
+/* ==========================================================
+   REFILL NOTIFICATION MODAL
+========================================================== */
+
+.refill-modal {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    z-index: 9999;
+}
+
+/* ==========================================================
+   MODAL BACKDROP
+========================================================== */
+
+.refill-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 23, 42, 0.55);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+}
+
+/* ==========================================================
+   MODAL DIALOG
+========================================================== */
+
+.refill-modal__dialog {
+    position: relative;
+    z-index: 1;
+
+    width: min(680px, 100%);
+    max-height: calc(100vh - 48px);
+
+    display: flex;
+    flex-direction: column;
+
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+
+    box-shadow:
+        0 24px 60px rgba(15, 23, 42, 0.22),
+        0 8px 20px rgba(15, 23, 42, 0.10);
+
+    overflow: hidden;
+
+    animation: refillModalIn 0.18s ease-out;
+}
+
+/* ==========================================================
+   MODAL ANIMATION
+========================================================== */
+
+@keyframes refillModalIn {
+
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+
+}
+
+/* ==========================================================
+   MODAL HEADER
+========================================================== */
+
+.refill-modal__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+
+    padding: 22px 24px 18px;
+
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.refill-modal__eyebrow {
+    display: block;
+
+    margin-bottom: 5px;
+
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.3;
+
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+
+    color: #64748b;
+}
+
+.refill-modal__header h2 {
+    margin: 0;
+
+    font-size: 20px;
+    line-height: 1.3;
+    font-weight: 700;
+
+    color: #0f172a;
+}
+
+/* ==========================================================
+   CLOSE BUTTON
+========================================================== */
+
+.refill-modal__close {
+    flex: 0 0 auto;
+
+    width: 38px;
+    height: 38px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+
+    border: 0;
+    border-radius: 10px;
+
+    background: #f1f5f9;
+    color: #475569;
+
+    cursor: pointer;
+
+    transition:
+        background 0.15s ease,
+        color 0.15s ease,
+        transform 0.15s ease;
+}
+
+.refill-modal__close:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+}
+
+.refill-modal__close:active {
+    transform: scale(0.95);
+}
+
+.refill-modal__close svg {
+    width: 19px;
+    height: 19px;
+}
+
+/* ==========================================================
+   MODAL BODY
+========================================================== */
+
+.refill-modal__body {
+    padding: 22px 24px;
+
+    overflow-y: auto;
+
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+}
+
+/* ==========================================================
+   ALERT
+========================================================== */
+
+.refill-modal__alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 13px;
+
+    padding: 15px 16px;
+
+    margin-bottom: 20px;
+
+    border: 1px solid #fed7aa;
+    border-radius: 12px;
+
+    background: #fff7ed;
+}
+
+.refill-modal__alert-icon {
+    flex: 0 0 auto;
+
+    width: 38px;
+    height: 38px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 10px;
+
+    background: #ffedd5;
+    color: #ea580c;
+}
+
+.refill-modal__alert-icon svg {
+    width: 20px;
+    height: 20px;
+}
+
+.refill-modal__alert strong {
+    display: block;
+
+    margin-bottom: 3px;
+
+    font-size: 14px;
+    font-weight: 700;
+
+    color: #9a3412;
+}
+
+.refill-modal__alert p {
+    margin: 0;
+
+    font-size: 13px;
+    line-height: 1.5;
+
+    color: #7c2d12;
+}
+
+/* ==========================================================
+   REFILL DETAILS
+========================================================== */
+
+.refill-details {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+
+    margin-bottom: 18px;
+}
+
+.refill-detail {
+    min-width: 0;
+
+    padding: 13px 14px;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+
+    background: #f8fafc;
+}
+
+.refill-detail span {
+    display: block;
+
+    margin-bottom: 5px;
+
+    font-size: 11px;
+    line-height: 1.3;
+    font-weight: 600;
+
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+
+    color: #64748b;
+}
+
+.refill-detail strong {
+    display: block;
+
+    overflow: hidden;
+
+    font-size: 13px;
+    line-height: 1.4;
+    font-weight: 600;
+
+    color: #0f172a;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ==========================================================
+   MESSAGE
+========================================================== */
+
+.refill-modal__message {
+    padding: 15px 16px;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+
+    background: #ffffff;
+}
+
+.refill-modal__message > span {
+    display: block;
+
+    margin-bottom: 7px;
+
+    font-size: 11px;
+    font-weight: 700;
+
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+
+    color: #64748b;
+}
+
+.refill-modal__message p {
+    margin: 0;
+
+    font-size: 13px;
+    line-height: 1.55;
+
+    color: #334155;
+}
+
+/* ==========================================================
+   MODAL FOOTER
+========================================================== */
+
+.refill-modal__footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+
+    padding: 16px 24px;
+
+    border-top: 1px solid #e2e8f0;
+
+    background: #f8fafc;
+}
+
+/* ==========================================================
+   FOOTER BUTTONS
+========================================================== */
+
+.refill-modal__cancel,
+.refill-modal__refill {
+    min-height: 40px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    padding: 0 16px;
+
+    border-radius: 9px;
+
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background 0.15s ease,
+        border-color 0.15s ease,
+        color 0.15s ease,
+        transform 0.15s ease;
+}
+
+.refill-modal__cancel {
+    border: 1px solid #cbd5e1;
+
+    background: #ffffff;
+    color: #475569;
+}
+
+.refill-modal__cancel:hover {
+    background: #f1f5f9;
+    border-color: #94a3b8;
+    color: #0f172a;
+}
+
+.refill-modal__refill {
+    border: 1px solid #2563eb;
+
+    background: #2563eb;
+    color: #ffffff;
+}
+
+.refill-modal__refill:hover {
+    background: #1d4ed8;
+    border-color: #1d4ed8;
+}
+
+.refill-modal__cancel:active,
+.refill-modal__refill:active {
+    transform: scale(0.98);
+}
+
+.refill-modal__refill svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* ==========================================================
+   BODY LOCK WHEN MODAL IS OPEN
+========================================================== */
+
+body.modal-open {
+    overflow: hidden;
+}
+
+/* ==========================================================
+   RESPONSIVE MODAL
+========================================================== */
+
+@media (max-width: 640px) {
+
+    .refill-modal {
+        padding: 12px;
+        align-items: flex-end;
+    }
+
+    .refill-modal__dialog {
+        width: 100%;
+        max-height: calc(100vh - 24px);
+
+        border-radius: 16px 16px 12px 12px;
+    }
+
+    .refill-modal__header {
+        padding: 18px;
+    }
+
+    .refill-modal__body {
+        padding: 18px;
+    }
+
+    .refill-details {
+        grid-template-columns: 1fr;
+    }
+
+    .refill-modal__footer {
+        padding: 14px 18px;
+
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+
+    .refill-modal__cancel,
+    .refill-modal__refill {
+        width: 100%;
+    }
+
+}
+
+/* ========================================================
+   REFUSED MEDICATION
+======================================================== */
+
+.activity-preview__item--refused {
+    background: #fef2f2;
+}
+
+
+.activity-preview__item--refused:hover {
+    background: #fee2e2;
+}
+
+
+.activity-preview__item--refused .activity-preview__icon {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+
+.activity-preview__status.is-refused {
+    background: #fee2e2;
+    color: #b91c1c;
+    border-color: #fecaca;
+    font-weight: 700;
 }

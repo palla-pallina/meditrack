@@ -230,9 +230,36 @@
         <input type="file" id="id_pic" accept="image/*">
         <br><br>
 
-        <label>Occupying Individual <span style="color:red;">*</span></label><br>
-        <input type="text" id="occupyingIndiv" required>
-        <br><br>
+        <div style="display:flex; align-items:center; gap:15px; flex-wrap:wrap;">
+
+            <div>
+                <label for="occupyingIndiv">
+                    Occupying Individual
+                    <span style="color:red;">*</span>
+                </label>
+                <br>
+
+                <input
+                    type="text"
+                    id="occupyingIndiv"
+                    required
+                >
+            </div>
+
+            <label
+                for="noOccupyingIndividual"
+                style="display:flex; align-items:center; gap:6px; margin-top:20px; cursor:pointer;"
+            >
+                <input
+                    type="checkbox"
+                    id="noOccupyingIndividual"
+                >
+                None
+            </label>
+
+        </div>
+
+<br><br>
 
     </fieldset>
 
@@ -614,107 +641,6 @@ if (!(await validateClerkAccess())) {
 }
 
 /* =========================================================
-   CLERK ACCOUNT VALIDATION
-========================================================= */
-
-const patientForm = document.querySelector("#patientForm");
-
-const dashboardLink = document.querySelector(
-    'a[href="view_records.html"]'
-);
-
-// Hide the form until the account has been verified.
-patientForm.style.display = "none";
-dashboardLink.style.display = "none";
-
-async function validateClerkAccess() {
-
-    try {
-
-        // Wait until Firebase determines the authentication state.
-        const user = await new Promise((resolve, reject) => {
-
-            const unsubscribe = onAuthStateChanged(
-                auth,
-                authenticatedUser => {
-                    unsubscribe();
-                    resolve(authenticatedUser);
-                },
-                error => {
-                    unsubscribe();
-                    reject(error);
-                }
-            );
-
-        });
-
-        // Redirect users who are not signed in.
-        if (!user) {
-
-            window.location.replace("../../index.html");
-
-            return false;
-
-        }
-
-        // Retrieve the authenticated user's database record.
-        const userSnapshot = await get(
-            ref(db, `users/${user.uid}`)
-        );
-
-        if (!userSnapshot.exists()) {
-
-            await auth.signOut();
-
-            window.location.replace("../../index.html");
-
-            return false;
-
-        }
-
-        const userData = userSnapshot.val();
-
-        // Only Clerk accounts may access this page.
-        if (userData.userType !== "Clerk") {
-
-            alert(
-                "Access denied. Only Clerk accounts can access the Patient Admission Form."
-            );
-
-            window.location.replace("view_records.html");
-
-            return false;
-
-        }
-
-        // Authorization successful.
-        patientForm.style.display = "";
-        dashboardLink.style.display = "";
-
-        return true;
-
-    } catch (error) {
-
-        console.error(
-            "Clerk validation error:",
-            error
-        );
-
-        window.location.replace("../../index.html");
-
-        return false;
-
-    }
-
-}
-
-// Stop the rest of the script until authorization succeeds.
-if (!(await validateClerkAccess())) {
-    throw new Error("Unauthorized access to Patient Admission Form.");
-}
-
-
-/* =========================================================
    BASIC ELEMENTS
 ========================================================= */
 
@@ -795,8 +721,41 @@ const occupation =
 const maritalStatus =
     document.querySelector("#marital_status");
 
-const occupyingIndiv =
-    document.querySelector("#occupyingIndiv");
+const noOccupyingIndividual =
+    document.querySelector("#noOccupyingIndividual");
+
+
+/* =========================================================
+   OCCUPYING INDIVIDUAL - NONE CHECKBOX
+========================================================= */
+
+noOccupyingIndividual.addEventListener(
+    "change",
+    function () {
+
+        if (this.checked) {
+
+            occupyingIndiv.value = "None";
+
+            occupyingIndiv.readOnly = true;
+
+            occupyingIndiv.removeAttribute("required");
+
+        } else {
+
+            occupyingIndiv.value = "";
+
+            occupyingIndiv.readOnly = false;
+
+            occupyingIndiv.setAttribute(
+                "required",
+                ""
+            );
+
+        }
+
+    }
+);
 
 const streetNo =
     document.querySelector("#streetNo");
@@ -884,7 +843,7 @@ const wardRooms = {
 
 
 /* =========================================================
-   LOAD DOCTORS
+   LOAD ACTIVE DOCTORS
 ========================================================= */
 
 async function loadDoctors() {
@@ -905,7 +864,13 @@ async function loadDoctors() {
 
             const user = child.val();
 
+            // Only show Doctor accounts.
             if (user.userType !== "Doctor") {
+                return;
+            }
+
+            // Do not show disabled Doctor accounts.
+            if (user.accountStatus === "Disabled") {
                 return;
             }
 
@@ -916,9 +881,9 @@ async function loadDoctors() {
 
             option.dataset.name =
                 "Dr. " +
-                (user.firstName || "") +
+                (user.firstName || "").trim() +
                 " " +
-                (user.lastName || "");
+                (user.lastName || "").trim();
 
             option.textContent =
                 option.dataset.name;

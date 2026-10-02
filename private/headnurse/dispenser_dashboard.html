@@ -1336,6 +1336,741 @@ function getRefillHtml(
    LOAD CAROUSELS
 ===================================================== */
 
+/* =====================================================
+   GET CURRENT DATE - PHILIPPINES
+===================================================== */
+
+function getTodayDate(){
+
+    return new Intl.DateTimeFormat(
+        "en-CA",
+        {
+            timeZone: "Asia/Manila"
+        }
+    ).format(
+        new Date()
+    );
+
+}
+
+
+/* =====================================================
+   CHECK IF DATE IS EXPIRED
+===================================================== */
+
+function isDateExpired(
+    date
+){
+
+    if(!date){
+
+        return false;
+
+    }
+
+    return String(date) < getTodayDate();
+
+}
+
+
+/* =====================================================
+   REMOVE CAROUSEL ASSIGNMENT
+   FROM PRESCRIPTION ITEMS
+===================================================== */
+
+async function clearCarouselAssignments(
+    carouselId
+){
+
+    const snapshot =
+        await get(
+            ref(
+                db,
+                "prescription_items"
+            )
+        );
+
+
+    if(
+        !snapshot.exists()
+    ){
+
+        return;
+
+    }
+
+
+    const updates = {};
+
+
+    snapshot.forEach(
+        child => {
+
+            const item =
+                child.val() || {};
+
+
+            if(
+                item.carousel_id === carouselId
+            ){
+
+                updates[
+                    `prescription_items/${child.key}/carousel_id`
+                ] = null;
+
+
+                updates[
+                    `prescription_items/${child.key}/carousel_name`
+                ] = null;
+
+            }
+
+        }
+    );
+
+
+    if(
+        Object.keys(updates).length > 0
+    ){
+
+        await update(
+            ref(db),
+            updates
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   DELETE EXPIRED CAROUSEL
+===================================================== */
+
+async function deleteExpiredCarousel(
+    carouselId
+){
+
+    /*
+       Remove the physical carousel record.
+    */
+
+    await remove(
+        ref(
+            db,
+            `dispenser_unit/${DISPENSER_UNIT}/${carouselId}`
+        )
+    );
+
+
+    /*
+       Remove carousel references from all
+       prescription items.
+    */
+
+    await clearCarouselAssignments(
+        carouselId
+    );
+
+
+    console.log(
+        `Expired carousel ${carouselId} deleted.`
+    );
+
+}
+
+
+/* =====================================================
+   MARK EXPIRED PRESCRIPTIONS AS DONE
+   AND REMOVE THEIR EXPIRED CAROUSELS
+===================================================== */
+
+async function processExpiredPrescriptions(){
+
+    const today =
+        getTodayDate();
+
+
+    console.log(
+        "Checking expired prescriptions for:",
+        today
+    );
+
+
+    /*
+       Load prescriptions.
+    */
+
+    const prescriptionsSnapshot =
+        await get(
+            ref(
+                db,
+                "prescriptions"
+            )
+        );
+
+
+    /*
+       Load prescription items.
+    */
+
+    const itemsSnapshot =
+        await get(
+            ref(
+                db,
+                "prescription_items"
+            )
+        );
+
+
+    /*
+       Load dispenser carousels.
+    */
+
+    const dispenserSnapshot =
+        await get(
+            ref(
+                db,
+                `dispenser_unit/${DISPENSER_UNIT}`
+            )
+        );
+
+
+    if(
+        !prescriptionsSnapshot.exists()
+    ){
+
+        return;
+
+    }
+
+
+    /*
+       Build prescription-item lookup.
+    */
+
+    const prescriptionItems = {};
+
+
+    if(
+        itemsSnapshot.exists()
+    ){
+
+        itemsSnapshot.forEach(
+            child => {
+
+                prescriptionItems[
+                    child.key
+                ] = {
+
+                    ...child.val(),
+
+                    _key:
+                        child.key
+
+                };
+
+            }
+        );
+
+    }
+
+
+    /*
+       Track prescriptions that have
+       already expired.
+    */
+
+    const expiredPrescriptionIds =
+        new Set();
+
+
+    const expiredPatientIds =
+        new Set();
+
+
+    const prescriptionUpdates = {};
+
+
+    /* =================================================
+       FIND EXPIRED PRESCRIPTIONS
+    ================================================= */
+
+    prescriptionsSnapshot.forEach(
+        child => {
+
+            const prescription =
+                child.val() || {};
+
+
+            const prescriptionId =
+                child.key;
+
+
+            /*
+               Prefer the prescription's own
+               end_date.
+
+               If it does not exist, derive the
+               latest end date from its items.
+            */
+
+            let endDate =
+                prescription.end_date ||
+                "";
+
+
+            if(
+                !endDate
+            ){
+
+                const relatedItems =
+                    Object.values(
+                        prescriptionItems
+                    )
+                    .filter(
+                        item =>
+                            item.prescription_id ===
+                            prescriptionId
+                    );
+
+
+                if(
+                    relatedItems.length > 0
+                ){
+
+                    const dates =
+                        relatedItems
+                        .map(
+                            item =>
+                                item.end_date
+                        )
+                        .filter(Boolean)
+                        .sort();
+
+
+                    if(
+                        dates.length > 0
+                    ){
+
+                        endDate =
+                            dates[
+                                dates.length - 1
+                            ];
+
+                    }
+
+                }
+
+            }
+
+
+            /*
+               Only process prescriptions whose
+               end date is before today.
+
+               Example:
+               end_date = 2026-09-29
+               today    = 2026-09-30
+               => expired
+            */
+
+            if(
+                isDateExpired(
+                    endDate
+                )
+            ){
+
+                expiredPrescriptionIds.add(
+                    prescriptionId
+                );
+
+
+                if(
+                    prescription.patient_id
+                ){
+
+                    expiredPatientIds.add(
+                        prescription.patient_id
+                    );
+
+                }
+
+
+                /*
+                   Only update if it is not
+                   already Done.
+                */
+
+                if(
+                    prescription.status !==
+                    "Done"
+                ){
+
+                    prescriptionUpdates[
+                        `prescriptions/${prescriptionId}/status`
+                    ] = "Done";
+
+
+                    console.log(
+                        `Prescription ${prescriptionId} marked as Done.`
+                    );
+
+                }
+
+            }
+
+        }
+    );
+
+
+    /*
+       Nothing expired.
+    */
+
+    if(
+        expiredPrescriptionIds.size === 0
+    ){
+
+        console.log(
+            "No expired prescriptions found."
+        );
+
+        return;
+
+    }
+
+
+    /* =================================================
+       MARK PRESCRIPTIONS AS DONE
+    ================================================= */
+
+    if(
+        Object.keys(
+            prescriptionUpdates
+        ).length > 0
+    ){
+
+        await update(
+            ref(db),
+            prescriptionUpdates
+        );
+
+    }
+
+
+    /*
+       No dispenser records to process.
+    */
+
+    if(
+        !dispenserSnapshot.exists()
+    ){
+
+        return;
+
+    }
+
+
+    /* =================================================
+       DETERMINE WHICH CAROUSELS ARE EXPIRED
+    ================================================= */
+
+    const carouselIdsToDelete =
+        new Set();
+
+
+    dispenserSnapshot.forEach(
+        carouselSnapshot => {
+
+            const carousel =
+                carouselSnapshot.val() || {};
+
+
+            const carouselId =
+                carouselSnapshot.key;
+
+
+            /*
+               Only assigned carousels can contain
+               prescription medication.
+            */
+
+            if(
+                !carousel.patient_id
+            ){
+
+                return;
+
+            }
+
+
+            /*
+               Collect prescription_item_id values
+               stored inside the carousel slots.
+            */
+
+            const carouselItemIds =
+                new Set();
+
+
+            if(
+                carousel.slots
+            ){
+
+                Object.values(
+                    carousel.slots
+                )
+                .forEach(
+                    slot => {
+
+                        if(
+                            !slot ||
+                            !slot.medicines
+                        ){
+
+                            return;
+
+                        }
+
+
+                        Object.values(
+                            slot.medicines
+                        )
+                        .forEach(
+                            medicine => {
+
+                                if(
+                                    medicine &&
+                                    medicine.prescription_item_id
+                                ){
+
+                                    carouselItemIds.add(
+                                        medicine.prescription_item_id
+                                    );
+
+                                }
+
+                            }
+                        );
+
+                    }
+                );
+
+            }
+
+
+            /*
+               Check whether the carousel contains
+               items belonging to expired prescriptions.
+            */
+
+            let containsExpiredPrescription =
+                false;
+
+
+            let containsActivePrescription =
+                false;
+
+
+            carouselItemIds.forEach(
+                itemId => {
+
+                    const item =
+                        prescriptionItems[itemId];
+
+
+                    if(
+                        !item
+                    ){
+
+                        return;
+
+                    }
+
+
+                    /*
+                       If the item's parent prescription
+                       is expired, it is expired.
+                    */
+
+                    if(
+                        expiredPrescriptionIds.has(
+                            item.prescription_id
+                        )
+                    ){
+
+                        containsExpiredPrescription =
+                            true;
+
+                        return;
+
+                    }
+
+
+                    /*
+                       Otherwise check the item date
+                       directly.
+                    */
+
+                    if(
+                        isDateExpired(
+                            item.end_date
+                        )
+                    ){
+
+                        containsExpiredPrescription =
+                            true;
+
+                    }
+                    else if(
+                        String(
+                            item.status || ""
+                        ).toLowerCase() ===
+                        "active"
+                    ){
+
+                        containsActivePrescription =
+                            true;
+
+                    }
+
+                }
+            );
+
+
+            /*
+               Fallback:
+               Older carousel records may not have
+               prescription_item_id in their slots.
+
+               In that case use the patient_id.
+            */
+
+            if(
+                carouselItemIds.size === 0 &&
+                expiredPatientIds.has(
+                    carousel.patient_id
+                )
+            ){
+
+                /*
+                   Check whether the patient has
+                   any remaining active prescription
+                   items.
+
+                   If there are none, the carousel
+                   can safely be removed.
+                */
+
+                const patientItems =
+                    Object.values(
+                        prescriptionItems
+                    )
+                    .filter(
+                        item =>
+                            item.patient_id ===
+                            carousel.patient_id
+                    );
+
+
+                const hasActiveItems =
+                    patientItems.some(
+                        item => {
+
+                            const itemEndDate =
+                                item.end_date ||
+                                "";
+
+
+                            const itemStatus =
+                                String(
+                                    item.status || ""
+                                )
+                                .toLowerCase();
+
+
+                            return (
+                                itemStatus === "active" &&
+                                !isDateExpired(
+                                    itemEndDate
+                                )
+                            );
+
+                        }
+                    );
+
+
+                if(
+                    !hasActiveItems
+                ){
+
+                    containsExpiredPrescription =
+                        true;
+
+                }
+
+            }
+
+
+            /*
+               Delete the carousel only when its
+               medication belongs to an expired
+               prescription and there is no remaining
+               active prescription medication in it.
+            */
+
+            if(
+                containsExpiredPrescription &&
+                !containsActivePrescription
+            ){
+
+                carouselIdsToDelete.add(
+                    carouselId
+                );
+
+            }
+
+        }
+    );
+
+
+    /* =================================================
+       DELETE EXPIRED CAROUSELS
+    ================================================= */
+
+    for(
+        const carouselId of
+        carouselIdsToDelete
+    ){
+
+        try{
+
+            await deleteExpiredCarousel(
+                carouselId
+            );
+
+        }
+        catch(error){
+
+            console.error(
+                `Failed to delete expired carousel ${carouselId}:`,
+                error
+            );
+
+        }
+
+    }
+
+
+    console.log(
+        `Expired prescription processing complete. ` +
+        `${expiredPrescriptionIds.size} prescription(s) marked Done. ` +
+        `${carouselIdsToDelete.size} carousel(s) deleted.`
+    );
+
+}
+
 async function loadCompartments(){
 
     table.innerHTML = "";
@@ -2432,8 +3167,40 @@ async function(
    INITIALIZE
 ===================================================== */
 
-loadCompartments();
+async function initializeDashboard(){
 
+    try{
+
+        /*
+           FIRST:
+           Check expired prescriptions and clean up
+           their carousel assignments.
+        */
+
+        await processExpiredPrescriptions();
+
+    }
+    catch(error){
+
+        console.error(
+            "Error processing expired prescriptions:",
+            error
+        );
+
+    }
+
+
+    /*
+       SECOND:
+       Load the remaining carousel information.
+    */
+
+    await loadCompartments();
+
+}
+
+
+initializeDashboard();
 
 </script>
 

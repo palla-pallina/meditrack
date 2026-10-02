@@ -235,6 +235,8 @@ Add Medication
 
 <th>Times</th>
 
+<th>Scheduled Dates</th>
+
 <th>Action</th>
 
 </tr>
@@ -401,6 +403,89 @@ function calculateAdministrationTimes(){
 
 
 let prescriptionItems = [];
+
+/* =====================================================
+   DATE RESTRICTIONS
+===================================================== */
+
+const startDateInput =
+    document.getElementById("startDate");
+
+const endDateInput =
+    document.getElementById("endDate");
+
+
+function getTodayDate() {
+
+    const today = new Date();
+
+    const year =
+        today.getFullYear();
+
+    const month =
+        String(today.getMonth() + 1)
+            .padStart(2, "0");
+
+    const day =
+        String(today.getDate())
+            .padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+}
+
+
+/*
+ * Prevent past dates from being selected.
+ */
+function initializeDateRestrictions() {
+
+    const today = getTodayDate();
+
+    startDateInput.min = today;
+    endDateInput.min = today;
+
+}
+
+
+/*
+ * End date cannot be earlier than
+ * the selected start date.
+ */
+startDateInput.addEventListener(
+    "change",
+    function () {
+
+        const startDate =
+            this.value;
+
+        if (!startDate) {
+
+            endDateInput.min =
+                getTodayDate();
+
+            return;
+        }
+
+        endDateInput.min =
+            startDate;
+
+        /*
+         * Clear the end date if it became invalid.
+         */
+        if (
+            endDateInput.value &&
+            endDateInput.value < startDate
+        ) {
+
+            endDateInput.value = "";
+
+        }
+
+    }
+);
+
+
+initializeDateRestrictions();
 
 onAuthStateChanged(auth, async (user) => {
 
@@ -1276,128 +1361,365 @@ document
 .getElementById("frequency")
 .addEventListener("change", calculateAdministrationTimes);
 
-document
-.getElementById("addMedication")
-.onclick=function(){
+/* =====================================================
+   GENERATE SCHEDULED DATES
+===================================================== */
 
-const medId =
-document.getElementById("medication").value;
+function generateScheduledDates(startDate, endDate) {
 
-const med =
-medications.find(
-m=>m.id===medId
-);
+    if (!startDate || !endDate) {
+        return [];
+    }
 
-if(!med){
+    const dates = [];
 
-    alert("Select a medication first.");
+    const current =
+        new Date(`${startDate}T00:00:00`);
 
-    return;
+    const end =
+        new Date(`${endDate}T00:00:00`);
+
+    while (current <= end) {
+
+        const year =
+            current.getFullYear();
+
+        const month =
+            String(current.getMonth() + 1)
+                .padStart(2, "0");
+
+        const day =
+            String(current.getDate())
+                .padStart(2, "0");
+
+        dates.push(
+            `${year}-${month}-${day}`
+        );
+
+        current.setDate(
+            current.getDate() + 1
+        );
+
+    }
+
+    return dates;
 
 }
 
-prescriptionItems.push({
-
-medication_id:med.id,
-
-medication_name:med.generic_name,
-
-dosage:
-
 document
-.getElementById("dosage")
-.value,
+.getElementById("addMedication")
+.onclick = function () {
 
-route:
+    const medId =
+        document.getElementById("medication").value;
 
-document
-.getElementById("route")
-.value,
+    const med =
+        medications.find(
+            m => m.id === medId
+        );
 
-frequency:
+    if (!med) {
 
-document
-.getElementById("frequency")
-.value,
+        alert(
+            "Select a medication first."
+        );
 
-administration_times:
+        return;
 
-[...selectedTimes],
+    }
 
-start_date:
+    const dosage =
+        document
+            .getElementById("dosage")
+            .value
+            .trim();
 
-document
-.getElementById("startDate")
-.value,
+    const frequency =
+        document
+            .getElementById("frequency")
+            .value;
 
-end_date:
+    const startDate =
+        document
+            .getElementById("startDate")
+            .value;
 
-document
-.getElementById("endDate")
-.value
+    const endDate =
+        document
+            .getElementById("endDate")
+            .value;
 
-});
 
-document.getElementById("dosage").value = ""; 
-document.getElementById("frequency").value = ""; 
-document.getElementById("startDate").value = ""; 
-document.getElementById("endDate").value = ""; 
-document.getElementById("medication").value = ""; 
-document.getElementById("medicationSearch").value = "";
+    if (!dosage) {
 
-selectedTimes = [];
+        alert(
+            "Dosage is required."
+        );
 
-renderTimes();
+        return;
 
-renderMedications();
+    }
+
+
+    if (!frequency) {
+
+        alert(
+            "Frequency is required."
+        );
+
+        return;
+
+    }
+
+
+    if (!startDate) {
+
+        alert(
+            "Start date is required."
+        );
+
+        return;
+
+    }
+
+
+    if (!endDate) {
+
+        alert(
+            "End date is required."
+        );
+
+        return;
+
+    }
+
+
+    /*
+     * Extra protection against past dates.
+     */
+    const today =
+        getTodayDate();
+
+    if (startDate < today) {
+
+        alert(
+            "Start date cannot be in the past."
+        );
+
+        return;
+
+    }
+
+
+    if (endDate < today) {
+
+        alert(
+            "End date cannot be in the past."
+        );
+
+        return;
+
+    }
+
+
+    if (endDate < startDate) {
+
+        alert(
+            "End date cannot be earlier than the start date."
+        );
+
+        return;
+
+    }
+
+
+    if (selectedTimes.length === 0) {
+
+        alert(
+            "Please select a frequency with valid administration times."
+        );
+
+        return;
+
+    }
+
+
+    /*
+     * Generate every date between
+     * start_date and end_date.
+     */
+    const scheduledDates =
+        generateScheduledDates(
+            startDate,
+            endDate
+        );
+
+
+    prescriptionItems.push({
+
+        medication_id:
+            med.id,
+
+        medication_name:
+            med.generic_name,
+
+        dosage:
+            dosage,
+
+        route:
+            document
+                .getElementById("route")
+                .value,
+
+        frequency:
+            frequency,
+
+        administration_times:
+            [...selectedTimes],
+
+        start_date:
+            startDate,
+
+        end_date:
+            endDate,
+
+        scheduled_dates:
+            scheduledDates
+
+    });
+
+
+    /*
+     * Clear medication fields.
+     */
+    document
+        .getElementById("dosage")
+        .value = "";
+
+    document
+        .getElementById("frequency")
+        .value = "";
+
+    document
+        .getElementById("startDate")
+        .value = "";
+
+    document
+        .getElementById("endDate")
+        .value = "";
+
+    document
+        .getElementById("medication")
+        .value = "";
+
+    document
+        .getElementById("medicationSearch")
+        .value = "";
+
+    selectedTimes = [];
+
+    renderTimes();
+
+    /*
+     * Reset date restrictions after
+     * clearing the fields.
+     */
+    initializeDateRestrictions();
+
+    renderMedications();
 
 };
 
-function renderMedications(){
+function renderMedications() {
 
-const tbody=
+    const tbody =
+        document.getElementById(
+            "medicationTable"
+        );
 
-document.getElementById("medicationTable");
+    tbody.innerHTML = "";
 
-tbody.innerHTML="";
 
-prescriptionItems.forEach((item,index)=>{
+    prescriptionItems.forEach(
+        (item, index) => {
 
-tbody.innerHTML+=`
+            const scheduledDates =
+                item.scheduled_dates || [];
 
-<tr>
 
-<td>${item.medication_name}</td>
+            const formattedDates =
+                scheduledDates
+                    .map(date => {
 
-<td>${item.dosage}</td>
+                        const dateObject =
+                            new Date(
+                                `${date}T00:00:00`
+                            );
 
-<td>${item.frequency}</td>
+                        return dateObject.toLocaleDateString(
+                            "en-US",
+                            {
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric"
+                            }
+                        );
 
-<td>
-    ${item.administration_times
-        .map(formatAdministrationTime)
-        .join(", ")}
-</td>
+                    })
+                    .join("<br>");
 
-<td>
 
-<button
+            tbody.innerHTML += `
 
-type="button"
+                <tr>
 
-onclick="removeMedication(${index})">
+                    <td>
+                        ${item.medication_name}
+                    </td>
 
-Remove
+                    <td>
+                        ${item.dosage}
+                    </td>
 
-</button>
+                    <td>
+                        ${item.frequency}
+                    </td>
 
-</td>
+                    <td>
+                        ${item.administration_times
+                            .map(formatAdministrationTime)
+                            .join(", ")}
+                    </td>
 
-</tr>
+                    <td>
+                        <div
+                            style="
+                                max-height:120px;
+                                overflow-y:auto;
+                                line-height:1.6;
+                            "
+                        >
+                            ${formattedDates || "-"}
+                        </div>
+                    </td>
 
-`;
+                    <td>
 
-});
+                        <button
+                            type="button"
+                            onclick="removeMedication(${index})"
+                        >
+                            Remove
+                        </button>
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        }
+    );
 
 }
 

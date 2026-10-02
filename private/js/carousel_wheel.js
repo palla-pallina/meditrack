@@ -3,7 +3,8 @@
 
    The carousel has 21 medicine slots plus one dispensing window, so the wheel
    is divided into 22 positions. The window sits at 12 o'clock; slot 1 is the
-   first slot counter-clockwise from it and slot 21 is the last. */
+   first slot clockwise from it (to its right) and slot 21 is the last
+   (to its left). */
 
 const NS = "http://www.w3.org/2000/svg";
 const TOTAL = 21;
@@ -36,24 +37,26 @@ function el(name, attrs = {}) {
     return node;
 }
 
-/* point at radius r, angle deg measured counter-clockwise from 12 o'clock */
+/* point at radius r, angle deg measured clockwise from 12 o'clock */
 function pt(r, deg) {
     const a = deg * Math.PI / 180;
-    return [CX - r * Math.sin(a), CY - r * Math.cos(a)];
+    return [CX + r * Math.sin(a), CY - r * Math.cos(a)];
 }
 
 function wedgePath(a0, a1) {
     const [x1, y1] = pt(R_OUT, a0), [x2, y2] = pt(R_OUT, a1);
     const [x3, y3] = pt(R_IN, a1),  [x4, y4] = pt(R_IN, a0);
-    return `M${x4} ${y4}L${x1} ${y1}A${R_OUT} ${R_OUT} 0 0 0 ${x2} ${y2}` +
-           `L${x3} ${y3}A${R_IN} ${R_IN} 0 0 1 ${x4} ${y4}Z`;
+    return `M${x4} ${y4}L${x1} ${y1}A${R_OUT} ${R_OUT} 0 0 1 ${x2} ${y2}` +
+           `L${x3} ${y3}A${R_IN} ${R_IN} 0 0 0 ${x4} ${y4}Z`;
 }
 
 const medsOf = slot => slot && slot.medicines ? Object.values(slot.medicines) : [];
 
 /* ---------- component ---------- */
 
-export function createCarouselWheel({ wheel, detail, nameEl, idEl }) {
+/* trackLoaded: true  -> refill page (nurse can tick slots off as they load them)
+   trackLoaded: false -> assignment preview (read-only, nothing is loaded yet) */
+export function createCarouselWheel({ wheel, detail, nameEl, idEl, trackLoaded = true }) {
 
     let bySlot = {};
     let cycle = 1;
@@ -130,8 +133,13 @@ export function createCarouselWheel({ wheel, detail, nameEl, idEl }) {
 
         const filled = filledSlots();
         const done = filled.filter(n => loaded.has(n)).length;
-        hubMain.textContent = filled.length ? `${done}/${filled.length}` : "0";
-        hubSub.textContent = "loaded";
+        if (trackLoaded) {
+            hubMain.textContent = filled.length ? `${done}/${filled.length}` : "0";
+            hubSub.textContent = "loaded";
+        } else {
+            hubMain.textContent = String(filled.length);
+            hubSub.textContent = `of ${TOTAL} used`;
+        }
     }
 
     function renderDetail() {
@@ -143,22 +151,37 @@ export function createCarouselWheel({ wheel, detail, nameEl, idEl }) {
             const done = filled.filter(n => loaded.has(n)).length;
             const pct = filled.length ? Math.round(done / filled.length * 100) : 0;
 
+            const heading = trackLoaded ? `Cycle ${esc(cycle)} summary` : "Slot allocation";
+
+            const stats = trackLoaded
+                ? `<div><strong>${filled.length}</strong><span>Slots to load</span></div>
+                   <div><strong>${doses}</strong><span>Medicine entries</span></div>
+                   <div><strong>${done}</strong><span>Marked loaded</span></div>`
+                : `<div><strong>${filled.length}</strong><span>Slots used</span></div>
+                   <div><strong>${TOTAL - filled.length}</strong><span>Free slots</span></div>
+                   <div><strong>${doses}</strong><span>Medicine entries</span></div>`;
+
+            const progress = trackLoaded
+                ? `<div class="detail-progress"
+                        role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}">
+                       <div style="width:${pct}%"></div>
+                   </div>`
+                : "";
+
+            const hint = trackLoaded
+                ? "Select a slot on the carousel to see what goes inside it. Use the arrow keys to move between slots."
+                : filled.length
+                    ? "Select a slot to preview what will be stored in it. Use the arrow keys to move between slots."
+                    : "Select a patient to preview how their medicines fill the carousel.";
+
             detail.innerHTML = `
-                <h3>Cycle ${esc(cycle)} summary</h3>
-                <div class="detail-stats">
-                    <div><strong>${filled.length}</strong><span>Slots to load</span></div>
-                    <div><strong>${doses}</strong><span>Medicine entries</span></div>
-                    <div><strong>${done}</strong><span>Marked loaded</span></div>
-                </div>
-                <div class="detail-progress"
-                     role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}">
-                    <div style="width:${pct}%"></div>
-                </div>
-                <p class="detail-hint">Select a slot on the carousel to see what goes inside it.
-                   Use the arrow keys to move between slots.</p>
+                <h3>${heading}</h3>
+                <div class="detail-stats">${stats}</div>
+                ${progress}
+                <p class="detail-hint">${hint}</p>
                 <ul class="wheel-legend">
                     <li><i class="sw sw-filled"></i>Has medicine</li>
-                    <li><i class="sw sw-loaded"></i>Loaded</li>
+                    ${trackLoaded ? '<li><i class="sw sw-loaded"></i>Loaded</li>' : ""}
                     <li><i class="sw sw-empty"></i>Not used</li>
                     <li><i class="sw sw-window"></i>Dispensing window</li>
                 </ul>`;
@@ -172,7 +195,9 @@ export function createCarouselWheel({ wheel, detail, nameEl, idEl }) {
 
         let statusHtml = `<span class="status">Not used</span>`;
         if (meds.length) {
-            statusHtml = isLoaded
+            statusHtml = !trackLoaded
+                ? `<span class="status">Scheduled</span>`
+                : isLoaded
                 ? `<span class="status status-ready">Loaded</span>`
                 : `<span class="status status-refill">Not loaded</span>`;
         }
@@ -203,7 +228,7 @@ export function createCarouselWheel({ wheel, detail, nameEl, idEl }) {
             `<p class="detail-hint">No medicines are scheduled for this slot in cycle ${esc(cycle)}.
                 Leave it empty.</p>`}
             <div class="detail-actions">
-                ${meds.length ? `<button type="button" class="wheel-btn wheel-btn-primary" data-action="toggle">
+                ${meds.length && trackLoaded ? `<button type="button" class="wheel-btn wheel-btn-primary" data-action="toggle">
                     ${isLoaded ? "Mark as not loaded" : "Mark as loaded"}</button>` : ""}
                 <button type="button" class="wheel-btn" data-action="back">Back to summary</button>
             </div>`;
@@ -273,7 +298,12 @@ export function createCarouselWheel({ wheel, detail, nameEl, idEl }) {
 
     /* ----- public API ----- */
 
-    function render({ slots = [], cycle: c = 1, name = "", id = "" } = {}) {
+    function setCarousel(name, id) {
+        if (nameEl) nameEl.textContent = name || "No carousel selected";
+        if (idEl) idEl.textContent = id || "-";
+    }
+
+    function render({ slots = [], cycle: c = 1, name, id } = {}) {
         bySlot = {};
         slots.forEach((s, i) => {
             const n = Number(s.slot_number ?? i + 1);
@@ -282,12 +312,12 @@ export function createCarouselWheel({ wheel, detail, nameEl, idEl }) {
         cycle = c;
         selected = null;
         loaded.clear();
-        nameEl.textContent = name || "-";
-        idEl.textContent = id || "-";
+        if (name !== undefined || id !== undefined) setCarousel(name, id);
         refresh();
     }
 
+    setCarousel();
     refresh();
 
-    return { render };
+    return { render, setCarousel };
 }

@@ -5,9 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="MediTrack User Dashboard.">
-    <link rel="icon" type="image/x-icon" href="../../draft.png">
 
     <title>MediTrack | User Dashboard</title>
+    <link rel="icon" type="image/x-icon" href="../../draft.png">
 
     <!-- ======================================================
          GOOGLE FONT
@@ -125,7 +125,7 @@
             </h1>
 
             <p id="page-description">
-                Manage and create digital prescriptions. 
+                Manage medications, monitor inventory, and support medication dispensing operations. 
             </p>
 
         </div>
@@ -187,6 +187,469 @@
 
 
     <!-- ======================================================
+        ACTIVITY PREVIEW
+    ====================================================== -->
+
+    <section
+        class="activity-preview"
+        aria-labelledby="activity-title"
+    >
+
+        <div class="activity-preview__header">
+
+            <div>
+
+                <p class="page-heading__eyebrow">
+                    Medication Monitoring
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- ==================================================
+            LOADING
+        =================================================== -->
+
+        <div
+            id="activityPreviewLoading"
+            class="activity-preview__empty"
+        >
+            Loading activity...
+        </div>
+
+
+        <!-- ==================================================
+            EMPTY / ERROR
+        =================================================== -->
+
+        <div
+            id="activityPreviewEmpty"
+            class="activity-preview__empty"
+            style="display: none;"
+        >
+        </div>
+
+
+        <!-- ==================================================
+            ACTIVITY RECORDS
+        =================================================== -->
+
+        <div
+            id="activityPreviewList"
+            class="activity-preview__list"
+        >
+        </div>
+
+
+        <!-- ==================================================
+            PAGINATION
+            
+            Pagination applies to medication logs.
+            Refill notifications are always displayed first.
+        =================================================== -->
+
+        <div
+            class="pagination"
+            id="activityPagination"
+        >
+
+            <button
+                type="button"
+                class="pagination-btn"
+                id="activityPrevPage"
+            >
+
+                <i
+                    data-lucide="chevron-left"
+                    aria-hidden="true"
+                ></i>
+
+                <span>
+                    Previous
+                </span>
+
+            </button>
+
+
+            <div
+                class="pagination-info"
+                id="activityPaginationInfo"
+            >
+                Page 0 of 0
+            </div>
+
+
+            <button
+                type="button"
+                class="pagination-btn"
+                id="activityNextPage"
+            >
+
+                <span>
+                    Next
+                </span>
+
+                <i
+                    data-lucide="chevron-right"
+                    aria-hidden="true"
+                ></i>
+
+            </button>
+
+        </div>
+
+    </section>
+
+    <!-- ======================================================
+        ACTIVITY DETAILS MODAL
+    ====================================================== -->
+
+    <div
+        id="activityDetailsModal"
+        class="refill-modal"
+        style="display: none;"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="activityDetailsTitle"
+    >
+        <div class="refill-modal__backdrop"></div>
+
+        <div class="refill-modal__dialog">
+
+            <div class="refill-modal__header">
+                <div>
+                    <span class="refill-modal__eyebrow">
+                        Activity Record
+                    </span>
+
+                    <h2 id="activityDetailsTitle">
+                        Activity Details
+                    </h2>
+                </div>
+
+                <button
+                    type="button"
+                    id="closeActivityDetailsModal"
+                    class="refill-modal__close"
+                    aria-label="Close activity details"
+                >
+                    <i data-lucide="x" aria-hidden="true"></i>
+                </button>
+            </div>
+
+            <div class="refill-modal__body">
+                <div
+                    id="activityDetailsContent"
+                    class="refill-details"
+                ></div>
+            </div>
+
+            <div class="refill-modal__footer">
+
+                <button
+                    type="button"
+                    id="resetRefusedMedicationButton"
+                    class="refill-modal__refill"
+                    style="display: none;"
+                >
+                    <i
+                        data-lucide="rotate-ccw"
+                        aria-hidden="true"
+                    ></i>
+
+                    <span>
+                        Reset to Scheduled
+                    </span>
+                </button>
+
+                <button
+                    type="button"
+                    id="closeActivityDetailsButton"
+                    class="refill-modal__cancel"
+                >
+                    Close
+                </button>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ======================================================
+        REFILL NOTIFICATION DETAILS MODAL
+    ====================================================== -->
+
+    <div
+        id="refillNotificationModal"
+        class="refill-modal"
+        style="display: none;"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="refillModalTitle"
+    >
+
+        <div class="refill-modal__backdrop"></div>
+
+
+        <div class="refill-modal__dialog">
+
+            <!-- HEADER -->
+
+            <div class="refill-modal__header">
+
+                <div>
+
+                    <span class="refill-modal__eyebrow">
+                        Dispenser Notification
+                    </span>
+
+                    <h2 id="refillModalTitle">
+                        Dispenser Refill Required
+                    </h2>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    id="closeRefillModal"
+                    class="refill-modal__close"
+                    aria-label="Close notification"
+                >
+
+                    <i
+                        data-lucide="x"
+                        aria-hidden="true"
+                    ></i>
+
+                </button>
+
+            </div>
+
+
+            <!-- BODY -->
+
+            <div class="refill-modal__body">
+
+                <div class="refill-modal__alert">
+
+                    <div class="refill-modal__alert-icon">
+
+                        <i
+                            data-lucide="triangle-alert"
+                            aria-hidden="true"
+                        ></i>
+
+                    </div>
+
+                    <div>
+
+                        <strong>
+                            Refill Required
+                        </strong>
+
+                        <p>
+                            This dispenser carousel requires additional medication
+                            before the next refill cycle.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- DETAILS -->
+
+                <div class="refill-details">
+
+                    <div class="refill-detail">
+
+                        <span>
+                            Dispenser Unit
+                        </span>
+
+                        <strong id="refillDetailUnit">
+                            -
+                        </strong>
+
+                    </div>
+
+
+                    <div class="refill-detail">
+
+                        <span>
+                            Carousel
+                        </span>
+
+                        <strong id="refillDetailCarousel">
+                            -
+                        </strong>
+
+                    </div>
+
+
+                    <div class="refill-detail">
+
+                        <span>
+                            Patient
+                        </span>
+
+                        <strong id="refillDetailPatient">
+                            -
+                        </strong>
+
+                    </div>
+
+
+                    <div class="refill-detail">
+
+                        <span>
+                            Patient ID
+                        </span>
+
+                        <strong id="refillDetailPatientId">
+                            -
+                        </strong>
+
+                    </div>
+
+
+                    <div class="refill-detail">
+
+                        <span>
+                            Ward
+                        </span>
+
+                        <strong id="refillDetailWard">
+                            -
+                        </strong>
+
+                    </div>
+
+
+                    <div class="refill-detail">
+
+                        <span>
+                            Room
+                        </span>
+
+                        <strong id="refillDetailRoom">
+                            -
+                        </strong>
+
+                    </div>
+
+
+                    <div class="refill-detail">
+
+                        <span>
+                            Required Slots
+                        </span>
+
+                        <strong id="refillDetailRequiredSlots">
+                            -
+                        </strong>
+
+                    </div>
+
+
+                    <div class="refill-detail">
+
+                        <span>
+                            Slots Currently Used
+                        </span>
+
+                        <strong id="refillDetailSlotsUsed">
+                            -
+                        </strong>
+
+                    </div>
+
+
+                    <div class="refill-detail">
+
+                        <span>
+                            Refill Interval
+                        </span>
+
+                        <strong id="refillDetailInterval">
+                            -
+                        </strong>
+
+                    </div>
+
+
+                    <div class="refill-detail">
+
+                        <span>
+                            Notification Date
+                        </span>
+
+                        <strong id="refillDetailDate">
+                            -
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <!-- MESSAGE -->
+
+                <div class="refill-modal__message">
+
+                    <span>
+                        Notification Message
+                    </span>
+
+                    <p id="refillDetailMessage">
+                        -
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- FOOTER -->
+
+            <div class="refill-modal__footer">
+
+                <button
+                    type="button"
+                    id="cancelRefillModal"
+                    class="refill-modal__cancel"
+                >
+                    Close
+                </button>
+
+
+                <button
+                    type="button"
+                    id="refillDispenserBtn"
+                    class="refill-modal__refill"
+                >
+
+                    <i
+                        data-lucide="package-plus"
+                        aria-hidden="true"
+                    ></i>
+
+                    <span>
+                        Refill Dispenser
+                    </span>
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ======================================================
          FOOTER
     ======================================================= -->
 
@@ -204,11 +667,6 @@
 
 </main>
 
-
-<!-- ==========================================================
-     JAVASCRIPT
-=========================================================== -->
-
 <script type="module">
 
     // ========================================================
@@ -217,29 +675,27 @@
 
     import {
         initializeApp
-    } from
-        "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+    } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
 
 
     import {
         getDatabase,
         ref,
-        get
-    } from
-        "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
+        get,
+        update
+    } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
 
 
     import {
         getAuth,
-        signOut
-    } from
-        "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+        signOut,
+        onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
 
 
     import {
         requireRole
-    } from
-        "../js/auth_guard.js";
+    } from "../js/auth_guard.js";
 
 
     // ========================================================
@@ -250,11 +706,22 @@
 
 
     // ========================================================
+    // ACTIVITY PREVIEW SETTINGS
+    // ========================================================
+
+    const LOGS_PER_PAGE = 5;
+
+    let currentLogPage = 1;
+
+    let medicationLogs = [];
+
+    let refillNotifications = [];
+
+    let selectedRefillNotification = null;
+
+
+    // ========================================================
     // MODULE CONFIGURATION
-    //
-    // Modify this list depending on the user's role.
-    //
-    // "icon" uses Lucide icon names.
     // ========================================================
 
     const MODULES = [
@@ -289,57 +756,59 @@
     // ========================================================
 
     const currentDate =
-        document.getElementById("currentDate");
+        document.getElementById(
+            "currentDate"
+        );
+
 
     const currentTime =
-        document.getElementById("currentTime");
+        document.getElementById(
+            "currentTime"
+        );
 
 
     function updateClock() {
 
-        const now = new Date();
+        const now =
+            new Date();
 
 
-        // ----------------------------------------------------
-        // TIME
-        // ----------------------------------------------------
+        if (currentTime) {
 
-        currentTime.textContent =
-            now.toLocaleTimeString(
-                "en-PH",
-                {
-                    hour: "numeric",
-                    minute: "2-digit",
-                    second: "2-digit",
-                    hour12: true
-                }
-            );
+            currentTime.textContent =
+                now.toLocaleTimeString(
+                    "en-PH",
+                    {
+                        hour: "numeric",
+                        minute: "2-digit",
+                        second: "2-digit",
+                        hour12: true
+                    }
+                );
+
+        }
 
 
-        // ----------------------------------------------------
-        // DATE
-        // ----------------------------------------------------
+        if (currentDate) {
 
-        currentDate.textContent =
-            now.toLocaleDateString(
-                "en-PH",
-                {
-                    weekday: "short",
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric"
-                }
-            );
+            currentDate.textContent =
+                now.toLocaleDateString(
+                    "en-PH",
+                    {
+                        weekday: "short",
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric"
+                    }
+                );
+
+        }
 
     }
 
 
-    // Start clock immediately
-
     updateClock();
 
-
-    // Update clock every second
 
     setInterval(
         updateClock,
@@ -389,7 +858,7 @@
             `${getTimeGreeting()}, ${USER_ROLE}`,
 
         description:
-            "Manage and create digital prescriptions. ",
+            "Manage medications, monitor medication schedules, and review prescription activity.",
 
         brandSubtitle:
             `${USER_ROLE} Dashboard`,
@@ -399,15 +868,650 @@
 
     };
 
+    // ========================================================
+    // ACTIVITY DETAILS MODAL ELEMENTS
+    // ========================================================
+
+    const activityDetailsModal =
+        document.getElementById("activityDetailsModal");
+
+    const activityDetailsTitle =
+        document.getElementById("activityDetailsTitle");
+
+    const activityDetailsContent =
+        document.getElementById("activityDetailsContent");
+
+    const closeActivityDetailsModal =
+        document.getElementById("closeActivityDetailsModal");
+
+    const closeActivityDetailsButton =
+        document.getElementById("closeActivityDetailsButton");
+
+    const resetRefusedMedicationButton =
+        document.getElementById(
+            "resetRefusedMedicationButton"
+        );
 
     // ========================================================
-    // USER ACCESS
+    // OPEN ACTIVITY DETAILS MODAL
     // ========================================================
 
-    requireRole(
-        USER_ROLE
-    );
+    function openActivityDetails(log) {
 
+        if (
+            !activityDetailsModal ||
+            !activityDetailsTitle ||
+            !activityDetailsContent
+        ) {
+
+            return;
+
+        }
+
+
+        const isDispense =
+            log.logType === "dispense";
+
+
+        const isRefusedMedication =
+            !isDispense &&
+            String(
+                log.administration_status || ""
+            )
+            .trim()
+            .toLowerCase() === "refused";
+
+
+        activityDetailsTitle.textContent =
+            isDispense
+                ? "Medicine Dispense Details"
+                : "Medication Administration Details";
+
+
+        activityDetailsContent.innerHTML = "";
+
+
+        // ====================================================
+        // SHOW / HIDE RESET BUTTON
+        // ====================================================
+
+        if(
+            resetRefusedMedicationButton
+        ){
+
+            if (
+                USER_ROLE === "Doctor" &&
+                isRefusedMedication &&
+                log.id &&
+                log.schedule_id
+            ) {
+                resetRefusedMedicationButton.style.display = "inline-flex";
+                resetRefusedMedicationButton.disabled = false;
+
+                resetRefusedMedicationButton.dataset.logId =
+                    log.id;
+
+                resetRefusedMedicationButton.dataset.scheduleId =
+                    log.schedule_id;
+            }
+            else {
+                resetRefusedMedicationButton.style.display = "none";
+
+                resetRefusedMedicationButton.dataset.logId = "";
+                resetRefusedMedicationButton.dataset.scheduleId = "";
+            }
+
+        }
+
+
+        // ====================================================
+        // DETAIL ROW HELPER
+        // ====================================================
+
+        function addDetail(
+            label,
+            value
+        ){
+
+            const detail =
+                document.createElement(
+                    "div"
+                );
+
+
+            detail.className =
+                "refill-detail";
+
+
+            const labelElement =
+                document.createElement(
+                    "span"
+                );
+
+
+            labelElement.textContent =
+                label;
+
+
+            const valueElement =
+                document.createElement(
+                    "strong"
+                );
+
+
+            valueElement.textContent =
+                value !== null &&
+                value !== undefined &&
+                String(value).trim() !== ""
+                    ? String(value)
+                    : "-";
+
+
+            detail.appendChild(
+                labelElement
+            );
+
+
+            detail.appendChild(
+                valueElement
+            );
+
+
+            activityDetailsContent.appendChild(
+                detail
+            );
+
+        }
+
+
+        // ====================================================
+        // COMMON DETAILS
+        // ====================================================
+
+        addDetail(
+            "Record Type",
+            isDispense
+                ? "Medicine Dispense Attempt"
+                : "Medication Administration"
+        );
+
+
+        addDetail(
+            "Record ID",
+            log.id
+        );
+
+
+        // ====================================================
+        // DISPENSE LOG
+        // ====================================================
+
+        if(
+            isDispense
+        ){
+
+            addDetail(
+                "Dispenser Motor",
+                log.motor
+            );
+
+
+            addDetail(
+                "IR Sensor",
+                log.ir_sensor
+            );
+
+
+            addDetail(
+                "Load Cell",
+                log.load_cell
+            );
+
+
+            addDetail(
+                "Dispense Status",
+                log.administration_status
+            );
+
+
+            addDetail(
+                "Timestamp",
+                formatDateTime(
+                    log.timestamp
+                )
+            );
+
+        }
+
+
+        // ====================================================
+        // MEDICATION LOG
+        // ====================================================
+
+        else{
+
+            addDetail(
+                "Medication",
+                log.medication_name
+            );
+
+
+            addDetail(
+                "Patient",
+                log.patient_name
+            );
+
+
+            addDetail(
+                "Nurse UID",
+                log.nurse_uid
+            );
+
+
+            addDetail(
+                "Schedule ID",
+                log.schedule_id
+            );
+
+
+            addDetail(
+                "Administration Status",
+                log.administration_status
+            );
+
+
+            addDetail(
+                "Timing Status",
+                log.timing_status
+            );
+
+
+            addDetail(
+                "Timestamp",
+                formatDateTime(
+                    log.timestamp
+                )
+            );
+
+        }
+
+
+        // ====================================================
+        // SHOW MODAL
+        // ====================================================
+
+        activityDetailsModal.style.display =
+            "flex";
+
+
+        document.body.classList.add(
+            "modal-open"
+        );
+
+
+        refreshLucideIcons();
+
+    }
+
+
+    function getTodayDateString() {
+        const now = new Date();
+
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, "0");
+        const day = String(now.getDate()).padStart(2, "0");
+
+        return `${year}-${month}-${day}`;
+    }
+
+    function getLogDate(log) {
+        const timestamp = log.timestamp || log.administered_at || "";
+
+        if (!timestamp) return "";
+
+        // Supports:
+        // 2026-09-30 11:29:54
+        // 2026-09-30T11:29:54
+        return String(timestamp).substring(0, 10);
+    }
+
+    // ========================================================
+    // RESET REFUSED MEDICATION TO SCHEDULED
+    // ========================================================
+
+    async function resetRefusedMedication(){
+
+        if(
+            !resetRefusedMedicationButton
+        ){
+
+            return;
+
+        }
+
+
+        const logId =
+            resetRefusedMedicationButton.dataset.logId;
+
+
+        const scheduleId =
+            resetRefusedMedicationButton.dataset.scheduleId;
+
+
+        if(
+            !logId
+        ){
+
+            alert(
+                "The medication log could not be identified."
+            );
+
+            return;
+
+        }
+
+
+        const log =
+            medicationLogs.find(
+                item =>
+                    item.id === logId
+            );
+
+
+        if(
+            !log
+        ){
+
+            alert(
+                "The medication record could not be found."
+            );
+
+            return;
+
+        }
+
+
+        const currentStatus =
+            String(
+                log.administration_status || ""
+            )
+            .trim()
+            .toLowerCase();
+
+
+        if(
+            currentStatus !== "refused"
+        ){
+
+            alert(
+                "Only medications with a Refused status can be reset."
+            );
+
+            return;
+
+        }
+
+
+        const confirmed =
+            confirm(
+
+                "Reset this refused medication to Scheduled?\n\n" +
+
+                "Medication: " +
+                (
+                    log.medication_name ||
+                    "Unknown Medication"
+                ) +
+
+                "\nPatient: " +
+                (
+                    log.patient_name ||
+                    "Unknown Patient"
+                )
+
+            );
+
+
+        if(
+            !confirmed
+        ){
+
+            return;
+
+        }
+
+
+        try{
+
+            resetRefusedMedicationButton.disabled =
+                true;
+
+
+            resetRefusedMedicationButton.innerHTML = `
+
+                <i
+                    data-lucide="loader-circle"
+                    class="spin"
+                    aria-hidden="true"
+                ></i>
+
+                <span>
+                    Resetting...
+                </span>
+
+            `;
+
+
+            refreshLucideIcons();
+
+
+            const updates = {};
+
+
+            // ==================================================
+            // UPDATE MEDICATION LOG
+            // ==================================================
+
+            updates[
+                `medication_logs/${logId}/administration_status`
+            ] =
+                "Scheduled";
+
+
+            /*
+            Clear the previous administration timestamp
+            if your refused record has one.
+            */
+
+            updates[
+                `medication_logs/${logId}/updated_at`
+            ] =
+                new Date().toISOString();
+
+
+            // ==================================================
+            // UPDATE LINKED MEDICATION SCHEDULE
+            // ==================================================
+
+            if(
+                scheduleId
+            ){
+
+                updates[
+                    `medication_schedule/${scheduleId}/status`
+                ] =
+                    "Scheduled";
+
+
+                updates[
+                    `medication_schedule/${scheduleId}/updated_at`
+                ] =
+                    new Date().toISOString();
+
+            }
+
+
+            // ==================================================
+            // SAVE
+            // ==================================================
+
+            await update(
+                ref(
+                    database
+                ),
+                updates
+            );
+
+
+            // ==================================================
+            // UPDATE LOCAL LOG DATA
+            // ==================================================
+
+            log.administration_status =
+                "Scheduled";
+
+
+            /*
+            Refresh the modal.
+            */
+
+            openActivityDetails(
+                log
+            );
+
+
+            /*
+            Refresh the activity list so the
+            Refused highlight disappears and the
+            status becomes Scheduled.
+            */
+
+            renderActivityPreview();
+
+
+            alert(
+                "Medication status has been reset to Scheduled."
+            );
+
+        }
+        catch(error){
+
+            console.error(
+                "Failed to reset refused medication:",
+                error
+            );
+
+
+            alert(
+
+                "Unable to reset the medication status.\n\n" +
+                error.message
+
+            );
+
+
+            resetRefusedMedicationButton.style.display =
+                "inline-flex";
+
+
+            resetRefusedMedicationButton.disabled =
+                false;
+
+
+            resetRefusedMedicationButton.innerHTML = `
+
+                <i
+                    data-lucide="rotate-ccw"
+                    aria-hidden="true"
+                ></i>
+
+                <span>
+                    Reset to Scheduled
+                </span>
+
+            `;
+
+
+            refreshLucideIcons();
+
+        }
+
+    }
+
+    // ========================================================
+    // RESET BUTTON EVENT
+    // ========================================================
+
+    if(
+        resetRefusedMedicationButton
+    ){
+
+        resetRefusedMedicationButton.addEventListener(
+            "click",
+            resetRefusedMedication
+        );
+
+    }    
+
+    // ========================================================
+    // CLOSE ACTIVITY DETAILS MODAL
+    // ========================================================
+
+    function closeActivityDetails() {
+
+        if (activityDetailsModal) {
+            activityDetailsModal.style.display = "none";
+        }
+
+        document.body.classList.remove("modal-open");
+    }
+
+
+    // Close buttons
+    if (closeActivityDetailsModal) {
+        closeActivityDetailsModal.addEventListener(
+            "click",
+            closeActivityDetails
+        );
+    }
+
+    if (closeActivityDetailsButton) {
+        closeActivityDetailsButton.addEventListener(
+            "click",
+            closeActivityDetails
+        );
+    }
+
+
+    // Close when clicking the backdrop
+    if (activityDetailsModal) {
+
+        const backdrop =
+            activityDetailsModal.querySelector(
+                ".refill-modal__backdrop"
+            );
+
+        if (backdrop) {
+            backdrop.addEventListener(
+                "click",
+                closeActivityDetails
+            );
+        }
+    }
+
+
+    // Close with Escape
+    document.addEventListener("keydown", event => {
+
+        if (
+            event.key === "Escape" &&
+            activityDetailsModal &&
+            activityDetailsModal.style.display === "flex"
+        ) {
+            closeActivityDetails();
+        }
+
+    });
 
     // ========================================================
     // FIREBASE CONFIGURATION
@@ -444,6 +1548,13 @@
         getDatabase(
             app
         );
+
+
+    // ========================================================
+    // USER ACCESS
+    // ========================================================
+
+    requireRole(USER_ROLE);
 
 
     // ========================================================
@@ -492,6 +1603,10 @@
         );
 
 
+    // ========================================================
+    // ACTIVITY PREVIEW DOM ELEMENTS
+    // ========================================================
+
     const activityPreviewList =
         document.getElementById(
             "activityPreviewList"
@@ -510,13 +1625,183 @@
         );
 
 
+    const activityPagination =
+        document.getElementById(
+            "activityPagination"
+        );
+
+
+    const activityPrevPage =
+        document.getElementById(
+            "activityPrevPage"
+        );
+
+
+    const activityNextPage =
+        document.getElementById(
+            "activityNextPage"
+        );
+
+
+    const activityPaginationInfo =
+        document.getElementById(
+            "activityPaginationInfo"
+        );
+
+
+    // ========================================================
+    // REFILL NOTIFICATION MODAL ELEMENTS
+    // ========================================================
+
+    const refillNotificationModal =
+        document.getElementById(
+            "refillNotificationModal"
+        );
+
+
+    const closeRefillModal =
+        document.getElementById(
+            "closeRefillModal"
+        );
+
+
+    const cancelRefillModal =
+        document.getElementById(
+            "cancelRefillModal"
+        );
+
+
+    const refillDispenserBtn =
+        document.getElementById(
+            "refillDispenserBtn"
+        );
+
+
+    const refillDetailUnit =
+        document.getElementById(
+            "refillDetailUnit"
+        );
+
+
+    const refillDetailCarousel =
+        document.getElementById(
+            "refillDetailCarousel"
+        );
+
+
+    const refillDetailPatient =
+        document.getElementById(
+            "refillDetailPatient"
+        );
+
+
+    const refillDetailPatientId =
+        document.getElementById(
+            "refillDetailPatientId"
+        );
+
+
+    const refillDetailWard =
+        document.getElementById(
+            "refillDetailWard"
+        );
+
+
+    const refillDetailRoom =
+        document.getElementById(
+            "refillDetailRoom"
+        );
+
+
+    const refillDetailRequiredSlots =
+        document.getElementById(
+            "refillDetailRequiredSlots"
+        );
+
+
+    const refillDetailSlotsUsed =
+        document.getElementById(
+            "refillDetailSlotsUsed"
+        );
+
+
+    const refillDetailInterval =
+        document.getElementById(
+            "refillDetailInterval"
+        );
+
+
+    const refillDetailDate =
+        document.getElementById(
+            "refillDetailDate"
+        );
+
+
+    const refillDetailMessage =
+        document.getElementById(
+            "refillDetailMessage"
+        );
+
+
+    // ========================================================
+    // APPLY DASHBOARD CONFIGURATION
+    // ========================================================
+
+    if (brandRole) {
+
+        brandRole.textContent =
+            DASHBOARD_CONFIG.brandSubtitle;
+
+    }
+
+
+    if (roleLabel) {
+
+        roleLabel.textContent =
+            DASHBOARD_CONFIG.role;
+
+    }
+
+
+    if (pageTitle) {
+
+        pageTitle.textContent =
+            DASHBOARD_CONFIG.title;
+
+    }
+
+
+    if (pageDescription) {
+
+        pageDescription.textContent =
+            DASHBOARD_CONFIG.description;
+
+    }
+
+
+    if (footerRole) {
+
+        footerRole.textContent =
+            DASHBOARD_CONFIG.footerLabel;
+
+    }
+
+
     // ========================================================
     // RENDER DASHBOARD MODULES
     // ========================================================
 
     function renderModules() {
 
-        moduleGrid.innerHTML = "";
+        if (!moduleGrid) {
+
+            return;
+
+        }
+
+
+        moduleGrid.innerHTML =
+            "";
 
 
         MODULES.forEach(
@@ -538,9 +1823,7 @@
 
                 card.innerHTML = `
 
-                    <div
-                        class="module-card__top"
-                    >
+                    <div class="module-card__top">
 
                         <span
                             class="module-card__icon"
@@ -556,9 +1839,7 @@
                     </div>
 
 
-                    <div
-                        class="module-card__content"
-                    >
+                    <div class="module-card__content">
 
                         <h2>
                             ${module.title}
@@ -571,9 +1852,7 @@
                     </div>
 
 
-                    <div
-                        class="module-card__link"
-                    >
+                    <div class="module-card__link">
 
                         <span>
                             Open module
@@ -598,74 +1877,2195 @@
         );
 
 
-        // Convert all data-lucide elements
-        // into SVG icons.
-
-        lucide.createIcons();
+        refreshLucideIcons();
 
     }
 
 
     // ========================================================
-    // APPLY DASHBOARD CONFIGURATION
+    // LUCIDE ICON REFRESH
     // ========================================================
 
-    brandRole.textContent =
-        DASHBOARD_CONFIG.brandSubtitle;
+    function refreshLucideIcons() {
 
+        if (
+            typeof lucide !== "undefined"
+        ) {
 
-    roleLabel.textContent =
-        DASHBOARD_CONFIG.role;
+            lucide.createIcons();
 
+        }
 
-    pageTitle.textContent =
-        DASHBOARD_CONFIG.title;
-
-
-    pageDescription.textContent =
-        DASHBOARD_CONFIG.description;
-
-
-    footerRole.textContent =
-        DASHBOARD_CONFIG.footerLabel;
+    }
 
 
     // ========================================================
     // LOGOUT
     // ========================================================
 
-    logoutButton.addEventListener(
-        "click",
-        async () => {
+    if (logoutButton) {
 
-            try {
+        logoutButton.addEventListener(
+            "click",
+            async () => {
 
-                await signOut(
-                    auth
-                );
+                try {
+
+                    await signOut(
+                        auth
+                    );
 
 
-                window.location.href =
-                    "../../index.html";
+                    window.location.href =
+                        "../../index.html";
+
+                }
+
+                catch (error) {
+
+                    console.error(
+                        "Logout error:",
+                        error
+                    );
+
+
+                    alert(
+                        "Unable to log out. Please try again."
+                    );
+
+                }
+
+            }
+        );
+
+    }
+
+
+    // ========================================================
+    // LOAD COMPLETE ACTIVITY PREVIEW
+    // ========================================================
+    //
+    // Activity Preview consists of:
+    //
+    // 1. Dispenser refill notifications
+    // 2. Medication administration logs
+    //
+    // Refill notifications ALWAYS appear first.
+    // ========================================================
+
+    async function loadActivityPreview() {
+
+        if (!activityPreviewList) {
+
+            console.error(
+                "Activity preview container was not found."
+            );
+
+            return;
+
+        }
+
+
+        currentLogPage =
+            1;
+
+
+        medicationLogs =
+            [];
+
+
+        refillNotifications =
+            [];
+
+
+        if (activityPreviewLoading) {
+
+            activityPreviewLoading.style.display =
+                "block";
+
+            activityPreviewLoading.textContent =
+                "Loading activity...";
+
+        }
+
+
+        if (activityPreviewEmpty) {
+
+            activityPreviewEmpty.style.display =
+                "none";
+
+            activityPreviewEmpty.textContent =
+                "";
+
+        }
+
+
+        activityPreviewList.innerHTML =
+            "";
+
+
+        updateLogPagination(
+            0
+        );
+
+
+        try {
+
+            // ==================================================
+            // LOAD BOTH DATA SOURCES
+            // ==================================================
+
+            const results = await Promise.allSettled([
+                loadRefillNotifications(),
+                loadMedicationLogsData()
+            ]);
+
+            results.forEach((result, index) => {
+                if (result.status === "rejected") {
+                    console.error(
+                        index === 0
+                            ? "Failed to load refill notifications:"
+                            : "Failed to load medication and dispense logs:",
+                        result.reason
+                    );
+                }
+            });
+
+            console.log(
+                "Activity preview loading results:",
+                results
+            );
+
+
+            if (activityPreviewLoading) {
+
+                activityPreviewLoading.style.display =
+                    "none";
 
             }
 
-            catch (error) {
 
-                console.error(
-                    "Logout error:",
-                    error
+            const hasRefillNotifications =
+                refillNotifications.length > 0;
+
+
+            const hasMedicationLogs =
+                medicationLogs.length > 0;
+
+
+            if (
+                !hasRefillNotifications &&
+                !hasMedicationLogs
+            ) {
+
+                showEmptyActivity(
+                    "No recent activity found."
+                );
+
+                return;
+
+            }
+
+
+            renderActivityPreview();
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Error loading activity preview:",
+                error
+            );
+
+            if (activityPreviewLoading) {
+                activityPreviewLoading.style.display = "none";
+            }
+
+            showEmptyActivity(
+                "Unable to load activity. Check the browser console for details."
+            );
+
+        }
+
+    }
+
+
+    // ========================================================
+    // LOAD REFILL NOTIFICATIONS
+    // ========================================================
+
+    async function loadRefillNotifications() {
+
+        refillNotifications = [];
+
+        const currentUser = auth.currentUser;
+
+        if (!currentUser) {
+
+            console.warn(
+                "loadRefillNotifications(): auth.currentUser is null."
+            );
+
+            return;
+        }
+
+        const notificationPath =
+            `notifications/${currentUser.uid}`;
+
+        console.log(
+            "Reading refill notifications from:",
+            notificationPath
+        );
+
+        const notificationsRef =
+            ref(
+                database,
+                notificationPath
+            );
+
+        const snapshot =
+            await get(
+                notificationsRef
+            );
+
+
+        // ----------------------------------------------------
+        // NO NOTIFICATIONS NODE
+        // ----------------------------------------------------
+
+        if (!snapshot.exists()) {
+
+            console.log(
+                "No notifications found at:",
+                notificationPath
+            );
+
+            return;
+        }
+
+
+        console.log(
+            "Notification data:",
+            snapshot.val()
+        );
+
+
+        // ----------------------------------------------------
+        // READ NOTIFICATIONS
+        // ----------------------------------------------------
+
+        snapshot.forEach(
+            childSnapshot => {
+
+                const data =
+                    childSnapshot.val();
+
+
+                if (
+                    !data ||
+                    typeof data !== "object"
+                ) {
+
+                    return;
+
+                }
+
+
+                console.log(
+                    "Checking notification:",
+                    childSnapshot.key,
+                    data
                 );
 
 
-                alert(
-                    error.message
+                // ==================================================
+                // NOTIFICATION TYPE
+                // ==================================================
+
+                const type =
+                    String(
+                        data.type || ""
+                    )
+                    .trim()
+                    .toLowerCase();
+
+
+                // ------------------------------------------------
+                // ONLY DISPENSER REFILL NOTIFICATIONS
+                // ------------------------------------------------
+
+                if (
+                    type !== "dispenser_refill"
+                ) {
+
+                    return;
+
+                }
+
+
+                // ==================================================
+                // NOTIFICATION STATUS
+                // ==================================================
+
+                const status =
+                    String(
+                        data.status || ""
+                    )
+                    .trim()
+                    .toLowerCase();
+
+
+                // ------------------------------------------------
+                // EXCLUDE COMPLETED NOTIFICATIONS
+                // ------------------------------------------------
+                //
+                // Completed notifications remain in Firebase
+                // for history/audit purposes, but they should
+                // no longer appear in the Doctor dashboard.
+                // ------------------------------------------------
+
+                if (
+                    status === "completed"
+                ) {
+
+                    console.log(
+                        "Skipping completed refill notification:",
+                        childSnapshot.key
+                    );
+
+                    return;
+
+                }
+
+
+                // ==================================================
+                // ADD ACTIVE REFILL NOTIFICATION
+                // ==================================================
+
+                refillNotifications.push({
+
+                    id:
+                        childSnapshot.key,
+
+                    notification_id:
+                        data.notification_id ||
+                        childSnapshot.key,
+
+                    type:
+                        data.type ||
+                        "dispenser_refill",
+
+                    title:
+                        data.title ||
+                        "Dispenser Refill Required",
+
+                    message:
+                        data.message ||
+                        "A dispenser carousel requires a refill.",
+
+                    dispenser_unit:
+                        data.dispenser_unit ||
+                        "Main Dispenser",
+
+                    compartment_id:
+                        data.compartment_id ||
+                        "",
+
+                    compartment_name:
+                        data.compartment_name ||
+                        "Unknown Carousel",
+
+                    patient_id:
+                        data.patient_id ||
+                        "",
+
+                    patient_name:
+                        data.patient_name ||
+                        "Unknown Patient",
+
+                    ward:
+                        data.ward ||
+                        "",
+
+                    room:
+                        data.room ||
+                        "",
+
+                    required_slots:
+                        data.required_slots ?? 0,
+
+                    slots_used:
+                        data.slots_used ?? 0,
+
+                    refill_interval_days:
+                        data.refill_interval_days ?? 0,
+
+                    status:
+                        data.status ||
+                        "Unread",
+
+                    created_at:
+                        data.created_at ||
+                        "",
+
+                    updated_at:
+                        data.updated_at ||
+                        ""
+
+                });
+
+            }
+        );
+
+
+        // ----------------------------------------------------
+        // SORT
+        // ----------------------------------------------------
+        //
+        // Pending/Unread notifications appear first.
+        // Other active notifications follow by newest date.
+        // Completed notifications have already been excluded.
+        // ----------------------------------------------------
+
+        refillNotifications.sort(
+            (a, b) => {
+
+                const aPending =
+                    isRefillPending(a);
+
+                const bPending =
+                    isRefillPending(b);
+
+
+                if (
+                    aPending &&
+                    !bPending
+                ) {
+
+                    return -1;
+
+                }
+
+
+                if (
+                    !aPending &&
+                    bPending
+                ) {
+
+                    return 1;
+
+                }
+
+
+                return (
+                    getTimestamp(
+                        b.created_at
+                    ) -
+
+                    getTimestamp(
+                        a.created_at
+                    )
                 );
+
+            }
+        );
+
+
+        console.log(
+            "Loaded active refill notifications:",
+            refillNotifications.length,
+            refillNotifications
+        );
+
+    }
+    
+    // ========================================================
+    // CHECK REFILL NOTIFICATION PRIORITY
+    // ========================================================
+
+    function isRefillPending(
+        notification
+    ) {
+
+        const status =
+            String(
+                notification?.status ||
+                ""
+            )
+            .trim()
+            .toLowerCase();
+
+
+        return (
+            status === "unread" ||
+            status === "pending"
+        );
+
+    }
+
+    // ========================================================
+    // LOAD MEDICATION AND DISPENSE LOG DATA
+    // ========================================================
+
+    async function loadMedicationLogsData() {
+        medicationLogs = [];
+
+        try {
+            const [medicationSnapshot, dispenseSnapshot, scheduleSnapshot] =
+                await Promise.all([
+                    get(ref(database, "medication_logs")),
+                    get(ref(database, "Dispense_Log")),
+                    get(ref(database, "medication_schedule"))
+                ]);
+
+            // ------------------------------------------------------
+            // MEDICATION LOGS
+            // ------------------------------------------------------
+
+            if (medicationSnapshot.exists()) {
+                medicationSnapshot.forEach(childSnapshot => {
+                    const data = childSnapshot.val();
+
+                    if (!data || typeof data !== "object") return;
+
+                    medicationLogs.push({
+                        id: childSnapshot.key,
+                        logType: "medication",
+
+                        medication_name:
+                            data.medication_name || "Unknown Medication",
+
+                        patient_name:
+                            data.patient_name || "Unknown Patient",
+
+                        nurse_uid:
+                            data.nurse_uid || "",
+
+                        schedule_id:
+                            data.schedule_id || "",
+
+                        administration_status:
+                            data.administration_status || "Unknown",
+
+                        timing_status:
+                            data.timing_status || "Unknown",
+
+                        timestamp:
+                            data.timestamp ||
+                            data.administered_at ||
+                            "",
+
+                        // Will be filled from medication_schedule
+                        scheduled_date: ""
+                    });
+                });
+            }
+
+            // ------------------------------------------------------
+            // MEDICATION SCHEDULE
+            // Used only to determine the schedule date.
+            // ------------------------------------------------------
+
+            const scheduleMap = {};
+
+            if (scheduleSnapshot.exists()) {
+                scheduleSnapshot.forEach(childSnapshot => {
+                    const data = childSnapshot.val();
+
+                    if (!data || typeof data !== "object") return;
+
+                    scheduleMap[childSnapshot.key] = data;
+                });
+            }
+
+            // Attach scheduled_date to medication logs
+            medicationLogs.forEach(log => {
+                if (!log.schedule_id) return;
+
+                const schedule = scheduleMap[log.schedule_id];
+
+                if (!schedule) return;
+
+                log.scheduled_date =
+                    schedule.scheduled_date ||
+                    "";
+
+                // Keep these as fallback values if the medication log
+                // itself does not contain them.
+                if (!log.patient_name && schedule.patient_name) {
+                    log.patient_name = schedule.patient_name;
+                }
+
+                if (!log.medication_name && schedule.medication_name) {
+                    log.medication_name = schedule.medication_name;
+                }
+            });
+
+            // ------------------------------------------------------
+            // DISPENSE LOGS
+            // ------------------------------------------------------
+
+            if (dispenseSnapshot.exists()) {
+                dispenseSnapshot.forEach(childSnapshot => {
+                    const data = childSnapshot.val();
+
+                    if (!data || typeof data !== "object") return;
+
+                    medicationLogs.push({
+                        id: childSnapshot.key,
+                        logType: "dispense",
+
+                        medication_name:
+                            data.medication_name ||
+                            data.medicine_name ||
+                            "Unknown Medication",
+
+                        patient_name:
+                            data.patient_name ||
+                            "Unknown Patient",
+
+                        nurse_uid:
+                            data.nurse_uid || "",
+
+                        schedule_id:
+                            data.schedule_id || "",
+
+                        administration_status:
+                            data.administration_status ||
+                            data.status ||
+                            "Unknown",
+
+                        timing_status:
+                            data.timing_status || "Unknown",
+
+                        timestamp:
+                            data.timestamp ||
+                            data.created_at ||
+                            data.administered_at ||
+                            "",
+
+                        scheduled_date: ""
+                    });
+                });
+            }
+
+            // ------------------------------------------------------
+            // PRIORITIZATION
+            //
+            // Only today's REFUSED medication schedules are moved
+            // to the top.
+            //
+            // All other logs, including older Refused logs, remain
+            // in normal newest-first chronological order.
+            // ------------------------------------------------------
+
+            const today = getTodayDateString();
+
+            medicationLogs.sort((a, b) => {
+
+                const aIsTodayRefused =
+                    a.logType === "medication" &&
+                    String(a.administration_status || "")
+                        .trim()
+                        .toLowerCase() === "refused" &&
+                    String(a.scheduled_date || "") === today;
+
+                const bIsTodayRefused =
+                    b.logType === "medication" &&
+                    String(b.administration_status || "")
+                        .trim()
+                        .toLowerCase() === "refused" &&
+                    String(b.scheduled_date || "") === today;
+
+                // Today's Refused schedules first
+                if (aIsTodayRefused && !bIsTodayRefused) {
+                    return -1;
+                }
+
+                if (!aIsTodayRefused && bIsTodayRefused) {
+                    return 1;
+                }
+
+                // Everything else stays newest-first
+                return getTimestamp(b.timestamp) - getTimestamp(a.timestamp);
+            });
+
+            console.log(
+                "Today's refused medication logs:",
+                medicationLogs.filter(log =>
+                    log.logType === "medication" &&
+                    String(log.administration_status || "")
+                        .trim()
+                        .toLowerCase() === "refused" &&
+                    String(log.scheduled_date || "") === today
+                )
+            );
+
+        } catch (error) {
+            console.error(
+                "Error loading medication activity logs:",
+                error
+            );
+
+            throw error;
+        }
+    }
+    
+    // ========================================================
+    // RENDER COMPLETE ACTIVITY PREVIEW
+    // ========================================================
+
+    function renderActivityPreview() {
+
+        if (!activityPreviewList) {
+
+            return;
+
+        }
+
+
+        activityPreviewList.innerHTML =
+            "";
+
+
+        // ==================================================
+        // REFILL NOTIFICATIONS FIRST
+        // ==================================================
+
+        refillNotifications.forEach(
+            notification => {
+
+                renderRefillNotification(
+                    notification
+                );
+
+            }
+        );
+
+
+        // ==================================================
+        // MEDICATION LOGS
+        // ==================================================
+
+        renderMedicationLogs();
+
+
+        refreshLucideIcons();
+
+    }
+
+
+    // ========================================================
+    // RENDER REFILL NOTIFICATION
+    // ========================================================
+
+    function renderRefillNotification(
+        notification
+    ) {
+
+        const item =
+            document.createElement(
+                "article"
+            );
+
+
+        item.className =
+            "activity-preview__item activity-preview__item--refill";
+
+
+        item.setAttribute(
+            "role",
+            "button"
+        );
+
+
+        item.setAttribute(
+            "tabindex",
+            "0"
+        );
+
+
+        item.setAttribute(
+            "aria-label",
+            `Dispenser refill required for ${notification.compartment_name}`
+        );
+
+
+        // ==================================================
+        // PRIORITY LABEL
+        // ==================================================
+
+        const priority =
+            document.createElement(
+                "span"
+            );
+
+
+        priority.className =
+            "activity-preview__priority";
+
+
+        priority.textContent =
+            isRefillPending(
+                notification
+            )
+                ? "REFILL REQUIRED"
+                : "REFILL NOTICE";
+
+
+        // ==================================================
+        // ICON
+        // ==================================================
+
+        const icon =
+            document.createElement(
+                "div"
+            );
+
+
+        icon.className =
+            "activity-preview__icon activity-preview__icon--refill";
+
+
+        icon.innerHTML = `
+
+            <i
+                data-lucide="triangle-alert"
+                aria-hidden="true"
+            ></i>
+
+        `;
+
+
+        // ==================================================
+        // CONTENT
+        // ==================================================
+
+        const content =
+            document.createElement(
+                "div"
+            );
+
+
+        content.className =
+            "activity-preview__content";
+
+
+        const action =
+            document.createElement(
+                "div"
+            );
+
+
+        action.className =
+            "activity-preview__action";
+
+
+        action.textContent =
+            notification.title ||
+            "Dispenser Refill Required";
+
+
+        const description =
+            document.createElement(
+                "div"
+            );
+
+
+        description.className =
+            "activity-preview__description";
+
+
+        description.textContent =
+            `${notification.compartment_name} · Patient: ${
+                notification.patient_name ||
+                "Unknown Patient"
+            }`;
+
+
+        const meta =
+            document.createElement(
+                "div"
+            );
+
+
+        meta.className =
+            "activity-preview__meta";
+
+
+        meta.textContent =
+            `${notification.status || "Refill Notice"} · ${
+                formatDateTime(notification.created_at)
+            }`;
+
+
+        content.appendChild(
+            action
+        );
+
+
+        content.appendChild(
+            description
+        );
+
+
+        content.appendChild(
+            meta
+        );
+
+
+        // ==================================================
+        // STATUS
+        // ==================================================
+
+        const status =
+            document.createElement(
+                "span"
+            );
+
+
+        status.className =
+            "activity-preview__status activity-preview__status--refill";
+
+
+        status.textContent =
+            isRefillPending(
+                notification
+            )
+                ? "Pending"
+                : (
+                    notification.status ||
+                    "Read"
+                );
+
+
+        // ==================================================
+        // BUILD ITEM
+        // ==================================================
+
+        item.appendChild(
+            priority
+        );
+
+
+        item.appendChild(
+            icon
+        );
+
+
+        item.appendChild(
+            content
+        );
+
+
+        item.appendChild(
+            status
+        );
+
+
+        activityPreviewList.appendChild(
+            item
+        );
+
+
+        // ==================================================
+        // CLICK HANDLER
+        // ==================================================
+
+        item.addEventListener(
+            "click",
+            () => {
+
+                openRefillNotification(
+                    notification
+                );
+
+            }
+        );
+
+
+        // ==================================================
+        // KEYBOARD ACCESSIBILITY
+        // ==================================================
+
+        item.addEventListener(
+            "keydown",
+            event => {
+
+                if (
+                    event.key === "Enter" ||
+                    event.key === " "
+                ) {
+
+                    event.preventDefault();
+
+
+                    openRefillNotification(
+                        notification
+                    );
+
+                }
+
+            }
+        );
+
+    }
+
+
+    // ========================================================
+    // RENDER PAGINATED MEDICATION LOGS
+    // ========================================================
+
+    function renderMedicationLogs() {
+
+        if (!activityPreviewList) {
+
+            return;
+
+        }
+
+
+        const totalLogs =
+            medicationLogs.length;
+
+
+        const totalPages =
+            Math.ceil(
+                totalLogs /
+                LOGS_PER_PAGE
+            );
+
+
+        // ==================================================
+        // NO MEDICATION LOGS
+        // ==================================================
+
+        if (
+            totalLogs === 0
+        ) {
+
+            updateLogPagination(
+                0
+            );
+
+            return;
+
+        }
+
+
+        // ==================================================
+        // PAGE SAFETY
+        // ==================================================
+
+        if (
+            currentLogPage < 1
+        ) {
+
+            currentLogPage =
+                1;
+
+        }
+
+
+        if (
+            currentLogPage > totalPages
+        ) {
+
+            currentLogPage =
+                totalPages;
+
+        }
+
+
+        // ==================================================
+        // DETERMINE PAGE RANGE
+        // ==================================================
+
+        const startIndex =
+            (
+                currentLogPage - 1
+            ) *
+            LOGS_PER_PAGE;
+
+
+        const endIndex =
+            startIndex +
+            LOGS_PER_PAGE;
+
+
+        const pageLogs =
+            medicationLogs.slice(
+                startIndex,
+                endIndex
+            );
+
+
+        // ==================================================
+        // RENDER LOGS
+        // ==================================================
+
+        pageLogs.forEach(
+            log => {
+
+                renderMedicationLog(
+                    log
+                );
+
+            }
+        );
+
+
+        // ==================================================
+        // UPDATE PAGINATION
+        // ==================================================
+
+        updateLogPagination(
+            totalPages
+        );
+
+    }
+
+
+    // ========================================================
+    // RENDER ONE MEDICATION LOG
+    // ========================================================
+
+    function renderMedicationLog(
+        log
+    ) {
+
+        const item =
+            document.createElement(
+                "article"
+            );
+
+        item.className =
+            "activity-preview__item";
+
+
+        const isRefused =
+            log.logType === "medication" &&
+            String(
+                log.administration_status || ""
+            )
+            .trim()
+            .toLowerCase() === "refused";
+
+
+        if(
+            isRefused
+        ){
+
+            item.classList.add(
+                "activity-preview__item--refused"
+            );
+
+        }
+
+        item.setAttribute("role", "button");
+        item.setAttribute("tabindex", "0");
+
+        item.setAttribute(
+            "aria-label",
+            `View details for ${
+                log.logType === "dispense"
+                    ? "medicine dispense attempt"
+                    : log.medication_name || "medication record"
+            }`
+        );
+
+        item.addEventListener("click", () => {
+            openActivityDetails(log);
+        });
+
+        item.addEventListener("keydown", event => {
+
+            if (
+                event.key === "Enter" ||
+                event.key === " "
+            ) {
+                event.preventDefault();
+                openActivityDetails(log);
+            }
+
+        });
+
+
+        // ==================================================
+        // ICON
+        // ==================================================
+
+        const icon =
+            document.createElement(
+                "div"
+            );
+
+
+        icon.className =
+            "activity-preview__icon";
+
+
+        if (log.logType === "dispense") {
+
+            icon.textContent = "💊";
+
+        } else {
+
+            icon.textContent =
+                getMedicationLogIcon(
+                    log.administration_status
+                );
+
+        }
+
+
+        // ==================================================
+        // CONTENT
+        // ==================================================
+
+        const content =
+            document.createElement(
+                "div"
+            );
+
+
+        content.className =
+            "activity-preview__content";
+
+
+        // ==================================================
+        // MEDICATION NAME
+        // ==================================================
+
+        const medicationName =
+            document.createElement(
+                "div"
+            );
+
+
+        medicationName.className =
+            "activity-preview__action";
+
+
+        medicationName.textContent =
+            log.logType === "dispense"
+                ? "Medicine Dispense Attempt"
+                : (
+                    log.medication_name ||
+                    "Unknown Medication"
+                );
+
+        // ==================================================
+        // PATIENT
+        // ==================================================
+
+        const patient =
+            document.createElement(
+                "div"
+            );
+
+
+        patient.className =
+            "activity-preview__description";
+
+
+        if (log.logType === "dispense") {
+
+            patient.textContent =
+                `Dispenser: ${log.motor || "Unknown"} · ` +
+                `IR Sensor: ${log.ir_sensor || "Unknown"} · ` +
+                `Load Cell: ${log.load_cell || "Unknown"}`;
+
+        } else {
+
+            patient.textContent =
+                `Patient: ${
+                    log.patient_name ||
+                    "Unknown Patient"
+                }`;
+
+        }
+
+
+        // ==================================================
+        // META
+        // ==================================================
+
+        const meta =
+            document.createElement(
+                "div"
+            );
+
+
+        meta.className =
+            "activity-preview__meta";
+
+
+        const timingStatus =
+            log.timing_status ||
+            "Unknown";
+
+
+        meta.textContent =
+            `${timingStatus} · ${
+                formatDateTime(
+                    log.timestamp
+                )
+            }`;
+
+
+        // ==================================================
+        // ADMINISTRATION STATUS
+        // ==================================================
+
+        const status =
+            document.createElement(
+                "span"
+            );
+
+
+        status.className =
+            "activity-preview__status";
+
+
+        if(
+            isRefused
+        ){
+
+            status.classList.add(
+                "is-refused"
+            );
+
+        }
+        else{
+
+            status.classList.add(
+
+                log.logType === "dispense"
+
+                    ?
+
+                    (
+                        String(
+                            log.administration_status
+                        )
+                        .toLowerCase() === "warning"
+
+                            ? "is-warning"
+
+                            : "is-neutral"
+                    )
+
+                    :
+
+                    getAdministrationStatusClass(
+                        log.administration_status
+                    )
+
+            );
+
+        }
+
+
+        status.textContent =
+            log.administration_status ||
+            "Unknown";
+
+
+        // ==================================================
+        // BUILD
+        // ==================================================
+
+        content.appendChild(
+            medicationName
+        );
+
+
+        content.appendChild(
+            patient
+        );
+
+
+        content.appendChild(
+            meta
+        );
+
+
+        item.appendChild(
+            icon
+        );
+
+
+        item.appendChild(
+            content
+        );
+
+
+        item.appendChild(
+            status
+        );
+
+
+        activityPreviewList.appendChild(
+            item
+        );
+
+    }
+
+
+    // ========================================================
+    // OPEN REFILL NOTIFICATION
+    // ========================================================
+
+    async function openRefillNotification(
+        notification
+    ) {
+
+        selectedRefillNotification =
+            notification;
+
+
+        // ==================================================
+        // POPULATE MODAL
+        // ==================================================
+
+        if (refillDetailUnit) {
+
+            refillDetailUnit.textContent =
+                notification.dispenser_unit ||
+                "-";
+
+        }
+
+
+        if (refillDetailCarousel) {
+
+            refillDetailCarousel.textContent =
+                notification.compartment_name ||
+                notification.compartment_id ||
+                "-";
+
+        }
+
+
+        if (refillDetailPatient) {
+
+            refillDetailPatient.textContent =
+                notification.patient_name ||
+                "-";
+
+        }
+
+
+        if (refillDetailPatientId) {
+
+            refillDetailPatientId.textContent =
+                notification.patient_id ||
+                "-";
+
+        }
+
+
+        if (refillDetailWard) {
+
+            refillDetailWard.textContent =
+                notification.ward ||
+                "-";
+
+        }
+
+
+        if (refillDetailRoom) {
+
+            refillDetailRoom.textContent =
+                notification.room ||
+                "-";
+
+        }
+
+
+        if (refillDetailRequiredSlots) {
+
+            refillDetailRequiredSlots.textContent =
+                notification.required_slots ??
+                "0";
+
+        }
+
+
+        if (refillDetailSlotsUsed) {
+
+            refillDetailSlotsUsed.textContent =
+                notification.slots_used ??
+                "0";
+
+        }
+
+
+        if (refillDetailInterval) {
+
+            const interval =
+                Number(
+                    notification.refill_interval_days
+                );
+
+
+            refillDetailInterval.textContent =
+                interval > 0
+                    ? `${interval} day(s)`
+                    : "-";
+
+        }
+
+
+        if (refillDetailDate) {
+
+            refillDetailDate.textContent =
+                formatDateTime(
+                    notification.created_at
+                );
+
+        }
+
+
+        if (refillDetailMessage) {
+
+            refillDetailMessage.textContent =
+                notification.message ||
+                "A dispenser carousel requires a refill.";
+
+        }
+
+
+        // ==================================================
+        // SHOW MODAL
+        // ==================================================
+
+        if (refillNotificationModal) {
+
+            refillNotificationModal.style.display =
+                "flex";
+
+        }
+
+
+        document.body.classList.add(
+            "modal-open"
+        );
+
+
+        refreshLucideIcons();
+
+
+        // ==================================================
+        // MARK NOTIFICATION AS READ
+        // ==================================================
+        //
+        // IMPORTANT:
+        //
+        // This only changes notification.status.
+        //
+        // The dispenser's refill_notification_status
+        // remains Pending until the actual refill is done.
+        // ==================================================
+
+        const notificationStatus =
+            String(
+                notification.status ||
+                ""
+            )
+            .trim()
+            .toLowerCase();
+
+
+        if (
+            notificationStatus === "unread"
+        ) {
+
+            const currentUser =
+                auth.currentUser;
+
+
+            if (
+                currentUser &&
+                notification.id
+            ) {
+
+                try {
+
+                    const notificationRef =
+                        ref(
+                            database,
+                            `notifications/${currentUser.uid}/${notification.id}`
+                        );
+
+
+                    await update(
+                        notificationRef,
+                        {
+                            status:
+                                "Read",
+
+                            updated_at:
+                                new Date().toISOString()
+                        }
+                    );
+
+
+                    notification.status =
+                        "Read";
+
+
+                    // ==================================================
+                    // UPDATE THE DISPLAYED STATUS
+                    // ==================================================
+
+                    renderActivityPreview();
+
+                }
+
+                catch (error) {
+
+                    console.error(
+                        "Unable to mark refill notification as read:",
+                        error
+                    );
+
+                }
+
+            }
+
+        }
+
+    }
+
+
+    // ========================================================
+    // CLOSE REFILL NOTIFICATION MODAL
+    // ========================================================
+
+    function closeRefillNotification() {
+
+        selectedRefillNotification =
+            null;
+
+
+        if (refillNotificationModal) {
+
+            refillNotificationModal.style.display =
+                "none";
+
+        }
+
+
+        document.body.classList.remove(
+            "modal-open"
+        );
+
+    }
+
+
+    // ========================================================
+    // CLOSE BUTTON
+    // ========================================================
+
+    if (closeRefillModal) {
+
+        closeRefillModal.addEventListener(
+            "click",
+            closeRefillNotification
+        );
+
+    }
+
+
+    // ========================================================
+    // CANCEL BUTTON
+    // ========================================================
+
+    if (cancelRefillModal) {
+
+        cancelRefillModal.addEventListener(
+            "click",
+            closeRefillNotification
+        );
+
+    }
+
+
+    // ========================================================
+    // MODAL BACKDROP
+    // ========================================================
+
+    if (refillNotificationModal) {
+
+        const backdrop =
+            refillNotificationModal.querySelector(
+                ".refill-modal__backdrop"
+            );
+
+
+        if (backdrop) {
+
+            backdrop.addEventListener(
+                "click",
+                closeRefillNotification
+            );
+
+        }
+
+    }
+
+
+    // ========================================================
+    // ESCAPE KEY
+    // ========================================================
+
+    document.addEventListener(
+        "keydown",
+        event => {
+
+            if (
+                event.key === "Escape" &&
+                refillNotificationModal &&
+                refillNotificationModal.style.display === "flex"
+            ) {
+
+                closeRefillNotification();
 
             }
 
         }
     );
+
+
+    // ========================================================
+    // REFILL DISPENSER BUTTON
+    // ========================================================
+
+    if (refillDispenserBtn) {
+
+        refillDispenserBtn.addEventListener(
+            "click",
+            () => {
+
+                if (
+                    !selectedRefillNotification
+                ) {
+
+                    return;
+
+                }
+
+
+                const carouselId =
+                    selectedRefillNotification.compartment_id ||
+                    "";
+
+
+                // ==================================================
+                // CLOSE MODAL
+                // ==================================================
+
+                closeRefillNotification();
+
+
+                // ==================================================
+                // REDIRECT TO REFILL PAGE
+                // ==================================================
+
+                if (carouselId) {
+
+                    window.location.href =
+                        `dispenser_dashboard.html?carousel=${encodeURIComponent(
+                            carouselId
+                        )}`;
+
+                }
+
+                else {
+
+                    window.location.href =
+                        "dispenser_dashboard.html";
+
+                }
+
+            }
+        );
+
+    }
+
+
+    // ========================================================
+    // MEDICATION LOG ICON
+    // ========================================================
+
+    function getMedicationLogIcon(
+        status
+    ) {
+
+        const normalizedStatus =
+            String(
+                status || ""
+            )
+            .trim()
+            .toLowerCase();
+
+
+        switch (
+            normalizedStatus
+        ) {
+
+            case "given":
+                return "✓";
+
+
+            case "missed":
+                return "!";
+
+
+            case "refused":
+                return "×";
+
+
+            case "held":
+                return "‖";
+
+
+            case "delayed":
+                return "↻";
+
+
+            default:
+                return "•";
+
+        }
+
+    }
+
+
+    // ========================================================
+    // ADMINISTRATION STATUS CLASS
+    // ========================================================
+
+    function getAdministrationStatusClass(
+        status
+    ) {
+
+        const normalizedStatus =
+            String(
+                status || ""
+            )
+            .trim()
+            .toLowerCase();
+
+
+        switch (
+            normalizedStatus
+        ) {
+
+            case "given":
+                return "is-success";
+
+
+            case "missed":
+                return "is-failed";
+
+
+            case "refused":
+
+            case "held":
+
+            case "delayed":
+                return "is-warning";
+
+
+            default:
+                return "is-neutral";
+
+        }
+
+    }
+
+
+    // ========================================================
+    // EMPTY ACTIVITY STATE
+    // ========================================================
+
+    function showEmptyActivity(
+        message
+    ) {
+
+        if (activityPreviewEmpty) {
+
+            activityPreviewEmpty.textContent =
+                message;
+
+
+            activityPreviewEmpty.style.display =
+                "block";
+
+        }
+
+
+        if (activityPreviewList) {
+
+            activityPreviewList.innerHTML =
+                "";
+
+        }
+
+
+        updateLogPagination(
+            0
+        );
+
+    }
+
+
+    // ========================================================
+    // PAGINATION
+    // ========================================================
+
+    function updateLogPagination(
+        totalPages
+    ) {
+
+        if (
+            !activityPaginationInfo ||
+            !activityPrevPage ||
+            !activityNextPage
+        ) {
+
+            return;
+
+        }
+
+
+        if (
+            totalPages === 0
+        ) {
+
+            activityPaginationInfo.textContent =
+                "Page 0 of 0";
+
+
+            activityPrevPage.disabled =
+                true;
+
+
+            activityNextPage.disabled =
+                true;
+
+
+            if (activityPagination) {
+
+                activityPagination.style.display =
+                    "none";
+
+            }
+
+
+            return;
+
+        }
+
+
+        if (activityPagination) {
+
+            activityPagination.style.display =
+                "flex";
+
+        }
+
+
+        activityPaginationInfo.textContent =
+            `Page ${currentLogPage} of ${totalPages}`;
+
+
+        activityPrevPage.disabled =
+            currentLogPage <= 1;
+
+
+        activityNextPage.disabled =
+            currentLogPage >= totalPages;
+
+    }
+
+
+    // ========================================================
+    // PREVIOUS PAGE
+    // ========================================================
+
+    if (activityPrevPage) {
+
+        activityPrevPage.addEventListener(
+            "click",
+            () => {
+
+                if (
+                    currentLogPage <= 1
+                ) {
+
+                    return;
+
+                }
+
+
+                currentLogPage--;
+
+
+                renderActivityPreview();
+
+
+                if (activityPreviewList) {
+
+                    activityPreviewList.scrollIntoView({
+                        behavior: "smooth",
+                        block: "start"
+                    });
+
+                }
+
+            }
+        );
+
+    }
+
+
+    // ========================================================
+    // NEXT PAGE
+    // ========================================================
+
+    if (activityNextPage) {
+
+        activityNextPage.addEventListener(
+            "click",
+            () => {
+
+                const totalPages =
+                    Math.ceil(
+                        medicationLogs.length /
+                        LOGS_PER_PAGE
+                    );
+
+
+                if (
+                    currentLogPage >= totalPages
+                ) {
+
+                    return;
+
+                }
+
+
+                currentLogPage++;
+
+
+                renderActivityPreview();
+
+
+                if (activityPreviewList) {
+
+                    activityPreviewList.scrollIntoView({
+                        behavior: "smooth",
+                        block: "start"
+                    });
+
+                }
+
+            }
+        );
+
+    }
+
+
+    // ========================================================
+    // TIMESTAMP PARSER
+    // ========================================================
+
+    function getTimestamp(
+        timestamp
+    ) {
+
+        if (
+            timestamp === null ||
+            timestamp === undefined ||
+            timestamp === ""
+        ) {
+
+            return 0;
+
+        }
+
+
+        // ==================================================
+        // FIREBASE NUMERIC TIMESTAMP
+        // ==================================================
+
+        if (
+            typeof timestamp === "number"
+        ) {
+
+            return timestamp;
+
+        }
+
+
+        const value =
+            String(
+                timestamp
+            ).trim();
+
+
+        if (!value) {
+
+            return 0;
+
+        }
+
+
+        /*
+         * Supports:
+         *
+         * 2026-08-14 11:12:23
+         *
+         * by converting it to:
+         *
+         * 2026-08-14T11:12:23
+         */
+
+        const normalized =
+            value.includes(" ")
+                ? value.replace(
+                    " ",
+                    "T"
+                )
+                : value;
+
+
+        const parsed =
+            new Date(
+                normalized
+            ).getTime();
+
+
+        if (
+            Number.isNaN(
+                parsed
+            )
+        ) {
+
+            return 0;
+
+        }
+
+
+        return parsed;
+
+    }
+
 
     // ========================================================
     // FORMAT DATE/TIME
@@ -681,7 +4081,9 @@
             );
 
 
-        if (!time) {
+        if (
+            !time
+        ) {
 
             return "-";
 
@@ -693,8 +4095,12 @@
         ).toLocaleString(
             "en-PH",
             {
-                dateStyle: "medium",
-                timeStyle: "short"
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+                hour: "numeric",
+                minute: "2-digit",
+                hour12: true
             }
         );
 
@@ -705,15 +4111,55 @@
     // INITIALIZE DASHBOARD
     // ========================================================
 
-    // Initialize static Lucide icons:
-    // brand, logout, and clock.
-
-    lucide.createIcons();
-
-
-    // Generate dashboard module cards.
-
     renderModules();
+
+    refreshLucideIcons();
+
+    // ========================================================
+    // WAIT FOR FIREBASE AUTHENTICATION
+    // ========================================================
+    //
+    // IMPORTANT:
+    // Firebase may not have restored auth.currentUser yet when
+    // the page script first executes.
+    //
+    // Wait for onAuthStateChanged() before loading notifications
+    // and medication logs.
+    // ========================================================
+
+    onAuthStateChanged(auth, async (user) => {
+
+        if (!user) {
+
+            console.warn(
+                "No authenticated user. Activity preview will not load."
+            );
+
+            if (activityPreviewLoading) {
+                activityPreviewLoading.style.display = "none";
+            }
+
+            showEmptyActivity(
+                "Unable to load activity. Please log in again."
+            );
+
+            return;
+        }
+
+        console.log(
+            "Authenticated user:",
+            user.uid,
+            user.email
+        );
+
+        console.log(
+            "Loading notifications from:",
+            `notifications/${user.uid}`
+        );
+
+        await loadActivityPreview();
+
+    });
 
 </script>
 

@@ -398,7 +398,7 @@ textarea:focus-visible {
 .summary-panel {
     display: grid;
 
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
 
     gap: 14px;
 
@@ -455,6 +455,19 @@ textarea:focus-visible {
     color: var(--danger);
 }
 
+/* ============================================================
+   WARNING STATUS
+============================================================ */
+
+.warning-text {
+    color: #b7791f;
+}
+
+.status-warning {
+    color: #92400e;
+    background-color: #fef3c7;
+    border: 1px solid #f59e0b;
+}
 
 /* =========================================================
    TABLE CARD
