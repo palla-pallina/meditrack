@@ -18,9 +18,9 @@ function sendMail($recipientEmail, $recipientName, $subject, $body)
 
         $mail->SMTPAuth = true;
 
-        $mail->Username = 'atsaratom@gmail.com';
+        $mail->Username = ' '; # EMAIL
 
-        $mail->Password = 'joqw ceem hjaz opsw';
+        $mail->Password = ' '; # PASSWORD
 
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
 
@@ -28,7 +28,7 @@ function sendMail($recipientEmail, $recipientName, $subject, $body)
 
         // Sender
         $mail->setFrom(
-            'atsaratom@gmail.com',
+            ' ', # EMAIL
             'MediTrack'
         );
 
